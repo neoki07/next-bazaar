@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-defaults:
-  run:
-    working-directory: api
-
 jobs:
 
   test:
@@ -46,6 +42,8 @@ jobs:
 
       - name: Run migrations
         run: make test-migrateup
+        working-directory: api
 
       - name: Test
         run: make test
+        working-directory: api
