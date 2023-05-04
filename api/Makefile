@@ -1,4 +1,7 @@
-include .env
+ifneq (,$(wildcard ./.env))
+  include .env
+  export
+endif
 
 migrateup:
 	migrate -path db/migration -database "${DB_SOURCE}" -verbose up
