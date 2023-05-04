@@ -18,6 +18,9 @@ migrateforce:
 sqlc:
 	sqlc generate
 
+test-migrateup:
+	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/next-bazaar?sslmode=disable" -verbose up
+
 test:
 	go test -v -cover -shuffle=on ./...
 
@@ -33,4 +36,4 @@ swag:
 seed:
 	go run ./scripts/seed.go
 
-.PHONY: migrateup migratedown mmigrateup1 migratedown1 igrateforce sqlc test server mock
+.PHONY: migrateup migratedown mmigrateup1 migratedown1 igrateforce sqlc test-migrateup test server mock
