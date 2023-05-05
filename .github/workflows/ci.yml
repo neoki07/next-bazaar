@@ -44,6 +44,15 @@ jobs:
         run: make test-migrateup
         working-directory: api
 
+      - run: ls -la
+        working-directory: api
+      
+      - run: pwd
+        working-directory: api
+
+      - run: go test -v ./...
+        working-directory: api
+
       - name: Test
         run: make test
         working-directory: api
