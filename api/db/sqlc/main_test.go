@@ -104,7 +104,7 @@ func TestMain(m *testing.M) {
 		port:       5432,
 		user:       "postgres",
 		password:   "secret",
-		dbName:     "coworker",
+		dbName:     "next-bazaar",
 		driverName: "postgres",
 	}
 

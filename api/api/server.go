@@ -19,7 +19,7 @@ type Server struct {
 func NewServer(config util.Config, store db.Store) (*Server, error) {
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000,https://coworker-frontend.vercel.app",
+		AllowOrigins:     "http://localhost:3000",
 		AllowCredentials: true,
 	}))
 
@@ -53,6 +53,14 @@ func (server *Server) setupRouter() {
 // Start runs the HTTP server on a specific address.
 func (server *Server) Start(address string) error {
 	return server.app.Listen(address)
+}
+
+type messageResponse struct {
+	Message string `json:"message"`
+}
+
+func newMessageResponse(message string) messageResponse {
+	return messageResponse{Message: message}
 }
 
 type errorResponse struct {

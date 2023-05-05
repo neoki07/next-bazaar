@@ -2,7 +2,6 @@ package api
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -18,24 +17,10 @@ type createUserRequest struct {
 	Password string `json:"password" validate:"required,min=8"`
 }
 
-type userResponse struct {
-	ID       uuid.UUID `json:"id"`
-	Username string    `json:"username"`
-	Email    string    `json:"email" swaggertype:"string"`
-}
-
-func newUserResponse(user db.User) userResponse {
-	return userResponse{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-	}
-}
-
 // @Summary      Create user
 // @Tags         users
 // @Param        body body createUserRequest true "User object"
-// @Success      200 {object} userResponse
+// @Success      200 {object} messageResponse
 // @Failure      400 {object} errorResponse
 // @Failure      403 {object} errorResponse
 // @Failure      500 {object} errorResponse
@@ -62,7 +47,7 @@ func (server *Server) createUser(c *fiber.Ctx) error {
 		HashedPassword: hashedPassword,
 	}
 
-	user, err := server.store.CreateUser(c.Context(), arg)
+	_, err = server.store.CreateUser(c.Context(), arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -73,7 +58,11 @@ func (server *Server) createUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(newUserResponse(user))
+	rsp := messageResponse{
+		Message: "Congratulations! You are now a member of our online bazaar. Start exploring!",
+	}
+
+	return c.Status(fiber.StatusOK).JSON(rsp)
 }
 
 type loginUserRequest struct {
@@ -81,14 +70,10 @@ type loginUserRequest struct {
 	Password string `json:"password" validate:"required,min=8"`
 }
 
-type loginUserResponse struct {
-	Message string `json:"message"`
-}
-
 // @Summary      Login user
 // @Tags         users
 // @Param        body body loginUserRequest true "User object"
-// @Success      200 {object} loginUserResponse
+// @Success      200 {object} messageResponse
 // @Failure      400 {object} errorResponse
 // @Failure      401 {object} errorResponse
 // @Failure      404 {object} errorResponse
@@ -128,8 +113,8 @@ func (server *Server) loginUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	rsp := loginUserResponse{
-		Message: "Great job! You've successfully logged in!",
+	rsp := messageResponse{
+		Message: "Welcome to our online bazaar! Get ready to discover unique treasures and amazing deals.",
 	}
 
 	c.Cookie(&fiber.Cookie{
@@ -144,13 +129,9 @@ func (server *Server) loginUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
 
-type logoutUserResponse struct {
-	Message string `json:"message"`
-}
-
 // @Summary      Logout user
 // @Tags         users
-// @Success      200 {object} loginUserResponse
+// @Success      200 {object} messageResponse
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
 // @Router       /users/logout [post]
@@ -162,13 +143,27 @@ func (server *Server) logoutUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	rsp := logoutUserResponse{
-		Message: "You've earned your happy hour! Cheers to a job well done!",
+	rsp := messageResponse{
+		Message: "Thank you for visiting us, we look forward to your next visit!",
 	}
 
 	c.ClearCookie(sessionTokenKey)
 
 	return c.Status(fiber.StatusOK).JSON(rsp)
+}
+
+type userResponse struct {
+	ID       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
+	Email    string    `json:"email" swaggertype:"string"`
+}
+
+func newUserResponse(user db.User) userResponse {
+	return userResponse{
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+	}
 }
 
 // @Summary      Get logged in user
@@ -180,7 +175,6 @@ func (server *Server) logoutUser(c *fiber.Ctx) error {
 // @Router       /users/me [get]
 func (server *Server) getLoggedInUser(c *fiber.Ctx) error {
 	sessionToken := c.Locals(sessionTokenKey).(uuid.UUID)
-	fmt.Printf("[getLoggedInUser] sessionToken: %v\n", sessionToken)
 
 	session, err := server.store.GetSession(c.Context(), sessionToken)
 	if err != nil {

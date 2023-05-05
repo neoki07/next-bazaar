@@ -1,0 +1,154 @@
+basePath: /api/v1
+definitions:
+  api.createUserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  api.errorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  api.loginUserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  api.messageResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  api.userResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: Next Bazaar API
+  version: 0.0.1
+paths:
+  /users:
+    post:
+      parameters:
+      - description: User object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.createUserRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.messageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Create user
+      tags:
+      - users
+  /users/login:
+    post:
+      parameters:
+      - description: User object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.loginUserRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.messageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Login user
+      tags:
+      - users
+  /users/logout:
+    post:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.messageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Logout user
+      tags:
+      - users
+  /users/me:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.userResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Get logged in user
+      tags:
+      - users
+swagger: "2.0"

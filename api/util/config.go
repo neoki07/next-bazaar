@@ -12,7 +12,6 @@ type Config struct {
 	DBDriver             string        `mapstructure:"DB_DRIVER"`
 	DBSource             string        `mapstructure:"DB_SOURCE"`
 	ServerAddress        string        `mapstructure:"SERVER_ADDRESS"`
-	TokenSymmetricKey    string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
 	SessionTokenDuration time.Duration `mapstructure:"SESSION_TOKEN_DURATION"`
 }
 
