@@ -50,9 +50,6 @@ jobs:
       - run: pwd
         working-directory: api
 
-      - run: go mod tiny
-        working-directory: api
-
       - name: Test
         run: make test
         working-directory: api
