@@ -10,12 +10,13 @@ import (
 )
 
 const (
-	sessionTokenKey = "session_token"
+	cookieSessionTokenKey = "session_token"
+	ctxLocalSessionKey    = "session"
 )
 
 func authMiddleware(server *Server) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		sessionToken := c.Cookies(sessionTokenKey)
+		sessionToken := c.Cookies(cookieSessionTokenKey)
 		if len(sessionToken) == 0 {
 			err := errors.New("session token not found")
 			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
@@ -44,7 +45,7 @@ func authMiddleware(server *Server) fiber.Handler {
 			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
 		}
 
-		c.Locals(sessionTokenKey, parsedSessionToken)
+		c.Locals(ctxLocalSessionKey, session)
 		return c.Next()
 	}
 }

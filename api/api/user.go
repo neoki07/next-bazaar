@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -85,10 +86,15 @@ func (server *Server) loginUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
+	validate := newValidator()
+	if err := validate.Struct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
 	user, err := server.store.GetUserByEmail(c.Context(), req.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(newErrorResponse(err))
+			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
 		}
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
@@ -110,6 +116,9 @@ func (server *Server) loginUser(c *fiber.Ctx) error {
 
 	_, err = server.store.CreateSession(c.Context(), arg)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Status(fiber.StatusNotFound).JSON(newErrorResponse(err))
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
@@ -118,7 +127,7 @@ func (server *Server) loginUser(c *fiber.Ctx) error {
 	}
 
 	c.Cookie(&fiber.Cookie{
-		Name:     sessionTokenKey,
+		Name:     cookieSessionTokenKey,
 		Value:    sessionToken.ID.String(),
 		HTTPOnly: true,
 		SameSite: "none",
@@ -136,10 +145,18 @@ func (server *Server) loginUser(c *fiber.Ctx) error {
 // @Failure      500 {object} errorResponse
 // @Router       /users/logout [post]
 func (server *Server) logoutUser(c *fiber.Ctx) error {
-	sessionToken := c.Locals(sessionTokenKey).(uuid.UUID)
+	session, ok := c.Locals(ctxLocalSessionKey).(db.Session)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(
+			fmt.Errorf("session token not found"),
+		))
+	}
 
-	err := server.store.DeleteSession(c.Context(), sessionToken)
+	err := server.store.DeleteSession(c.Context(), session.SessionToken)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
@@ -147,7 +164,7 @@ func (server *Server) logoutUser(c *fiber.Ctx) error {
 		Message: "Thank you for visiting us, we look forward to your next visit!",
 	}
 
-	c.ClearCookie(sessionTokenKey)
+	c.ClearCookie(cookieSessionTokenKey)
 
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
@@ -170,24 +187,20 @@ func newUserResponse(user db.User) userResponse {
 // @Tags         users
 // @Success      200 {object} userResponse
 // @Failure      401 {object} errorResponse
-// @Failure      404 {object} errorResponse
 // @Failure      500 {object} errorResponse
 // @Router       /users/me [get]
 func (server *Server) getLoggedInUser(c *fiber.Ctx) error {
-	sessionToken := c.Locals(sessionTokenKey).(uuid.UUID)
-
-	session, err := server.store.GetSession(c.Context(), sessionToken)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
-		}
-		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
+	session, ok := c.Locals(ctxLocalSessionKey).(db.Session)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(
+			fmt.Errorf("session token not found"),
+		))
 	}
 
 	user, err := server.store.GetUser(c.Context(), session.UserID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(newErrorResponse(err))
+			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
 		}
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}

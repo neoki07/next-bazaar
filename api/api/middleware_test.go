@@ -19,7 +19,7 @@ func addSessionTokenInCookie(
 	sessionToken string,
 ) {
 	cookie := &http.Cookie{
-		Name:     sessionTokenKey,
+		Name:     cookieSessionTokenKey,
 		Value:    sessionToken,
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
