@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ot07/next-bazaar-api/util"
+	"github.com/ot07/next-bazaar/util"
 	"github.com/stretchr/testify/require"
 )
 

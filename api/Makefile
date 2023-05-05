@@ -31,7 +31,7 @@ server:
 	go run main.go
 
 mock:
-	mockgen -package mockdb -destination db/mock/store.go github.com/ot07/next-bazaar-api/db/sqlc Store
+	mockgen -package mockdb -destination db/mock/store.go github.com/ot07/next-bazaar/db/sqlc Store
 
 swag:
 	swag init --pd
