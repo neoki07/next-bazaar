@@ -20,7 +20,7 @@ type Session struct {
 
 type User struct {
 	ID                uuid.UUID `json:"id"`
-	Username          string    `json:"username"`
+	Name              string    `json:"name"`
 	Email             string    `json:"email"`
 	HashedPassword    string    `json:"hashed_password"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`

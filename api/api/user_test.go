@@ -63,14 +63,14 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "OK",
 			body: fiber.Map{
-				"username": user.Username,
+				"name":     user.Name,
 				"email":    user.Email,
 				"password": password,
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				arg := db.CreateUserParams{
-					Username: user.Username,
-					Email:    user.Email,
+					Name:  user.Name,
+					Email: user.Email,
 				}
 
 				store.EXPECT().
@@ -85,7 +85,7 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "InternalError",
 			body: fiber.Map{
-				"username": user.Username,
+				"name":     user.Name,
 				"email":    user.Email,
 				"password": password,
 			},
@@ -102,7 +102,7 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "DuplicateEmail",
 			body: fiber.Map{
-				"username": user.Username,
+				"name":     user.Name,
 				"email":    user.Email,
 				"password": password,
 			},
@@ -117,9 +117,9 @@ func TestCreateUserAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "UsernameWithSpace",
+			name: "NameWithSpace",
 			body: fiber.Map{
-				"username": "user ",
+				"name":     "user ",
 				"email":    user.Email,
 				"password": password,
 			},
@@ -133,9 +133,9 @@ func TestCreateUserAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "UsernameWithPunct",
+			name: "NameWithPunct",
 			body: fiber.Map{
-				"username": "user!",
+				"name":     "user!",
 				"email":    user.Email,
 				"password": password,
 			},
@@ -149,9 +149,9 @@ func TestCreateUserAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "UsernameWithSymbol",
+			name: "NameWithSymbol",
 			body: fiber.Map{
-				"username": "user|",
+				"name":     "user|",
 				"email":    user.Email,
 				"password": password,
 			},
@@ -167,7 +167,7 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "InvalidEmail",
 			body: fiber.Map{
-				"username": user.Username,
+				"name":     user.Name,
 				"email":    "invalid-email",
 				"password": password,
 			},
@@ -183,7 +183,7 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "TooShortPassword",
 			body: fiber.Map{
-				"username": user.Username,
+				"name":     user.Name,
 				"email":    user.Email,
 				"password": "1234567",
 			},
@@ -605,7 +605,7 @@ func randomUser(t *testing.T) (user db.User, password string) {
 
 	user = db.User{
 		ID:             util.RandomUUID(),
-		Username:       util.RandomName(),
+		Name:           util.RandomName(),
 		Email:          util.RandomEmail(),
 		HashedPassword: hashedPassword,
 	}
@@ -636,6 +636,6 @@ func requireBodyMatchUser(t *testing.T, body io.ReadCloser, user db.User) {
 }
 
 func requireUserResponseMatchUser(t *testing.T, gotUser userResponse, user db.User) {
-	require.Equal(t, user.Username, gotUser.Username)
+	require.Equal(t, user.Name, gotUser.Name)
 	require.Equal(t, user.Email, gotUser.Email)
 }

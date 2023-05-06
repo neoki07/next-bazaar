@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/token"
@@ -13,7 +12,7 @@ import (
 )
 
 type createUserRequest struct {
-	Username string `json:"username" validate:"required,without_space,without_punct,without_symbol"`
+	Name     string `json:"name" validate:"required,without_space,without_punct,without_symbol"`
 	Email    string `json:"email" validate:"required,email" swaggertype:"string"`
 	Password string `json:"password" validate:"required,min=8"`
 }
@@ -43,7 +42,7 @@ func (server *Server) createUser(c *fiber.Ctx) error {
 	}
 
 	arg := db.CreateUserParams{
-		Username:       req.Username,
+		Name:           req.Name,
 		Email:          req.Email,
 		HashedPassword: hashedPassword,
 	}
@@ -170,16 +169,14 @@ func (server *Server) logoutUser(c *fiber.Ctx) error {
 }
 
 type userResponse struct {
-	ID       uuid.UUID `json:"id"`
-	Username string    `json:"username"`
-	Email    string    `json:"email" swaggertype:"string"`
+	Name  string `json:"name"`
+	Email string `json:"email" swaggertype:"string"`
 }
 
 func newUserResponse(user db.User) userResponse {
 	return userResponse{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
+		Name:  user.Name,
+		Email: user.Email,
 	}
 }
 

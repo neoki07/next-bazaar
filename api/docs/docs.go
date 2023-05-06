@@ -173,19 +173,19 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
-                "password",
-                "username"
+                "name",
+                "password"
             ],
             "properties": {
                 "email": {
                     "type": "string"
                 },
+                "name": {
+                    "type": "string"
+                },
                 "password": {
                     "type": "string",
                     "minLength": 8
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },
@@ -227,10 +227,7 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "string"
-                },
-                "username": {
+                "name": {
                     "type": "string"
                 }
             }

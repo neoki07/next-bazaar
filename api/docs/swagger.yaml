@@ -4,15 +4,15 @@ definitions:
     properties:
       email:
         type: string
+      name:
+        type: string
       password:
         minLength: 8
         type: string
-      username:
-        type: string
     required:
     - email
+    - name
     - password
-    - username
     type: object
   api.errorResponse:
     properties:
@@ -39,9 +39,7 @@ definitions:
     properties:
       email:
         type: string
-      id:
-        type: string
-      username:
+      name:
         type: string
     type: object
 info:

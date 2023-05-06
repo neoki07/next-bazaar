@@ -13,26 +13,26 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  username,
+  name,
   email,
   hashed_password
 ) VALUES (
   $1, $2, $3
-) RETURNING id, username, email, hashed_password, password_changed_at, created_at
+) RETURNING id, name, email, hashed_password, password_changed_at, created_at
 `
 
 type CreateUserParams struct {
-	Username       string `json:"username"`
+	Name           string `json:"name"`
 	Email          string `json:"email"`
 	HashedPassword string `json:"hashed_password"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.Email, arg.HashedPassword)
+	row := q.db.QueryRowContext(ctx, createUser, arg.Name, arg.Email, arg.HashedPassword)
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Username,
+		&i.Name,
 		&i.Email,
 		&i.HashedPassword,
 		&i.PasswordChangedAt,
@@ -42,7 +42,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, username, email, hashed_password, password_changed_at, created_at FROM users
+SELECT id, name, email, hashed_password, password_changed_at, created_at FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -51,7 +51,7 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Username,
+		&i.Name,
 		&i.Email,
 		&i.HashedPassword,
 		&i.PasswordChangedAt,
@@ -61,7 +61,7 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, username, email, hashed_password, password_changed_at, created_at FROM users
+SELECT id, name, email, hashed_password, password_changed_at, created_at FROM users
 WHERE email = $1 LIMIT 1
 `
 
@@ -70,7 +70,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Username,
+		&i.Name,
 		&i.Email,
 		&i.HashedPassword,
 		&i.PasswordChangedAt,
