@@ -1,7 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TABLE "users" (
-  "id" uuid PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   "name" varchar UNIQUE NOT NULL,
   "email" varchar UNIQUE NOT NULL,
   "hashed_password" varchar NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE "users" (
 );
 
 CREATE TABLE "sessions" (
-  "id" uuid PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   "session_token" uuid NOT NULL,
   "user_id" uuid NOT NULL,
   "expired_at" timestamptz NOT NULL,

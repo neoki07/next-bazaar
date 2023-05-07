@@ -2,10 +2,13 @@ package util
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"math/rand"
+	"reflect"
 	"strings"
 	"time"
+
+	"github.com/go-faker/faker/v4"
+	"github.com/google/uuid"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz"
@@ -40,4 +43,22 @@ func RandomEmail() string {
 // RandomUUID generates a uuid
 func RandomUUID() uuid.UUID {
 	return uuid.New()
+}
+
+func RandomPrice() (string, error) {
+	amountWithCurrency, err := faker.GetPrice().AmountWithCurrency(reflect.Value{})
+	if err != nil {
+		return "", err
+	}
+
+	amountWithCurrencyStr, ok := amountWithCurrency.(string)
+	if !ok {
+		return "", fmt.Errorf("cannot convert price to string")
+	}
+
+	return strings.Split(amountWithCurrencyStr, " ")[1], nil
+}
+
+func RandomImageUrl() string {
+	return "https://picsum.photos/300/300/?random"
 }

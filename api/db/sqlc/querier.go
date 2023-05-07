@@ -11,12 +11,20 @@ import (
 )
 
 type Querier interface {
+	CreateCategory(ctx context.Context, name string) (Category, error)
+	CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	DeleteCategory(ctx context.Context, id uuid.UUID) error
 	DeleteSession(ctx context.Context, sessionToken uuid.UUID) error
+	GetCategory(ctx context.Context, id uuid.UUID) (Category, error)
+	GetProduct(ctx context.Context, id uuid.UUID) (Product, error)
 	GetSession(ctx context.Context, sessionToken uuid.UUID) (Session, error)
 	GetUser(ctx context.Context, id uuid.UUID) (User, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
+	ListCategories(ctx context.Context, arg ListCategoriesParams) ([]Category, error)
+	TruncateCategoriesTable(ctx context.Context) error
+	TruncateProductsTable(ctx context.Context) error
 	TruncateSessionsTable(ctx context.Context) error
 	TruncateUsersTable(ctx context.Context) error
 }
