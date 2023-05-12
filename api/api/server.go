@@ -63,7 +63,7 @@ func (server *Server) setupRouter() {
 	v1.Post("/users", server.createUser)
 	v1.Post("/users/login", server.loginUser)
 
-	v1.Get("/products", server.handlers.product.getProduct)
+	v1.Get("/products/:id", server.handlers.product.getProduct)
 
 	v1.Use(authMiddleware(server))
 

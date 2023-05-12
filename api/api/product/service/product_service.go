@@ -1,8 +1,11 @@
 package service
 
 import (
+	"context"
+
+	"github.com/google/uuid"
+	"github.com/ot07/next-bazaar/api/product/domain"
 	"github.com/ot07/next-bazaar/api/product/repository"
-	"github.com/ot07/next-bazaar/util"
 )
 
 type ProductService struct {
@@ -15,7 +18,7 @@ func NewProductService(repository repository.ProductRepository) *ProductService 
 	}
 }
 
-func (s *ProductService) GetProduct() string {
-	p, _ := s.repository.FindByID(util.RandomUUID())
-	return p.Name
+func (s *ProductService) GetProduct(ctx context.Context, id uuid.UUID) (*domain.Product, error) {
+	product, err := s.repository.FindByID(ctx, id)
+	return product, err
 }

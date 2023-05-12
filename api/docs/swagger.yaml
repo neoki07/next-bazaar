@@ -35,6 +35,25 @@ definitions:
       message:
         type: string
     type: object
+  api.productResponse:
+    properties:
+      category:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: string
+      seller:
+        type: string
+      stock_quantity:
+        type: integer
+    type: object
   api.userResponse:
     properties:
       email:
@@ -47,6 +66,34 @@ info:
   title: Next Bazaar API
   version: 0.0.1
 paths:
+  /products/{id}:
+    get:
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.productResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Get product
+      tags:
+      - products
   /users:
     post:
       parameters:
