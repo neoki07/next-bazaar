@@ -4,15 +4,33 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
+	"github.com/ot07/next-bazaar/api/product/repository"
+	"github.com/ot07/next-bazaar/api/product/service"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/util"
 )
 
+type handlers struct {
+	product *productHandler
+}
+
+func newHandlers(store db.Store) handlers {
+	/* Product */
+	productRepository := repository.NewProductRepository(store)
+	productService := service.NewProductService(productRepository)
+	productHandler := newProductHandler(productService)
+
+	return handlers{
+		product: productHandler,
+	}
+}
+
 // Server serves HTTP requests for this app service.
 type Server struct {
-	config util.Config
-	store  db.Store
-	app    *fiber.App
+	config   util.Config
+	store    db.Store
+	app      *fiber.App
+	handlers handlers
 }
 
 // NewServer creates a new HTTP server and setup routing.
@@ -24,9 +42,10 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	}))
 
 	server := &Server{
-		config: config,
-		store:  store,
-		app:    app,
+		config:   config,
+		store:    store,
+		app:      app,
+		handlers: newHandlers(store),
 	}
 
 	server.setupRouter()
@@ -43,6 +62,8 @@ func (server *Server) setupRouter() {
 
 	v1.Post("/users", server.createUser)
 	v1.Post("/users/login", server.loginUser)
+
+	v1.Get("/products", server.handlers.product.getProduct)
 
 	v1.Use(authMiddleware(server))
 
