@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 const createCategory = `-- name: CreateCategory :one
@@ -34,6 +35,35 @@ WHERE id = $1
 func (q *Queries) DeleteCategory(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteCategory, id)
 	return err
+}
+
+const getCategoriesByIDs = `-- name: GetCategoriesByIDs :many
+SELECT id, name, created_at FROM categories
+WHERE id = ANY(($1)::uuid[])
+ORDER BY id
+`
+
+func (q *Queries) GetCategoriesByIDs(ctx context.Context, ids []uuid.UUID) ([]Category, error) {
+	rows, err := q.db.QueryContext(ctx, getCategoriesByIDs, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Category{}
+	for rows.Next() {
+		var i Category
+		if err := rows.Scan(&i.ID, &i.Name, &i.CreatedAt); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getCategory = `-- name: GetCategory :one

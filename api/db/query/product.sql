@@ -21,5 +21,14 @@ INSERT INTO products (
 SELECT * FROM products
 WHERE id = $1 LIMIT 1;
 
+-- name: ListProducts :many
+SELECT * FROM products
+ORDER BY id
+LIMIT $1
+OFFSET $2;
+
+-- name: CountProducts :one
+SELECT count(*) FROM products;
+
 -- name: TruncateProductsTable :exec
 TRUNCATE TABLE products CASCADE;

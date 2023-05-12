@@ -15,5 +15,10 @@ WHERE id = $1 LIMIT 1;
 SELECT * FROM users
 WHERE email = $1 LIMIT 1;
 
+-- name: GetUsersByIDs :many
+SELECT * FROM users
+WHERE id = ANY((sqlc.arg('ids'))::uuid[])
+ORDER BY id;
+
 -- name: TruncateUsersTable :exec
 TRUNCATE TABLE users CASCADE;

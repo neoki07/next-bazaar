@@ -9,6 +9,11 @@ INSERT INTO categories (
 SELECT * FROM categories
 WHERE id = $1 LIMIT 1;
 
+-- name: GetCategoriesByIDs :many
+SELECT * FROM categories
+WHERE id = ANY((sqlc.arg('ids'))::uuid[])
+ORDER BY id;
+
 -- name: ListCategories :many
 SELECT * FROM categories
 ORDER BY id

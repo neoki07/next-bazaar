@@ -19,6 +19,26 @@ definitions:
       error:
         type: string
     type: object
+  api.listProductsResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/api.productResponse'
+        type: array
+      meta:
+        $ref: '#/definitions/api.listProductsResponseMeta'
+    type: object
+  api.listProductsResponseMeta:
+    properties:
+      page_count:
+        type: integer
+      page_id:
+        type: integer
+      page_size:
+        type: integer
+      total_count:
+        type: integer
+    type: object
   api.loginUserRequest:
     properties:
       email:
@@ -66,6 +86,36 @@ info:
   title: Next Bazaar API
   version: 0.0.1
 paths:
+  /products:
+    get:
+      parameters:
+      - in: query
+        minimum: 1
+        name: page_id
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.listProductsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: List products
+      tags:
+      - products
   /products/{id}:
     get:
       parameters:
