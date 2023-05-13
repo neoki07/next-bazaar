@@ -10,6 +10,7 @@ import {
   FileInput,
   MultiSelect,
   NumberInput,
+  NumberSelect,
   PasswordInput,
   PinInput,
   RadioGroup,
@@ -44,8 +45,9 @@ const SimpleForms: FC = () => {
         .string()
         .min(1, { message: "Required" })
         .email({ message: "Wrong Format" }),
-      drinks: z.string().array().min(1, { message: "Required" }),
       position: z.string().min(1, { message: "Required" }),
+      amount: z.number({ required_error: "Required" }),
+      drinks: z.string().array().min(1, { message: "Required" }),
       browser: z.string().min(1, { message: "Required" }),
       comments: z.string().min(1, { message: "Required" }),
       date: z
@@ -89,8 +91,9 @@ const SimpleForms: FC = () => {
     age: number | "";
     password: string;
     confirmPassword: string;
-    drinks: Array<string>;
     position: string;
+    amount?: number;
+    drinks: Array<string>;
     browser: string;
     comments: string;
     date: Date | null;
@@ -106,8 +109,9 @@ const SimpleForms: FC = () => {
       age: "",
       confirmPassword: "",
       email: "",
-      drinks: [],
       position: "",
+      amount: undefined,
+      drinks: [],
       browser: "",
       comments: "",
       date: null,
@@ -142,18 +146,6 @@ const SimpleForms: FC = () => {
           />
         </Grid.Col>
         <Grid.Col xs={12} sm={12} md={6} lg={6}>
-          <CheckboxGroup
-            label="Drinks"
-            name="drinks"
-            options={[
-              { label: "Coffee", value: "coffee" },
-              { label: "Tea", value: "tea" },
-              { label: "Wine", value: "wine" },
-            ]}
-            withAsterisk
-          />
-        </Grid.Col>
-        <Grid.Col xs={12} sm={12} md={6} lg={6}>
           <Select
             label="Position"
             name="position"
@@ -163,6 +155,26 @@ const SimpleForms: FC = () => {
               { label: "Chrome", value: "chrome" },
               { label: "Opera", value: "opera" },
               { label: "Safari", value: "safari" },
+            ]}
+            withAsterisk
+          />
+        </Grid.Col>
+        <Grid.Col xs={12} sm={12} md={6} lg={6}>
+          <NumberSelect
+            label="Amount"
+            name="amount"
+            options={[1, 2, 3, 4, 5]}
+            withAsterisk
+          />
+        </Grid.Col>
+        <Grid.Col xs={12} sm={12} md={6} lg={6}>
+          <CheckboxGroup
+            label="Drinks"
+            name="drinks"
+            options={[
+              { label: "Coffee", value: "coffee" },
+              { label: "Tea", value: "tea" },
+              { label: "Wine", value: "wine" },
             ]}
             withAsterisk
           />
@@ -225,7 +237,7 @@ const SimpleForms: FC = () => {
             withAsterisk
           />
         </Grid.Col>
-        <Grid.Col xs={12} sm={12} md={12} lg={12}>
+        <Grid.Col xs={12} sm={12} md={6} lg={6}>
           <FileInput
             label="Resume"
             name="resume"
