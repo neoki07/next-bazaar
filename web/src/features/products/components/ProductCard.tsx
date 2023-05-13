@@ -1,8 +1,8 @@
 import { Product } from "@/features/products";
 import { FC } from "react";
 import { Image, Text, Stack, Group, useMantineTheme, rem } from "@mantine/core";
-import { formatMoneyFromDecimal } from "@/utils/money";
 import { IconBuildingStore } from "@tabler/icons-react";
+import { Price } from "@/components/Price";
 
 type ProductCardProps = {
   product: Product;
@@ -24,9 +24,7 @@ export const ProductCard: FC<ProductCardProps> = ({ product }) => {
           {product.category}
         </Text>
         <Text>{product.name}</Text>
-        <Text size="xl" weight="bold">
-          {formatMoneyFromDecimal(product.price)}
-        </Text>
+        <Price price={product.price} />
         <Group spacing={rem(3)} mt={rem(1)}>
           <IconBuildingStore
             size={16}
