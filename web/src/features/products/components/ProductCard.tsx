@@ -1,15 +1,14 @@
-import { Product } from "@/features/products";
-import { FC } from "react";
-import { Image, Text, Stack, Group, useMantineTheme, rem } from "@mantine/core";
-import { IconBuildingStore } from "@tabler/icons-react";
-import { Price } from "@/components/Price";
+import { Price } from '@/components/Price'
+import { Product } from '@/features/products'
+import { Group, Image, Stack, Text, rem, useMantineTheme } from '@mantine/core'
+import { IconBuildingStore } from '@tabler/icons-react'
 
 type ProductCardProps = {
-  product: Product;
-};
+  product: Product
+}
 
-export const ProductCard: FC<ProductCardProps> = ({ product }) => {
-  const theme = useMantineTheme();
+export function ProductCard({ product }: ProductCardProps) {
+  const theme = useMantineTheme()
 
   return (
     <Stack spacing="xs">
@@ -42,5 +41,5 @@ export const ProductCard: FC<ProductCardProps> = ({ product }) => {
         </Group>
       </div>
     </Stack>
-  );
-};
+  )
+}

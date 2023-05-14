@@ -1,3 +1,3 @@
-export * from "./hooks/useGetProduct";
-export * from "./hooks/useGetProducts";
-export * from "./types";
+export * from './hooks/useGetProduct'
+export * from './hooks/useGetProducts'
+export * from './types'

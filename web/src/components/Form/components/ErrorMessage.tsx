@@ -1,12 +1,15 @@
 import { Group, Text, TextProps, useMantineTheme } from '@mantine/core'
 import { IconAlertCircle } from '@tabler/icons-react'
-import { FC } from 'react'
 
 type ErrorMessageProps = TextProps & { children?: string }
 
-export const ErrorMessage: FC<ErrorMessageProps> = ({ children, ...rest }) => {
+export function ErrorMessage({ children, ...rest }: ErrorMessageProps) {
   const theme = useMantineTheme()
-  if (!children?.length) return null
+
+  if (!children?.length) {
+    return null
+  }
+
   return (
     <Text
       weight={500}

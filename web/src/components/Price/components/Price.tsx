@@ -1,16 +1,15 @@
-import Decimal from "decimal.js";
-import { FC } from "react";
-import { formatMoneyFromDecimal } from "@/utils/money";
-import { Text } from "@mantine/core";
+import { formatMoneyFromDecimal } from '@/utils/money'
+import { Text } from '@mantine/core'
+import Decimal from 'decimal.js'
 
 interface PriceProps {
-  price: Decimal;
+  price: Decimal
 }
 
-export const Price: FC<PriceProps> = ({ price }) => {
+export function Price({ price }: PriceProps) {
   return (
     <Text size="xl" weight="bold">
       {formatMoneyFromDecimal(price)}
     </Text>
-  );
-};
+  )
+}

@@ -1,10 +1,9 @@
 import { TextInput as MantineTextInput } from '@mantine/core'
-import { TextInputProps } from '../types'
 import { useController } from 'react-hook-form'
+import { TextInputProps } from '../types'
 import { ErrorMessage } from './ErrorMessage'
-import { FC } from 'react'
 
-export const TextInput: FC<TextInputProps> = ({ label, name, ...rest }) => {
+export function TextInput({ label, name, ...rest }: TextInputProps) {
   const {
     field,
     fieldState: { error: fieldError },

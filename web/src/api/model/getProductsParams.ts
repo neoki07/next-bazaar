@@ -6,6 +6,6 @@
  */
 
 export type GetProductsParams = {
-  page_id: number;
-  page_size: number;
-};
+  page_id: number
+  page_size: number
+}

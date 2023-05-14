@@ -1,14 +1,12 @@
 import { Checkbox as MantineCheckbox } from '@mantine/core'
-import { CheckboxProps } from '../types'
 import { useController } from 'react-hook-form'
+import { CheckboxProps } from '../types'
 import { ErrorMessage } from './ErrorMessage'
-import { FC } from 'react'
 
-export const Checkbox: FC<CheckboxProps> = ({ label, name, ...rest }) => {
+export function Checkbox({ label, name, ...rest }: CheckboxProps) {
   const {
     field,
     fieldState: { error: fieldError },
-    formState: { defaultValues },
   } = useController({ name })
 
   const error = fieldError ? (

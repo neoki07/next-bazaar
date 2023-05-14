@@ -1,71 +1,71 @@
+import { PasswordInput, TextInput, useForm } from '@/components/Form'
+import { useAuth } from '@/features/auth'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Anchor,
-  Paper,
-  Title,
-  Text,
-  Container,
   Button,
   Center,
+  Container,
+  Paper,
   Stack,
-} from "@mantine/core";
-import { MantineLogo } from "@mantine/ds";
-import Link from "next/link";
-import { z } from "zod";
-import { useCallback, useState } from "react";
-import { useAuth } from "@/features/auth";
-import { PasswordInput, TextInput, useForm } from "@/components/Form";
-import { zodResolver } from "@hookform/resolvers/zod";
+  Text,
+  Title,
+} from '@mantine/core'
+import { MantineLogo } from '@mantine/ds'
+import Link from 'next/link'
+import { useCallback, useState } from 'react'
+import { z } from 'zod'
 
 const schema = z
   .object({
-    name: z.string().min(1, { message: "Required" }),
+    name: z.string().min(1, { message: 'Required' }),
     email: z
       .string()
-      .min(1, { message: "Required" })
-      .email({ message: "Wrong Format" }),
+      .min(1, { message: 'Required' })
+      .email({ message: 'Wrong Format' }),
     password: z.string().min(8),
     confirmPassword: z.string().min(8),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
 
 export default function RegisterPage() {
-  const [isRegisterButtonClicked, setIsRegisterButtonClicked] = useState(false);
+  const [isRegisterButtonClicked, setIsRegisterButtonClicked] = useState(false)
 
   const handleRegisterError = useCallback(() => {
-    setIsRegisterButtonClicked(false);
-  }, []);
+    setIsRegisterButtonClicked(false)
+  }, [])
 
   const { registerAndLogin } = useAuth({
     onRegisterError: handleRegisterError,
-  });
+  })
 
   const [Form, methods] = useForm<{
-    name: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
+    name: string
+    email: string
+    password: string
+    confirmPassword: string
   }>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
     },
     onSubmit: ({ confirmPassword: _, ...data }) => {
-      setIsRegisterButtonClicked(true);
-      registerAndLogin(data);
+      setIsRegisterButtonClicked(true)
+      registerAndLogin(data)
     },
-  });
+  })
 
   return (
     <Container size={420} my={40}>
       <Stack>
         <Center>
-          <Link href={"/"}>
+          <Link href={'/'}>
             <MantineLogo size={30} />
           </Link>
         </Center>
@@ -113,7 +113,7 @@ export default function RegisterPage() {
         </Paper>
 
         <Text color="dimmed" size="sm" align="center" mt={5}>
-          Already have an account?{" "}
+          Already have an account?{' '}
           <Link href="/login">
             <Anchor size="sm" component="button">
               Login
@@ -122,5 +122,5 @@ export default function RegisterPage() {
         </Text>
       </Stack>
     </Container>
-  );
+  )
 }

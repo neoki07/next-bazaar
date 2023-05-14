@@ -1,130 +1,126 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { FC } from "react";
-import { Grid, useMantineTheme } from "@mantine/core";
-import { z } from "zod";
-import { useForm } from "./hooks";
-import { zodResolver } from "@hookform/resolvers/zod/dist/zod";
-import {
-  CheckboxGroup,
-  DateInput,
-  FileInput,
-  MultiSelect,
-  NumberInput,
-  NumberSelect,
-  PasswordInput,
-  PinInput,
-  RadioGroup,
-  Select,
-  SwitchGroup,
-  Textarea,
-  TextInput,
-} from "./components";
-import { IconCheck, IconX } from "@tabler/icons-react";
-import { userEvent, within } from "@storybook/testing-library";
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Button, Grid, useMantineTheme } from '@mantine/core'
+import type { Meta, StoryObj } from '@storybook/react'
+import { userEvent, within } from '@storybook/testing-library'
+import { IconCheck, IconX } from '@tabler/icons-react'
+import { z } from 'zod'
+import { CheckboxGroup } from './components/CheckboxGroup'
+import { DateInput } from './components/DateInput'
+import { FileInput } from './components/FileInput'
+import { MultiSelect } from './components/MultiSelect'
+import { NumberInput } from './components/NumberInput'
+import { NumberSelect } from './components/NumberSelect'
+import { PasswordInput } from './components/PasswordInput'
+import { PinInput } from './components/PinInput'
+import { RadioGroup } from './components/RadioGroup'
+import { Select } from './components/Select'
+import { SwitchGroup } from './components/SwitchGroup'
+import { TextInput } from './components/TextInput'
+import { Textarea } from './components/Textarea'
+import { useForm } from './hooks/useForm'
 
-const SimpleForms: FC = () => {
-  const theme = useMantineTheme();
+function SimpleForms() {
+  const theme = useMantineTheme()
   const schema = z
     .object({
-      username: z.string().min(1, { message: "Required" }),
-      password: z.string().min(1, { message: "Required" }),
+      username: z.string().min(1, { message: 'Required' }),
+      password: z.string().min(1, { message: 'Required' }),
       age: z
         .number()
         .positive()
         .or(z.string().length(0))
         .superRefine((value, ctx) => {
-          if (value == "") {
+          if (value == '') {
             ctx.addIssue({
-              code: "custom",
-              message: "Required",
-            });
+              code: 'custom',
+              message: 'Required',
+            })
           }
         }),
-      confirmPassword: z.string().min(1, { message: "Required" }),
+      confirmPassword: z.string().min(1, { message: 'Required' }),
       email: z
         .string()
-        .min(1, { message: "Required" })
-        .email({ message: "Wrong Format" }),
-      position: z.string().min(1, { message: "Required" }),
-      amount: z.number({ required_error: "Required" }),
-      drinks: z.string().array().min(1, { message: "Required" }),
-      browser: z.string().min(1, { message: "Required" }),
-      comments: z.string().min(1, { message: "Required" }),
+        .min(1, { message: 'Required' })
+        .email({ message: 'Wrong Format' }),
+      position: z.string().min(1, { message: 'Required' }),
+      amount: z.number({ required_error: 'Required' }),
+      drinks: z.string().array().min(1, { message: 'Required' }),
+      browser: z.string().min(1, { message: 'Required' }),
+      comments: z.string().min(1, { message: 'Required' }),
       date: z
         .date()
         .nullable()
         .superRefine((value, ctx) => {
           if (value == null) {
             ctx.addIssue({
-              code: "custom",
-              message: "Required",
-            });
+              code: 'custom',
+              message: 'Required',
+            })
           }
         }),
-      programmingLanguage: z.string().array().min(1, { message: "Required" }),
-      resume: z.custom<File>().array().min(1, { message: "Required" }),
+      programmingLanguage: z.string().array().min(1, { message: 'Required' }),
+      resume: z.custom<File>().array().min(1, { message: 'Required' }),
       notification: z.string().array().optional(),
       code: z.string().superRefine((value, ctx) => {
-        if (value.length === 6 && value !== "123456") {
+        if (value.length === 6 && value !== '123456') {
           ctx.addIssue({
-            code: "custom",
-            message: "Wrong Code",
-          });
+            code: 'custom',
+            message: 'Wrong Code',
+          })
         }
 
         if (methods.formState.isSubmitting && value.length !== 6) {
           ctx.addIssue({
-            code: "custom",
-            message: "Required",
-          });
+            code: 'custom',
+            message: 'Required',
+          })
         }
       }),
     })
     .refine((data) => data.password === data.confirmPassword, {
-      message: "Passwords do not match",
-      path: ["confirmPassword"],
-    });
+      message: 'Passwords do not match',
+      path: ['confirmPassword'],
+    })
 
   const [Form, methods] = useForm<{
-    username: string;
-    email: string;
-    age: number | "";
-    password: string;
-    confirmPassword: string;
-    position: string;
-    amount?: number;
-    drinks: Array<string>;
-    browser: string;
-    comments: string;
-    date: Date | null;
-    programmingLanguage: Array<string>;
-    resume: File[];
-    notification: string[];
-    code: string;
+    username: string
+    email: string
+    age: number | ''
+    password: string
+    confirmPassword: string
+    position: string
+    amount?: number
+    drinks: Array<string>
+    browser: string
+    comments: string
+    date: Date | null
+    programmingLanguage: Array<string>
+    resume: File[]
+    notification: string[]
+    code: string
   }>({
     resolver: zodResolver(schema),
     defaultValues: {
-      username: "",
-      password: "",
-      age: "",
-      confirmPassword: "",
-      email: "",
-      position: "",
+      username: '',
+      password: '',
+      age: '',
+      confirmPassword: '',
+      email: '',
+      position: '',
       amount: undefined,
       drinks: [],
-      browser: "",
-      comments: "",
+      browser: '',
+      comments: '',
       date: null,
       programmingLanguage: [],
       resume: [],
-      notification: ["agreed"],
-      code: "",
+      notification: ['agreed'],
+      code: '',
     },
-    mode: "onTouched",
     onSubmit: (data) => {
-      console.log(data);
+      console.log(data)
     },
-  });
+  })
 
   return (
     <Form>
@@ -150,11 +146,11 @@ const SimpleForms: FC = () => {
             label="Position"
             name="position"
             options={[
-              { label: "Firefox", value: "firefox" },
-              { label: "Edge", value: "edge" },
-              { label: "Chrome", value: "chrome" },
-              { label: "Opera", value: "opera" },
-              { label: "Safari", value: "safari" },
+              { label: 'Firefox', value: 'firefox' },
+              { label: 'Edge', value: 'edge' },
+              { label: 'Chrome', value: 'chrome' },
+              { label: 'Opera', value: 'opera' },
+              { label: 'Safari', value: 'safari' },
             ]}
             withAsterisk
           />
@@ -172,9 +168,9 @@ const SimpleForms: FC = () => {
             label="Drinks"
             name="drinks"
             options={[
-              { label: "Coffee", value: "coffee" },
-              { label: "Tea", value: "tea" },
-              { label: "Wine", value: "wine" },
+              { label: 'Coffee', value: 'coffee' },
+              { label: 'Tea', value: 'tea' },
+              { label: 'Wine', value: 'wine' },
             ]}
             withAsterisk
           />
@@ -184,11 +180,11 @@ const SimpleForms: FC = () => {
             label="Browser"
             name="browser"
             options={[
-              { label: "Firefox", value: "firefox" },
-              { label: "Edge", value: "edge" },
-              { label: "Chrome", value: "chrome" },
-              { label: "Opera", value: "opera" },
-              { label: "Safari", value: "safari" },
+              { label: 'Firefox', value: 'firefox' },
+              { label: 'Edge', value: 'edge' },
+              { label: 'Chrome', value: 'chrome' },
+              { label: 'Opera', value: 'opera' },
+              { label: 'Safari', value: 'safari' },
             ]}
             withAsterisk
           />
@@ -211,24 +207,24 @@ const SimpleForms: FC = () => {
             name="programmingLanguage"
             options={[
               {
-                label: "Javascript",
-                value: "javascript",
+                label: 'JavaScript',
+                value: 'javascript',
               },
               {
-                label: "Typescript",
-                value: "typescript",
+                label: 'TypeScript',
+                value: 'typescript',
               },
               {
-                label: "Go",
-                value: "go",
+                label: 'Go',
+                value: 'go',
               },
               {
-                label: "Python",
-                value: "python",
+                label: 'Python',
+                value: 'python',
               },
               {
-                label: "Rust",
-                value: "rust",
+                label: 'Rust',
+                value: 'rust',
               },
             ]}
             clearable
@@ -256,11 +252,11 @@ const SimpleForms: FC = () => {
             name="notification"
             options={[
               {
-                label: "I agree to receive notifications",
-                value: "agreed",
-                color: "teal",
+                label: 'I agree to receive notifications',
+                value: 'agreed',
+                color: 'teal',
                 thumbIcon:
-                  methods.watch("notification").length > 0 ? (
+                  methods.watch('notification').length > 0 ? (
                     <IconCheck
                       size={12}
                       color={theme.colors.teal[theme.fn.primaryShade()]}
@@ -290,34 +286,34 @@ const SimpleForms: FC = () => {
           />
         </Grid.Col>
         <Grid.Col xs={3.5} sm={2.5} md={2.5} lg={2.5} xl={2.5} mt={10}>
-          <Form.SubmitButton loading={methods.formState.isSubmitting}>
-            {methods.formState.isSubmitting ? "Submitting" : "Submit"}
-          </Form.SubmitButton>
+          <Button type="submit" loading={methods.formState.isSubmitting}>
+            {methods.formState.isSubmitting ? 'Submitting' : 'Submit'}
+          </Button>
         </Grid.Col>
       </Grid>
     </Form>
-  );
-};
+  )
+}
 
 const meta: Meta<typeof SimpleForms> = {
-  title: "Example/Form",
+  title: 'Example/Form',
   component: SimpleForms,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   argTypes: {},
-};
+}
 
-export default meta;
-type Story = StoryObj<typeof SimpleForms>;
+export default meta
+type Story = StoryObj<typeof SimpleForms>
 
 export const Default: Story = {
   args: {},
-};
+}
 
 export const ShowErrorMessage: Story = {
   args: {},
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const submitButton = canvas.getByRole("button", { name: "Submit" });
-    await Promise.resolve(userEvent.click(submitButton));
+    const canvas = within(canvasElement)
+    const submitButton = canvas.getByRole('button', { name: 'Submit' })
+    await Promise.resolve(userEvent.click(submitButton))
   },
-};
+}

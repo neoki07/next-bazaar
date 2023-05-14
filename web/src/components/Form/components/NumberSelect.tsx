@@ -1,38 +1,37 @@
-import { Select as MantineSelect } from "@mantine/core";
-import { IconChevronDown } from "@tabler/icons-react";
-import { NumberSelectProps, SelectProps } from "../types";
-import { useController } from "react-hook-form";
-import { ErrorMessage } from "./ErrorMessage";
-import { FC } from "react";
+import { Select as MantineSelect } from '@mantine/core'
+import { IconChevronDown } from '@tabler/icons-react'
+import { useController } from 'react-hook-form'
+import { NumberSelectProps } from '../types'
+import { ErrorMessage } from './ErrorMessage'
 
-export const NumberSelect: FC<NumberSelectProps> = ({
+export function NumberSelect({
   label,
   options,
   name,
   ...rest
-}) => {
+}: NumberSelectProps) {
   const {
     field,
     fieldState: { error: fieldError },
     formState: { defaultValues },
-  } = useController({ name });
+  } = useController({ name })
 
   const error = fieldError ? (
     <ErrorMessage>{fieldError.message?.toString()}</ErrorMessage>
-  ) : undefined;
+  ) : undefined
 
-  const { value, onChange, ...restField } = field;
+  const { value, onChange, ...restField } = field
 
   return (
     <MantineSelect
       id={name}
       rightSection={<IconChevronDown width={15} color="#9e9e9e" />}
-      styles={{ rightSection: { pointerEvents: "none" } }}
+      styles={{ rightSection: { pointerEvents: 'none' } }}
       label={label}
-      value={value === undefined ? "" : value.toString()}
+      value={value === undefined ? '' : value.toString()}
       onChange={(value) =>
         onChange(
-          value === "" ? undefined : Number(value) ?? defaultValues?.[name]
+          value === '' ? undefined : Number(value) ?? defaultValues?.[name]
         )
       }
       allowDeselect
@@ -44,5 +43,5 @@ export const NumberSelect: FC<NumberSelectProps> = ({
       }))}
       {...restField}
     />
-  );
-};
+  )
+}

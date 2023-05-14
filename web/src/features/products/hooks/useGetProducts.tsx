@@ -1,38 +1,38 @@
-import { useGetProducts as useGetProductsQuery } from "@/api/endpoints/products/products";
-import { AxiosResponse } from "axios";
+import { useGetProducts as useGetProductsQuery } from '@/api/endpoints/products/products'
 import {
   ApiListProductsResponse,
   ApiListProductsResponseMeta,
-} from "@/api/model";
-import { Product } from "../types";
-import { transformProduct } from "@/features/products/utils/transform";
+} from '@/api/model'
+import { transformProduct } from '@/features/products/utils/transform'
+import { AxiosResponse } from 'axios'
+import { Product } from '../types'
 
 interface GetProductsResultData {
-  meta: ApiListProductsResponseMeta;
-  data: Product[];
+  meta: ApiListProductsResponseMeta
+  data: Product[]
 }
 
-const transform = (
+function transform(
   response: AxiosResponse<ApiListProductsResponse>
-): GetProductsResultData => {
-  const { data } = response;
+): GetProductsResultData {
+  const { data } = response
   if (data.meta === undefined || data.data === undefined) {
-    throw new Error("required fields are undefined:" + JSON.stringify(data));
+    throw new Error('required fields are undefined:' + JSON.stringify(data))
   }
 
   return {
     meta: data.meta,
     data: data.data.map((item) => {
-      return transformProduct(item);
+      return transformProduct(item)
     }),
-  };
-};
+  }
+}
 
-export const useGetProducts = (page: number, pageSize: number) => {
+export function useGetProducts(page: number, pageSize: number) {
   return useGetProductsQuery<GetProductsResultData>(
     { page_id: page, page_size: pageSize },
     {
       query: { select: transform },
     }
-  );
-};
+  )
+}

@@ -1,36 +1,35 @@
-import { NumberInput as MantineNumberInput } from "@mantine/core";
-import { NumberInputProps } from "../types";
-import { useController } from "react-hook-form";
-import { ErrorMessage } from "./ErrorMessage";
-import { FC } from "react";
+import { NumberInput as MantineNumberInput } from '@mantine/core'
+import { useController } from 'react-hook-form'
+import { NumberInputProps } from '../types'
+import { ErrorMessage } from './ErrorMessage'
 
-export const NumberInput: FC<NumberInputProps> = ({ label, name, ...rest }) => {
+export function NumberInput({ label, name, ...rest }: NumberInputProps) {
   const {
     field,
     fieldState: { error: fieldError },
     formState: { defaultValues },
-  } = useController({ name });
+  } = useController({ name })
 
   const error = fieldError ? (
     <ErrorMessage>{fieldError.message?.toString()}</ErrorMessage>
-  ) : undefined;
+  ) : undefined
 
-  const { onChange, ...restField } = field;
+  const { onChange, ...restField } = field
 
   return (
     <MantineNumberInput
       id={name}
       label={label}
       onChange={(value) => {
-        if (value === "") {
-          onChange(defaultValues?.[name] ?? null);
+        if (value === '') {
+          onChange(defaultValues?.[name] ?? null)
         } else {
-          onChange(value);
+          onChange(value)
         }
       }}
       error={error}
       {...rest}
       {...restField}
     />
-  );
-};
+  )
+}

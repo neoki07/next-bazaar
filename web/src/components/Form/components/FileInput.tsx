@@ -1,33 +1,19 @@
-import { FileInput as MantineFileInput } from '@mantine/core'
-import { FileInputProps } from '../types'
-import { IconUpload } from '@tabler/icons-react'
+import { Center, Group, FileInput as MantineFileInput } from '@mantine/core'
+import { IconFileText, IconPhoto, IconUpload } from '@tabler/icons-react'
 import { useController } from 'react-hook-form'
+import { FileInputProps } from '../types'
 import { ErrorMessage } from './ErrorMessage'
-import {
-  FileInputProps as MantineFileInputProps,
-  Group,
-  Center,
-} from '@mantine/core'
-import {
-  IconFileText,
-  IconPhoto,
-  Icon as TablerIcon,
-} from '@tabler/icons-react'
-import { FC } from 'react'
 
-type ValueProps = {
+interface ValueProps {
   file: File | null
 }
 
-const Value: FC<ValueProps> = ({ file }) => {
-  if (!file) return null
-  let Icon: TablerIcon
-
-  if (file.type.includes('image')) {
-    Icon = IconPhoto
-  } else {
-    Icon = IconFileText
+function Value({ file }: ValueProps) {
+  if (!file) {
+    return null
   }
+
+  const Icon = file.type.includes('image') ? IconPhoto : IconFileText
 
   return (
     <Center
@@ -58,7 +44,11 @@ const Value: FC<ValueProps> = ({ file }) => {
   )
 }
 
-const ValueComponent: MantineFileInputProps['valueComponent'] = ({ value }) => {
+interface ValueComponentProps {
+  value: File | File[] | null
+}
+
+function ValueComponent({ value }: ValueComponentProps) {
   if (Array.isArray(value)) {
     return (
       <Group spacing="sm" py="xs">
@@ -72,11 +62,7 @@ const ValueComponent: MantineFileInputProps['valueComponent'] = ({ value }) => {
   return <Value file={value} />
 }
 
-export const FileInput: FC<FileInputProps<boolean>> = ({
-  label,
-  name,
-  ...rest
-}) => {
+export function FileInput({ label, name, ...rest }: FileInputProps<boolean>) {
   const {
     field,
     fieldState: { error: fieldError },

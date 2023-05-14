@@ -1,6 +1,6 @@
-import { ApiProductResponse } from "@/api/model";
-import { Product } from "@/features/products";
-import Decimal from "decimal.js";
+import { ApiProductResponse } from '@/api/model'
+import { Product } from '@/features/products'
+import Decimal from 'decimal.js'
 
 export function transformProduct(product: ApiProductResponse): Product {
   if (
@@ -11,7 +11,7 @@ export function transformProduct(product: ApiProductResponse): Product {
     product.category === undefined ||
     product.seller === undefined
   ) {
-    throw new Error("required fields are undefined:" + JSON.stringify(product));
+    throw new Error('required fields are undefined:' + JSON.stringify(product))
   }
 
   return {
@@ -23,5 +23,5 @@ export function transformProduct(product: ApiProductResponse): Product {
     category: product.category,
     seller: product.seller,
     imageUrl: product.image_url,
-  };
+  }
 }

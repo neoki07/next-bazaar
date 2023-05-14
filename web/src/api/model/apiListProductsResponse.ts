@@ -4,10 +4,10 @@
  * Next Bazaar API
  * OpenAPI spec version: 0.0.1
  */
-import type { ApiProductResponse } from "./apiProductResponse";
-import type { ApiListProductsResponseMeta } from "./apiListProductsResponseMeta";
+import type { ApiListProductsResponseMeta } from './apiListProductsResponseMeta'
+import type { ApiProductResponse } from './apiProductResponse'
 
 export interface ApiListProductsResponse {
-  data?: ApiProductResponse[];
-  meta?: ApiListProductsResponseMeta;
+  data?: ApiProductResponse[]
+  meta?: ApiListProductsResponseMeta
 }
