@@ -1,15 +1,15 @@
-import { useGetProductsId as useGetProductQuery } from "@/api/endpoints/products/products";
-import { AxiosResponse } from "axios";
-import { ApiProductResponse } from "@/api/model";
-import { Product } from "../types";
-import { transformProduct } from "@/features/products/utils/transform";
+import { useGetProductsId as useGetProductQuery } from '@/api/endpoints/products/products'
+import { ApiProductResponse } from '@/api/model'
+import { transformProduct } from '@/features/products/utils/transform'
+import { AxiosResponse } from 'axios'
+import { Product } from '../types'
 
-const transform = (response: AxiosResponse<ApiProductResponse>): Product => {
-  return transformProduct(response.data);
-};
+function transform(response: AxiosResponse<ApiProductResponse>): Product {
+  return transformProduct(response.data)
+}
 
-export const useGetProduct = (id: string) => {
+export function useGetProduct(id: string) {
   return useGetProductQuery<Product>(id, {
     query: { select: transform },
-  });
-};
+  })
+}

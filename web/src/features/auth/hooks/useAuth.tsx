@@ -2,87 +2,85 @@ import {
   usePostUsers,
   usePostUsersLogin,
   usePostUsersLogout,
-} from "@/api/endpoints/users/users";
-import { useCallback } from "react";
-import { useRouter } from "next/router";
+} from '@/api/endpoints/users/users'
+import { useRouter } from 'next/router'
+import { useCallback } from 'react'
 
 interface LoginParams {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }
 
 interface RegisterParams {
-  name: string;
-  email: string;
-  password: string;
+  name: string
+  email: string
+  password: string
 }
 
-type UseAuthParams = {
-  onLoginError?: () => void;
-  onLogoutError?: () => void;
-  onRegisterError?: () => void;
-};
+interface UseAuthProps {
+  onLoginError?: () => void
+  onLogoutError?: () => void
+  onRegisterError?: () => void
+}
 
-type UseAuth = (params?: UseAuthParams) => {
-  login: (params: LoginParams) => void;
-  logout: () => void;
-  registerAndLogin: (params: RegisterParams) => void;
-};
+interface UseAuthResult {
+  login: (params: LoginParams) => void
+  logout: () => void
+  registerAndLogin: (params: RegisterParams) => void
+}
 
-export const useAuth: UseAuth = (params) => {
-  const router = useRouter();
+export function useAuth(props?: UseAuthProps): UseAuthResult {
+  const router = useRouter()
 
   const loginMutation = usePostUsersLogin({
     mutation: {
       onSuccess: () => {
-        router.push("/");
-        console.log("onsuccess login");
+        router.push('/')
       },
       onError: () => {
-        params?.onLoginError?.();
+        props?.onLoginError?.()
       },
     },
     request: {
       withCredentials: true,
     },
-  });
+  })
 
   const logoutMutation = usePostUsersLogout({
     mutation: {
       onSuccess: () => {
-        router.push("/");
-        console.log("onsuccess logout");
+        router.push('/')
       },
       onError: () => {
-        params?.onLogoutError?.();
+        props?.onLogoutError?.()
       },
     },
     request: {
       withCredentials: true,
     },
-  });
+  })
 
   const registerMutation = usePostUsers({
     mutation: {
       onError: () => {
-        params?.onRegisterError?.();
+        props?.onRegisterError?.()
       },
     },
     request: {
       withCredentials: true,
     },
-  });
+  })
 
   const login = useCallback(
     ({ email, password }: LoginParams) => {
-      loginMutation.mutate({ data: { email, password } });
+      loginMutation.mutate({ data: { email, password } })
     },
     [loginMutation]
-  );
+  )
 
   const logout = useCallback(() => {
-    logoutMutation.mutate();
-  }, [logoutMutation]);
+    logoutMutation.mutate()
+  }, [logoutMutation])
 
   const registerAndLogin = useCallback(
     async ({ email, password, name }: RegisterParams) => {
@@ -95,12 +93,12 @@ export const useAuth: UseAuth = (params) => {
           },
         })
         .then(() => login({ email, password }))
-        .catch((error) => {
-          console.error(error);
-        });
+        .catch((error: Error) => {
+          console.error(error.message)
+        })
     },
     [registerMutation, login]
-  );
+  )
 
-  return { login, logout, registerAndLogin };
-};
+  return { login, logout, registerAndLogin }
+}

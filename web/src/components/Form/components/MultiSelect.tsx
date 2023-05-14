@@ -1,10 +1,10 @@
-import { FC, useState } from 'react'
 import { MultiSelect as MantineMultiSelect } from '@mantine/core'
-import { MultiSelectProps } from '../types'
+import { useState } from 'react'
 import { useController } from 'react-hook-form'
+import { MultiSelectProps } from '../types'
 import { ErrorMessage } from './ErrorMessage'
 
-export const MultiSelect: FC<MultiSelectProps> = ({ label, name, ...rest }) => {
+export function MultiSelect({ label, name, ...rest }: MultiSelectProps) {
   const [options, setOptions] = useState(rest.options)
   const {
     field,

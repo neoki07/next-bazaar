@@ -1,17 +1,16 @@
 import { Group, Radio, Stack } from '@mantine/core'
-import { RadioGroupProps } from '../types'
 import { useController } from 'react-hook-form'
+import { RadioGroupProps } from '../types'
 import { ErrorMessage } from './ErrorMessage'
-import { FC } from 'react'
 
-export const RadioGroup: FC<RadioGroupProps> = ({
+export function RadioGroup({
   label,
   name,
   options,
   orientation = 'horizontal',
   orientationProps,
   ...rest
-}) => {
+}: RadioGroupProps) {
   const {
     field,
     fieldState: { error: fieldError },

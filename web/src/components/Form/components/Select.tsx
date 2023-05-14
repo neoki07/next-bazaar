@@ -1,11 +1,10 @@
 import { Select as MantineSelect } from '@mantine/core'
 import { IconChevronDown } from '@tabler/icons-react'
-import { SelectProps } from '../types'
 import { useController } from 'react-hook-form'
+import { SelectProps } from '../types'
 import { ErrorMessage } from './ErrorMessage'
-import { FC } from 'react'
 
-export const Select: FC<SelectProps> = ({ label, options, name, ...rest }) => {
+export function Select({ label, options, name, ...rest }: SelectProps) {
   const {
     field,
     fieldState: { error: fieldError },

@@ -6,12 +6,12 @@
  */
 
 export interface ApiProductResponse {
-  category?: string;
-  description?: string;
-  id?: string;
-  image_url?: string;
-  name?: string;
-  price?: string;
-  seller?: string;
-  stock_quantity?: number;
+  category?: string
+  description?: string
+  id?: string
+  image_url?: string
+  name?: string
+  price?: string
+  seller?: string
+  stock_quantity?: number
 }

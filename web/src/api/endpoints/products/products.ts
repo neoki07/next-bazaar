@@ -4,21 +4,21 @@
  * Next Bazaar API
  * OpenAPI spec version: 0.0.1
  */
-import { useQuery } from "@tanstack/react-query";
 import type {
-  UseQueryOptions,
   QueryFunction,
-  UseQueryResult,
   QueryKey,
-} from "@tanstack/react-query";
+  UseQueryOptions,
+  UseQueryResult,
+} from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import type { ErrorType } from '../../custom-axios-instance'
+import { customAxiosInstance } from '../../custom-axios-instance'
 import type {
-  ApiListProductsResponse,
   ApiErrorResponse,
-  GetProductsParams,
+  ApiListProductsResponse,
   ApiProductResponse,
-} from "../../model";
-import { customAxiosInstance } from "../../custom-axios-instance";
-import type { ErrorType } from "../../custom-axios-instance";
+  GetProductsParams,
+} from '../../model'
 
 // eslint-disable-next-line
 type SecondParameter<T extends (...args: any) => any> = T extends (
@@ -26,7 +26,7 @@ type SecondParameter<T extends (...args: any) => any> = T extends (
   args: infer P
 ) => any
   ? P
-  : never;
+  : never
 
 /**
  * @summary List products
@@ -37,13 +37,13 @@ export const getProducts = (
   signal?: AbortSignal
 ) => {
   return customAxiosInstance<ApiListProductsResponse>(
-    { url: `/products`, method: "get", params, signal },
+    { url: `/products`, method: 'get', params, signal },
     options
-  );
-};
+  )
+}
 
 export const getGetProductsQueryKey = (params: GetProductsParams) =>
-  [`/products`, ...(params ? [params] : [])] as const;
+  [`/products`, ...(params ? [params] : [])] as const
 
 export const getGetProductsQueryOptions = <
   TData = Awaited<ReturnType<typeof getProducts>>,
@@ -55,27 +55,27 @@ export const getGetProductsQueryOptions = <
       Awaited<ReturnType<typeof getProducts>>,
       TError,
       TData
-    >;
-    request?: SecondParameter<typeof customAxiosInstance>;
+    >
+    request?: SecondParameter<typeof customAxiosInstance>
   }
 ): UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData> & {
-  queryKey: QueryKey;
+  queryKey: QueryKey
 } => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {}
 
-  const queryKey = queryOptions?.queryKey ?? getGetProductsQueryKey(params);
+  const queryKey = queryOptions?.queryKey ?? getGetProductsQueryKey(params)
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getProducts>>> = ({
     signal,
-  }) => getProducts(params, requestOptions, signal);
+  }) => getProducts(params, requestOptions, signal)
 
-  return { queryKey, queryFn, ...queryOptions };
-};
+  return { queryKey, queryFn, ...queryOptions }
+}
 
 export type GetProductsQueryResult = NonNullable<
   Awaited<ReturnType<typeof getProducts>>
->;
-export type GetProductsQueryError = ErrorType<ApiErrorResponse>;
+>
+export type GetProductsQueryError = ErrorType<ApiErrorResponse>
 
 export const useGetProducts = <
   TData = Awaited<ReturnType<typeof getProducts>>,
@@ -87,20 +87,20 @@ export const useGetProducts = <
       Awaited<ReturnType<typeof getProducts>>,
       TError,
       TData
-    >;
-    request?: SecondParameter<typeof customAxiosInstance>;
+    >
+    request?: SecondParameter<typeof customAxiosInstance>
   }
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
-  const queryOptions = getGetProductsQueryOptions(params, options);
+  const queryOptions = getGetProductsQueryOptions(params, options)
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+    queryKey: QueryKey
+  }
 
-  query.queryKey = queryOptions.queryKey;
+  query.queryKey = queryOptions.queryKey
 
-  return query;
-};
+  return query
+}
 
 /**
  * @summary Get product
@@ -111,13 +111,13 @@ export const getProductsId = (
   signal?: AbortSignal
 ) => {
   return customAxiosInstance<ApiProductResponse>(
-    { url: `/products/${id}`, method: "get", signal },
+    { url: `/products/${id}`, method: 'get', signal },
     options
-  );
-};
+  )
+}
 
 export const getGetProductsIdQueryKey = (id: string) =>
-  [`/products/${id}`] as const;
+  [`/products/${id}`] as const
 
 export const getGetProductsIdQueryOptions = <
   TData = Awaited<ReturnType<typeof getProductsId>>,
@@ -129,27 +129,27 @@ export const getGetProductsIdQueryOptions = <
       Awaited<ReturnType<typeof getProductsId>>,
       TError,
       TData
-    >;
-    request?: SecondParameter<typeof customAxiosInstance>;
+    >
+    request?: SecondParameter<typeof customAxiosInstance>
   }
 ): UseQueryOptions<Awaited<ReturnType<typeof getProductsId>>, TError, TData> & {
-  queryKey: QueryKey;
+  queryKey: QueryKey
 } => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {}
 
-  const queryKey = queryOptions?.queryKey ?? getGetProductsIdQueryKey(id);
+  const queryKey = queryOptions?.queryKey ?? getGetProductsIdQueryKey(id)
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductsId>>> = ({
     signal,
-  }) => getProductsId(id, requestOptions, signal);
+  }) => getProductsId(id, requestOptions, signal)
 
-  return { queryKey, queryFn, enabled: !!id, ...queryOptions };
-};
+  return { queryKey, queryFn, enabled: !!id, ...queryOptions }
+}
 
 export type GetProductsIdQueryResult = NonNullable<
   Awaited<ReturnType<typeof getProductsId>>
->;
-export type GetProductsIdQueryError = ErrorType<ApiErrorResponse>;
+>
+export type GetProductsIdQueryError = ErrorType<ApiErrorResponse>
 
 export const useGetProductsId = <
   TData = Awaited<ReturnType<typeof getProductsId>>,
@@ -161,17 +161,17 @@ export const useGetProductsId = <
       Awaited<ReturnType<typeof getProductsId>>,
       TError,
       TData
-    >;
-    request?: SecondParameter<typeof customAxiosInstance>;
+    >
+    request?: SecondParameter<typeof customAxiosInstance>
   }
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
-  const queryOptions = getGetProductsIdQueryOptions(id, options);
+  const queryOptions = getGetProductsIdQueryOptions(id, options)
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
+    queryKey: QueryKey
+  }
 
-  query.queryKey = queryOptions.queryKey;
+  query.queryKey = queryOptions.queryKey
 
-  return query;
-};
+  return query
+}

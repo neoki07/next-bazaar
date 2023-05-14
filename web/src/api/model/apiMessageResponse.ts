@@ -6,5 +6,5 @@
  */
 
 export interface ApiMessageResponse {
-  message?: string;
+  message?: string
 }

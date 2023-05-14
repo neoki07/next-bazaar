@@ -1,10 +1,9 @@
-import { PinInputProps } from '../types'
 import { Input, PinInput as MantinePinInput } from '@mantine/core'
 import { useController } from 'react-hook-form'
+import { PinInputProps } from '../types'
 import { ErrorMessage } from './ErrorMessage'
-import { FC } from 'react'
 
-export const PinInput: FC<PinInputProps> = ({
+export function PinInput({
   label,
   name,
   description,
@@ -16,7 +15,7 @@ export const PinInput: FC<PinInputProps> = ({
   inputContainer,
   inputWrapperOrder,
   ...rest
-}) => {
+}: PinInputProps) {
   const {
     field,
     fieldState: { error: fieldError },

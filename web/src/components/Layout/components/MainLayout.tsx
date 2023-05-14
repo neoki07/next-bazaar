@@ -1,10 +1,10 @@
-import { Header } from "./Header";
-import Head from "next/head";
-import { type ReactNode } from "react";
-import { AppShell } from "@mantine/core";
+import { AppShell } from '@mantine/core'
+import Head from 'next/head'
+import { type ReactNode } from 'react'
+import { Header } from './Header'
 
 interface MainLayoutProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
@@ -20,5 +20,5 @@ export function MainLayout({ children }: MainLayoutProps) {
         <main>{children}</main>
       </AppShell>
     </>
-  );
+  )
 }

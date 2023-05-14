@@ -1,15 +1,10 @@
 import { PasswordInput as MantinePasswordInput } from '@mantine/core'
-import { PasswordInputProps } from '../types'
 import { IconEye, IconEyeOff } from '@tabler/icons-react'
 import { useController } from 'react-hook-form'
+import { PasswordInputProps } from '../types'
 import { ErrorMessage } from './ErrorMessage'
-import { FC } from 'react'
 
-export const PasswordInput: FC<PasswordInputProps> = ({
-  label,
-  name,
-  ...rest
-}) => {
+export function PasswordInput({ label, name, ...rest }: PasswordInputProps) {
   const {
     field,
     fieldState: { error: fieldError },

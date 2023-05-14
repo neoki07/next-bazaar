@@ -6,5 +6,5 @@
  */
 
 export interface ApiErrorResponse {
-  error?: string;
+  error?: string
 }

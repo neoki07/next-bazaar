@@ -1,60 +1,60 @@
+import { PasswordInput, TextInput, useForm } from '@/components/Form'
+import { useAuth } from '@/features/auth'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Anchor,
-  Paper,
-  Title,
-  Text,
-  Container,
   Button,
   Center,
+  Container,
+  Paper,
   Stack,
-} from "@mantine/core";
-import { MantineLogo } from "@mantine/ds";
-import Link from "next/link";
-import { z } from "zod";
-import { useCallback, useState } from "react";
-import { useAuth } from "@/features/auth";
-import { PasswordInput, TextInput, useForm } from "@/components/Form";
-import { zodResolver } from "@hookform/resolvers/zod";
+  Text,
+  Title,
+} from '@mantine/core'
+import { MantineLogo } from '@mantine/ds'
+import Link from 'next/link'
+import { useCallback, useState } from 'react'
+import { z } from 'zod'
 
 const schema = z.object({
   email: z
     .string()
-    .min(1, { message: "Required" })
-    .email({ message: "Wrong Format" }),
-  password: z.string().min(8, { message: "Minimum 8 characters" }),
-});
+    .min(1, { message: 'Required' })
+    .email({ message: 'Wrong Format' }),
+  password: z.string().min(8, { message: 'Minimum 8 characters' }),
+})
 
 export default function LoginPage() {
-  const [isLoginButtonClicked, setIsLoginButtonClicked] = useState(false);
+  const [isLoginButtonClicked, setIsLoginButtonClicked] = useState(false)
 
   const handleLoginError = useCallback(() => {
-    setIsLoginButtonClicked(false);
-  }, []);
+    setIsLoginButtonClicked(false)
+  }, [])
 
   const { login } = useAuth({
     onLoginError: handleLoginError,
-  });
+  })
 
   const [Form, methods] = useForm<{
-    email: string;
-    password: string;
+    email: string
+    password: string
   }>({
     resolver: zodResolver(schema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
     onSubmit: (data) => {
-      setIsLoginButtonClicked(true);
-      login(data);
+      setIsLoginButtonClicked(true)
+      login(data)
     },
-  });
+  })
 
   return (
     <Container size={420} my={40}>
       <Stack>
         <Center>
-          <Link href={"/"}>
+          <Link href={'/'}>
             <MantineLogo size={30} />
           </Link>
         </Center>
@@ -94,7 +94,7 @@ export default function LoginPage() {
         </Paper>
 
         <Text color="dimmed" size="sm" align="center" mt={5}>
-          Do not have an account yet?{" "}
+          Do not have an account yet?{' '}
           <Link href="/register">
             <Anchor size="sm" component="button">
               Create account
@@ -103,5 +103,5 @@ export default function LoginPage() {
         </Text>
       </Stack>
     </Container>
-  );
+  )
 }

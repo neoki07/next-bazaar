@@ -1,17 +1,16 @@
 import { Group, Stack, Switch } from '@mantine/core'
-import { SwitchGroupProps } from '../types'
 import { useController } from 'react-hook-form'
+import { SwitchGroupProps } from '../types'
 import { ErrorMessage } from './ErrorMessage'
-import { FC } from 'react'
 
-export const SwitchGroup: FC<SwitchGroupProps> = ({
+export function SwitchGroup({
   label,
   name,
   options,
   orientation = 'horizontal',
   orientationProps,
   ...rest
-}) => {
+}: SwitchGroupProps) {
   const {
     field,
     fieldState: { error: fieldError },

@@ -1,1 +1,1 @@
-export * from "@/components/Layout/components/MainLayout";
+export * from '@/components/Layout/components/MainLayout'

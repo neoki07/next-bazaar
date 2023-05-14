@@ -1,17 +1,16 @@
 import { Group, Checkbox as MantineCheckbox, Stack } from '@mantine/core'
-import { CheckboxGroupProps } from '../types'
 import { useController } from 'react-hook-form'
+import { CheckboxGroupProps } from '../types'
 import { ErrorMessage } from './ErrorMessage'
-import { FC } from 'react'
 
-export const CheckboxGroup: FC<CheckboxGroupProps> = ({
+export function CheckboxGroup({
   label,
   name,
   options,
   orientation = 'horizontal',
   orientationProps,
   ...rest
-}) => {
+}: CheckboxGroupProps) {
   const {
     field,
     fieldState: { error: fieldError },

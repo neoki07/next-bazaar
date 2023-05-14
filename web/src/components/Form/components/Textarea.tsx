@@ -1,10 +1,9 @@
 import { Textarea as MantineTextarea } from '@mantine/core'
-import { TextareaProps } from '../types'
 import { useController } from 'react-hook-form'
+import { TextareaProps } from '../types'
 import { ErrorMessage } from './ErrorMessage'
-import { FC } from 'react'
 
-export const Textarea: FC<TextareaProps> = ({ label, name, ...rest }) => {
+export function Textarea({ label, name, ...rest }: TextareaProps) {
   const {
     field,
     fieldState: { error: fieldError },

@@ -1,49 +1,40 @@
-import { MainLayout } from "@/components/Layout";
-import { useGetProduct } from "@/features/products";
-import { useRouter } from "next/router";
-import { FC } from "react";
-import {
-  Button,
-  Container,
-  Flex,
-  Image,
-  rem,
-  Stack,
-  Text,
-} from "@mantine/core";
-import { Price } from "@/components/Price";
-import { NumberSelect, useForm } from "@/components/Form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { NumberSelect, useForm } from '@/components/Form'
+import { MainLayout } from '@/components/Layout'
+import { Price } from '@/components/Price'
+import { useGetProduct } from '@/features/products'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Button, Container, Flex, Image, Stack, Text, rem } from '@mantine/core'
+import { useRouter } from 'next/router'
+import { z } from 'zod'
 
 interface ProductAreaProps {
-  productId: string;
+  productId: string
 }
 
-export const ProductArea: FC<ProductAreaProps> = ({ productId }) => {
-  const { data: product, isLoading } = useGetProduct(productId);
+export function ProductArea({ productId }: ProductAreaProps) {
+  const { data: product, isLoading } = useGetProduct(productId)
   const schema = z.object({
     amount: z.number().min(1).max(10),
-  });
+  })
 
   const [Form, methods] = useForm<{
-    amount: number;
+    amount: number
   }>({
     resolver: zodResolver(schema),
     defaultValues: {
       amount: 1,
     },
     onSubmit: (data) => {
-      console.log(data);
+      console.log(data)
     },
-  });
+  })
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
   if (product === undefined) {
-    throw new Error("product is undefined");
+    throw new Error('product is undefined')
   }
 
   return (
@@ -70,18 +61,18 @@ export const ProductArea: FC<ProductAreaProps> = ({ productId }) => {
         </Form>
       </Flex>
     </Stack>
-  );
-};
+  )
+}
 
 interface ProductAreaProps {
-  productId: string;
+  productId: string
 }
 
 export default function ProductPage() {
-  const router = useRouter();
-  const { id } = router.query;
+  const router = useRouter()
+  const { id } = router.query
   if (Array.isArray(id)) {
-    throw new Error("id is array:" + JSON.stringify(id));
+    throw new Error('id is array:' + JSON.stringify(id))
   }
 
   return (
@@ -90,5 +81,5 @@ export default function ProductPage() {
         {id !== undefined && <ProductArea productId={id} />}
       </Container>
     </MainLayout>
-  );
+  )
 }

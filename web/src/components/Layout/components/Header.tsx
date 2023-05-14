@@ -1,48 +1,56 @@
-import { createStyles, UnstyledButton, Text, Menu, rem } from "@mantine/core";
-import { IconLogout, IconSettings, IconChevronDown } from "@tabler/icons-react";
-import { useSession } from "@/providers/session";
-import { Header as MantineHeader, Group, Button, Box } from "@mantine/core";
-import { MantineLogo } from "@mantine/ds";
-import Link from "next/link";
-import { useCallback, useState } from "react";
-import { useAuth } from "@/features/auth";
+import { useAuth } from '@/features/auth'
+import { useSession } from '@/providers/session'
+import {
+  Button,
+  Group,
+  Header as MantineHeader,
+  Menu,
+  Text,
+  UnstyledButton,
+  createStyles,
+  rem,
+} from '@mantine/core'
+import { MantineLogo } from '@mantine/ds'
+import { IconChevronDown, IconLogout, IconSettings } from '@tabler/icons-react'
+import Link from 'next/link'
+import { useCallback, useState } from 'react'
 
 const useStyles = createStyles((theme) => ({
   user: {
     borderRadius: theme.radius.sm,
-    transition: "background-color 100ms ease",
+    transition: 'background-color 100ms ease',
   },
-}));
+}))
 
 export function Header() {
-  const { session, status } = useSession();
-  const { classes, theme } = useStyles();
+  const { session, status } = useSession()
+  const { classes, theme } = useStyles()
 
-  const [isLogoutButtonClicked, setIsLogoutButtonClicked] = useState(false);
+  const [isLogoutButtonClicked, setIsLogoutButtonClicked] = useState(false)
 
   const handleLogoutError = useCallback(() => {
-    setIsLogoutButtonClicked(false);
-  }, []);
+    setIsLogoutButtonClicked(false)
+  }, [])
 
   const { logout } = useAuth({
     onLogoutError: handleLogoutError,
-  });
+  })
 
   const handleLogout = useCallback(() => {
-    setIsLogoutButtonClicked(true);
-    logout();
-  }, [logout]);
+    setIsLogoutButtonClicked(true)
+    logout()
+  }, [logout])
 
   return (
     <MantineHeader height={60} px="md">
-      <Group position="apart" sx={{ height: "100%" }}>
+      <Group position="apart" sx={{ height: '100%' }}>
         <MantineLogo size={30} />
 
-        {status === "authenticated" && (
+        {status === 'authenticated' && (
           <Menu
             width={200}
             position="bottom-end"
-            transitionProps={{ transition: "pop-top-right" }}
+            transitionProps={{ transition: 'pop-top-right' }}
             withinPortal
           >
             <Menu.Target>
@@ -71,7 +79,7 @@ export function Header() {
           </Menu>
         )}
 
-        {status === "unauthenticated" && (
+        {status === 'unauthenticated' && (
           <Group>
             <Link href="/login">
               <Button variant="default">Log in</Button>
@@ -83,5 +91,5 @@ export function Header() {
         )}
       </Group>
     </MantineHeader>
-  );
+  )
 }

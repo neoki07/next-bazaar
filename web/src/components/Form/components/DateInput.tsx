@@ -1,10 +1,9 @@
 import { DateInput as MantineDateInput } from '@mantine/dates'
-import { DateInputProps } from '../types'
 import { useController } from 'react-hook-form'
+import { DateInputProps } from '../types'
 import { ErrorMessage } from './ErrorMessage'
-import { FC } from 'react'
 
-export const DateInput: FC<DateInputProps> = ({ label, name, ...rest }) => {
+export function DateInput({ label, name, ...rest }: DateInputProps) {
   const {
     field,
     fieldState: { error: fieldError },

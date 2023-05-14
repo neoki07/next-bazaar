@@ -6,6 +6,6 @@
  */
 
 export interface ApiUserResponse {
-  email?: string;
-  name?: string;
+  email?: string
+  name?: string
 }
