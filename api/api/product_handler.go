@@ -6,8 +6,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/ot07/next-bazaar/api/product/domain"
-	"github.com/ot07/next-bazaar/api/product/service"
+	"github.com/ot07/next-bazaar/api/domain"
+	"github.com/ot07/next-bazaar/api/service"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 )
 

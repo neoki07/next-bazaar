@@ -11,6 +11,13 @@ import (
 	"github.com/google/uuid"
 )
 
+type CartProduct struct {
+	ID        uuid.UUID `json:"id"`
+	ProductID uuid.UUID `json:"product_id"`
+	UserID    uuid.UUID `json:"user_id"`
+	Quantity  int32     `json:"quantity"`
+}
+
 type Category struct {
 	ID        uuid.UUID `json:"id"`
 	Name      string    `json:"name"`
