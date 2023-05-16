@@ -12,9 +12,8 @@ import (
 )
 
 type CartProduct struct {
-	ID        uuid.UUID `json:"id"`
-	ProductID uuid.UUID `json:"product_id"`
 	UserID    uuid.UUID `json:"user_id"`
+	ProductID uuid.UUID `json:"product_id"`
 	Quantity  int32     `json:"quantity"`
 }
 

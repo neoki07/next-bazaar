@@ -19,6 +19,7 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteCategory(ctx context.Context, id uuid.UUID) error
 	DeleteSession(ctx context.Context, sessionToken uuid.UUID) error
+	GetCartProductByUserIdAndProductId(ctx context.Context, arg GetCartProductByUserIdAndProductIdParams) (CartProduct, error)
 	GetCartProductsByUserId(ctx context.Context, userID uuid.UUID) ([]CartProduct, error)
 	GetCategoriesByIDs(ctx context.Context, ids []uuid.UUID) ([]Category, error)
 	GetCategory(ctx context.Context, id uuid.UUID) (Category, error)
@@ -34,6 +35,7 @@ type Querier interface {
 	TruncateProductsTable(ctx context.Context) error
 	TruncateSessionsTable(ctx context.Context) error
 	TruncateUsersTable(ctx context.Context) error
+	UpdateCartProduct(ctx context.Context, arg UpdateCartProductParams) (CartProduct, error)
 }
 
 var _ Querier = (*Queries)(nil)

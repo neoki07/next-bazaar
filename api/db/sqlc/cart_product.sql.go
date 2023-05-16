@@ -13,36 +13,46 @@ import (
 
 const createCartProduct = `-- name: CreateCartProduct :one
 INSERT INTO cart_products (
-  product_id,
   user_id,
+  product_id,
   quantity
 ) VALUES (
-  $1,
-  $2,
-  $3
-) RETURNING id, product_id, user_id, quantity
+  $1, $2, $3
+) RETURNING user_id, product_id, quantity
 `
 
 type CreateCartProductParams struct {
-	ProductID uuid.UUID `json:"product_id"`
 	UserID    uuid.UUID `json:"user_id"`
+	ProductID uuid.UUID `json:"product_id"`
 	Quantity  int32     `json:"quantity"`
 }
 
 func (q *Queries) CreateCartProduct(ctx context.Context, arg CreateCartProductParams) (CartProduct, error) {
-	row := q.db.QueryRowContext(ctx, createCartProduct, arg.ProductID, arg.UserID, arg.Quantity)
+	row := q.db.QueryRowContext(ctx, createCartProduct, arg.UserID, arg.ProductID, arg.Quantity)
 	var i CartProduct
-	err := row.Scan(
-		&i.ID,
-		&i.ProductID,
-		&i.UserID,
-		&i.Quantity,
-	)
+	err := row.Scan(&i.UserID, &i.ProductID, &i.Quantity)
+	return i, err
+}
+
+const getCartProductByUserIdAndProductId = `-- name: GetCartProductByUserIdAndProductId :one
+SELECT user_id, product_id, quantity FROM cart_products
+WHERE user_id = $1 AND product_id = $2
+`
+
+type GetCartProductByUserIdAndProductIdParams struct {
+	UserID    uuid.UUID `json:"user_id"`
+	ProductID uuid.UUID `json:"product_id"`
+}
+
+func (q *Queries) GetCartProductByUserIdAndProductId(ctx context.Context, arg GetCartProductByUserIdAndProductIdParams) (CartProduct, error) {
+	row := q.db.QueryRowContext(ctx, getCartProductByUserIdAndProductId, arg.UserID, arg.ProductID)
+	var i CartProduct
+	err := row.Scan(&i.UserID, &i.ProductID, &i.Quantity)
 	return i, err
 }
 
 const getCartProductsByUserId = `-- name: GetCartProductsByUserId :many
-SELECT id, product_id, user_id, quantity FROM cart_products
+SELECT user_id, product_id, quantity FROM cart_products
 WHERE user_id = $1
 `
 
@@ -55,12 +65,7 @@ func (q *Queries) GetCartProductsByUserId(ctx context.Context, userID uuid.UUID)
 	items := []CartProduct{}
 	for rows.Next() {
 		var i CartProduct
-		if err := rows.Scan(
-			&i.ID,
-			&i.ProductID,
-			&i.UserID,
-			&i.Quantity,
-		); err != nil {
+		if err := rows.Scan(&i.UserID, &i.ProductID, &i.Quantity); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -81,4 +86,25 @@ TRUNCATE TABLE cart_products CASCADE
 func (q *Queries) TruncateCartProductsTable(ctx context.Context) error {
 	_, err := q.db.ExecContext(ctx, truncateCartProductsTable)
 	return err
+}
+
+const updateCartProduct = `-- name: UpdateCartProduct :one
+UPDATE cart_products
+SET
+  quantity = $3
+WHERE user_id = $1 AND product_id = $2
+RETURNING user_id, product_id, quantity
+`
+
+type UpdateCartProductParams struct {
+	UserID    uuid.UUID `json:"user_id"`
+	ProductID uuid.UUID `json:"product_id"`
+	Quantity  int32     `json:"quantity"`
+}
+
+func (q *Queries) UpdateCartProduct(ctx context.Context, arg UpdateCartProductParams) (CartProduct, error) {
+	row := q.db.QueryRowContext(ctx, updateCartProduct, arg.UserID, arg.ProductID, arg.Quantity)
+	var i CartProduct
+	err := row.Scan(&i.UserID, &i.ProductID, &i.Quantity)
+	return i, err
 }

@@ -1,9 +1,11 @@
 CREATE TABLE "cart_products" (
-  "id" uuid PRIMARY KEY,
-  "product_id" uuid NOT NULL,
   "user_id" uuid NOT NULL,
-  "quantity" int NOT NULL
+  "product_id" uuid NOT NULL,
+  "quantity" int NOT NULL,
+  PRIMARY KEY ("user_id", "product_id")
 );
+
+CREATE INDEX ON "cart_products" ("user_id");
 
 ALTER TABLE "cart_products" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 

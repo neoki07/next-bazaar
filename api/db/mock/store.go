@@ -154,6 +154,21 @@ func (mr *MockStoreMockRecorder) DeleteSession(arg0, arg1 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSession", reflect.TypeOf((*MockStore)(nil).DeleteSession), arg0, arg1)
 }
 
+// GetCartProductByUserIdAndProductId mocks base method.
+func (m *MockStore) GetCartProductByUserIdAndProductId(arg0 context.Context, arg1 db.GetCartProductByUserIdAndProductIdParams) (db.CartProduct, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCartProductByUserIdAndProductId", arg0, arg1)
+	ret0, _ := ret[0].(db.CartProduct)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCartProductByUserIdAndProductId indicates an expected call of GetCartProductByUserIdAndProductId.
+func (mr *MockStoreMockRecorder) GetCartProductByUserIdAndProductId(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCartProductByUserIdAndProductId", reflect.TypeOf((*MockStore)(nil).GetCartProductByUserIdAndProductId), arg0, arg1)
+}
+
 // GetCartProductsByUserId mocks base method.
 func (m *MockStore) GetCartProductsByUserId(arg0 context.Context, arg1 uuid.UUID) ([]db.CartProduct, error) {
 	m.ctrl.T.Helper()
@@ -372,4 +387,19 @@ func (m *MockStore) TruncateUsersTable(arg0 context.Context) error {
 func (mr *MockStoreMockRecorder) TruncateUsersTable(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TruncateUsersTable", reflect.TypeOf((*MockStore)(nil).TruncateUsersTable), arg0)
+}
+
+// UpdateCartProduct mocks base method.
+func (m *MockStore) UpdateCartProduct(arg0 context.Context, arg1 db.UpdateCartProductParams) (db.CartProduct, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateCartProduct", arg0, arg1)
+	ret0, _ := ret[0].(db.CartProduct)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateCartProduct indicates an expected call of UpdateCartProduct.
+func (mr *MockStoreMockRecorder) UpdateCartProduct(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCartProduct", reflect.TypeOf((*MockStore)(nil).UpdateCartProduct), arg0, arg1)
 }
