@@ -1,5 +1,16 @@
 basePath: /api/v1
 definitions:
+  api.addProductToCartRequest:
+    properties:
+      product_id:
+        type: string
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - product_id
+    - quantity
+    type: object
   api.createUserRequest:
     properties:
       email:
@@ -86,6 +97,63 @@ info:
   title: Next Bazaar API
   version: 0.0.1
 paths:
+  /cart-products:
+    post:
+      parameters:
+      - description: Cart product object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.addProductToCartRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.messageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Add product to cart
+      tags:
+      - cartProducts
+  /cart-products/{userId}:
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.productResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Get cart products
+      tags:
+      - cartProducts
   /products:
     get:
       parameters:

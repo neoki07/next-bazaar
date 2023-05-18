@@ -2,17 +2,22 @@ import { Price } from '@/components/Price'
 import { Product } from '@/features/products'
 import { Group, Image, Stack, Text, rem, useMantineTheme } from '@mantine/core'
 import { IconBuildingStore } from '@tabler/icons-react'
+import Link from 'next/link'
 
 type ProductCardProps = {
   product: Product
+  getProductLink: (product: Product) => string
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, getProductLink }: ProductCardProps) {
   const theme = useMantineTheme()
+  const productLink = getProductLink(product)
 
   return (
     <Stack spacing="xs">
-      <Image src={product.imageUrl} alt="Tesla Model S" />
+      <Link href={productLink}>
+        <Image src={product.imageUrl} alt="Tesla Model S" />
+      </Link>
       <div>
         <Text
           size="xs"
@@ -22,7 +27,9 @@ export function ProductCard({ product }: ProductCardProps) {
         >
           {product.category}
         </Text>
-        <Text>{product.name}</Text>
+        <Link href={productLink}>
+          <Text>{product.name}</Text>
+        </Link>
         <Price price={product.price} />
         <Group spacing={rem(3)} mt={rem(1)}>
           <IconBuildingStore

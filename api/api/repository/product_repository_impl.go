@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/ot07/next-bazaar/api/product/domain"
+	"github.com/ot07/next-bazaar/api/domain"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 )
 

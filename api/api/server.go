@@ -4,14 +4,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
-	"github.com/ot07/next-bazaar/api/product/repository"
-	"github.com/ot07/next-bazaar/api/product/service"
+	"github.com/ot07/next-bazaar/api/repository"
+	"github.com/ot07/next-bazaar/api/service"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/util"
 )
 
 type handlers struct {
-	product *productHandler
+	product     *productHandler
+	cartProduct *cartProductHandler
 }
 
 func newHandlers(store db.Store) handlers {
@@ -20,8 +21,14 @@ func newHandlers(store db.Store) handlers {
 	productService := service.NewProductService(productRepository)
 	productHandler := newProductHandler(productService)
 
+	/* CartProduct */
+	cartProductRepository := repository.NewCartProductRepository(store)
+	cartProductService := service.NewCartProductService(cartProductRepository)
+	cartProductHandler := newCartProductHandler(cartProductService)
+
 	return handlers{
-		product: productHandler,
+		product:     productHandler,
+		cartProduct: cartProductHandler,
 	}
 }
 
@@ -70,6 +77,9 @@ func (server *Server) setupRouter() {
 
 	v1.Post("/users/logout", server.logoutUser)
 	v1.Get("/users/me", server.getLoggedInUser)
+
+	v1.Get("/cart-products/:user-id", server.handlers.cartProduct.getCartProducts)
+	v1.Post("/cart-products", server.handlers.cartProduct.addProductToCart)
 }
 
 // Start runs the HTTP server on a specific address.
