@@ -9,11 +9,11 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type cartProductRepositoryImpl struct {
+type cartRepositoryImpl struct {
 	store db.Store
 }
 
-func (r *cartProductRepositoryImpl) FindOneByUserIDAndProductID(
+func (r *cartRepositoryImpl) FindOneByUserIDAndProductID(
 	ctx context.Context,
 	params FindOneByUserIDAndProductIDParams,
 ) (*domain.CartProduct, error) {
@@ -49,7 +49,7 @@ func (r *cartProductRepositoryImpl) FindOneByUserIDAndProductID(
 	), nil
 }
 
-func (r *cartProductRepositoryImpl) FindManyByUserID(
+func (r *cartRepositoryImpl) FindManyByUserID(
 	ctx context.Context,
 	userID uuid.UUID,
 ) ([]domain.CartProduct, error) {
@@ -85,7 +85,7 @@ func (r *cartProductRepositoryImpl) FindManyByUserID(
 	return rsp, nil
 }
 
-func (r *cartProductRepositoryImpl) Create(ctx context.Context, params CreateParams) error {
+func (r *cartRepositoryImpl) Create(ctx context.Context, params CreateParams) error {
 	_, err := r.store.CreateCartProduct(ctx, db.CreateCartProductParams{
 		UserID:    params.UserID,
 		ProductID: params.ProductID,
@@ -95,7 +95,7 @@ func (r *cartProductRepositoryImpl) Create(ctx context.Context, params CreatePar
 	return err
 }
 
-func (r *cartProductRepositoryImpl) Update(ctx context.Context, params UpdateParams) error {
+func (r *cartRepositoryImpl) Update(ctx context.Context, params UpdateParams) error {
 	_, err := r.store.UpdateCartProduct(ctx, db.UpdateCartProductParams{
 		UserID:    params.UserID,
 		ProductID: params.ProductID,

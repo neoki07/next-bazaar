@@ -59,15 +59,15 @@ func NewUpdateParams(
 	}
 }
 
-type CartProductRepository interface {
+type CartRepository interface {
 	FindManyByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CartProduct, error)
 	FindOneByUserIDAndProductID(ctx context.Context, params FindOneByUserIDAndProductIDParams) (*domain.CartProduct, error)
 	Create(ctx context.Context, params CreateParams) error
 	Update(ctx context.Context, params UpdateParams) error
 }
 
-func NewCartProductRepository(store db.Store) CartProductRepository {
-	return &cartProductRepositoryImpl{
+func NewCartRepository(store db.Store) CartRepository {
+	return &cartRepositoryImpl{
 		store: store,
 	}
 }

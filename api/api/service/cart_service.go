@@ -9,40 +9,40 @@ import (
 	"github.com/ot07/next-bazaar/api/repository"
 )
 
-type CartProductService struct {
-	repository repository.CartProductRepository
+type CartService struct {
+	repository repository.CartRepository
 }
 
-func NewCartProductService(repository repository.CartProductRepository) *CartProductService {
-	return &CartProductService{
+func NewCartService(repository repository.CartRepository) *CartService {
+	return &CartService{
 		repository: repository,
 	}
 }
 
-func (s *CartProductService) GetCartProductsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CartProduct, error) {
+func (s *CartService) GetProductsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CartProduct, error) {
 	cartProducts, err := s.repository.FindManyByUserID(ctx, userID)
 	return cartProducts, err
 }
 
-type AddProductToCartParams struct {
+type AddProductParams struct {
 	UserID    uuid.UUID
 	ProductID uuid.UUID
 	Quantity  int32
 }
 
-func NewAddProductToCartParams(
+func NewAddProductParams(
 	userID uuid.UUID,
 	productID uuid.UUID,
 	quantity int32,
-) AddProductToCartParams {
-	return AddProductToCartParams{
+) AddProductParams {
+	return AddProductParams{
 		UserID:    userID,
 		ProductID: productID,
 		Quantity:  quantity,
 	}
 }
 
-func (s *CartProductService) AddProductToCart(ctx context.Context, params AddProductToCartParams) error {
+func (s *CartService) AddProduct(ctx context.Context, params AddProductParams) error {
 	arg := repository.NewFindOneByUserIDAndProductIDParams(
 		params.UserID,
 		params.ProductID,

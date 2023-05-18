@@ -11,8 +11,8 @@ import (
 )
 
 type handlers struct {
-	product     *productHandler
-	cartProduct *cartProductHandler
+	product *productHandler
+	cart    *cartHandler
 }
 
 func newHandlers(store db.Store) handlers {
@@ -21,14 +21,14 @@ func newHandlers(store db.Store) handlers {
 	productService := service.NewProductService(productRepository)
 	productHandler := newProductHandler(productService)
 
-	/* CartProduct */
-	cartProductRepository := repository.NewCartProductRepository(store)
-	cartProductService := service.NewCartProductService(cartProductRepository)
-	cartProductHandler := newCartProductHandler(cartProductService)
+	/* Cart */
+	cartRepository := repository.NewCartRepository(store)
+	cartService := service.NewCartService(cartRepository)
+	cartHandler := newCartHandler(cartService)
 
 	return handlers{
-		product:     productHandler,
-		cartProduct: cartProductHandler,
+		product: productHandler,
+		cart:    cartHandler,
 	}
 }
 
@@ -78,8 +78,8 @@ func (server *Server) setupRouter() {
 	v1.Post("/users/logout", server.logoutUser)
 	v1.Get("/users/me", server.getLoggedInUser)
 
-	v1.Get("/cart-products/:user-id", server.handlers.cartProduct.getCartProducts)
-	v1.Post("/cart-products", server.handlers.cartProduct.addProductToCart)
+	v1.Get("/cart-products/:user-id", server.handlers.cart.getCart)
+	v1.Post("/cart-products", server.handlers.cart.addProduct)
 }
 
 // Start runs the HTTP server on a specific address.

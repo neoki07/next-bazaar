@@ -32,45 +32,45 @@ func newCartProductResponse(cartProduct domain.CartProduct) cartProductResponse 
 	}
 }
 
-type cartProductsResponse []cartProductResponse
+type cartResponse []cartProductResponse
 
-func newCartProductsResponse(products []domain.CartProduct) cartProductsResponse {
-	rsp := make(cartProductsResponse, 0, len(products))
+func newCartResponse(products []domain.CartProduct) cartResponse {
+	rsp := make(cartResponse, 0, len(products))
 	for _, product := range products {
 		rsp = append(rsp, newCartProductResponse(product))
 	}
 	return rsp
 }
 
-type getCartProductsRequest struct {
+type getProductsRequest struct {
 	ID uuid.UUID `params:"user_id"`
 }
 
-type cartProductHandler struct {
-	service *service.CartProductService
+type cartHandler struct {
+	service *service.CartService
 }
 
-func newCartProductHandler(s *service.CartProductService) *cartProductHandler {
-	return &cartProductHandler{
+func newCartHandler(s *service.CartService) *cartHandler {
+	return &cartHandler{
 		service: s,
 	}
 }
 
-// @Summary      Get cart products
-// @Tags         cartProducts
+// @Summary      Get cart
+// @Tags         cart
 // @Param        userId path string true "User ID"
 // @Success      200 {object} productResponse
 // @Failure      400 {object} errorResponse
 // @Failure      404 {object} errorResponse
 // @Failure      500 {object} errorResponse
 // @Router       /cart-products/{userId} [get]
-func (h *cartProductHandler) getCartProducts(c *fiber.Ctx) error {
-	req := new(getCartProductsRequest)
+func (h *cartHandler) getCart(c *fiber.Ctx) error {
+	req := new(getProductsRequest)
 	if err := c.ParamsParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
-	cartProducts, err := h.service.GetCartProductsByUserID(c.Context(), req.ID)
+	cartProducts, err := h.service.GetProductsByUserID(c.Context(), req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusNotFound).JSON(newErrorResponse(err))
@@ -78,24 +78,24 @@ func (h *cartProductHandler) getCartProducts(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	rsp := newCartProductsResponse(cartProducts)
+	rsp := newCartResponse(cartProducts)
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
 
-type addProductToCartRequest struct {
+type addProductRequest struct {
 	ProductID uuid.UUID `json:"product_id" validate:"required"`
 	Quantity  int32     `json:"quantity" validate:"required,min=1"`
 }
 
 // @Summary      Add product to cart
-// @Tags         cartProducts
-// @Param        body body addProductToCartRequest true "Cart product object"
+// @Tags         cart
+// @Param        body body addProductRequest true "Cart product object"
 // @Success      200 {object} messageResponse
 // @Failure      400 {object} errorResponse
 // @Failure      403 {object} errorResponse
 // @Failure      500 {object} errorResponse
 // @Router       /cart-products [post]
-func (h *cartProductHandler) addProductToCart(c *fiber.Ctx) error {
+func (h *cartHandler) addProduct(c *fiber.Ctx) error {
 	session, ok := c.Locals(ctxLocalSessionKey).(db.Session)
 	if !ok {
 		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(
@@ -103,7 +103,7 @@ func (h *cartProductHandler) addProductToCart(c *fiber.Ctx) error {
 		))
 	}
 
-	req := new(addProductToCartRequest)
+	req := new(addProductRequest)
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
@@ -113,7 +113,7 @@ func (h *cartProductHandler) addProductToCart(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
-	err := h.service.AddProductToCart(c.Context(), service.NewAddProductToCartParams(
+	err := h.service.AddProduct(c.Context(), service.NewAddProductParams(
 		session.UserID,
 		req.ProductID,
 		req.Quantity,
