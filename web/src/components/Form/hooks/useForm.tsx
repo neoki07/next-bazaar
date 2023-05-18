@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { BoxProps } from '@mantine/core'
 import { useId } from '@mantine/hooks'
-import { ReactNode, useState } from 'react'
+import { ReactNode, useMemo } from 'react'
 import {
   FieldValues,
   FormProvider,
@@ -47,7 +47,7 @@ export function useForm<
     ...rest,
   })
 
-  const [Form] = useState(() => {
+  const Form = useMemo(() => {
     function Form({ children }: FormProps) {
       return (
         <FormProvider {...methods}>
@@ -62,7 +62,7 @@ export function useForm<
     }
 
     return Form
-  })
+  }, [id, methods, onSubmit, onSubmitError])
 
   return [Form, methods] as const
 }

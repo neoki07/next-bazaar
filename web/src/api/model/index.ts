@@ -5,6 +5,7 @@
  * OpenAPI spec version: 0.0.1
  */
 
+export * from './apiAddProductToCartRequest'
 export * from './apiCreateUserRequest'
 export * from './apiErrorResponse'
 export * from './apiListProductsResponse'
