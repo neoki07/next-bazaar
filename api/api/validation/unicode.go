@@ -1,4 +1,4 @@
-package validations
+package validation
 
 import (
 	"unicode"
@@ -6,8 +6,8 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// WithoutSpace checks if the field value does not contain any spaces
-func WithoutSpace(fl validator.FieldLevel) bool {
+// withoutSpace checks if the field value does not contain any spaces
+func withoutSpace(fl validator.FieldLevel) bool {
 	fieldValue := fl.Field().String()
 
 	for _, char := range fieldValue {
@@ -19,8 +19,8 @@ func WithoutSpace(fl validator.FieldLevel) bool {
 	return true
 }
 
-// WithoutPunct checks if the field value does not contain any punctuation marks
-func WithoutPunct(fl validator.FieldLevel) bool {
+// withoutPunct checks if the field value does not contain any punctuation marks
+func withoutPunct(fl validator.FieldLevel) bool {
 	fieldValue := fl.Field().String()
 
 	for _, char := range fieldValue {
@@ -32,8 +32,8 @@ func WithoutPunct(fl validator.FieldLevel) bool {
 	return true
 }
 
-// WithoutSymbol checks if the field value does not contain any symbol characters
-func WithoutSymbol(fl validator.FieldLevel) bool {
+// withoutSymbol checks if the field value does not contain any symbol characters
+func withoutSymbol(fl validator.FieldLevel) bool {
 	fieldValue := fl.Field().String()
 
 	for _, char := range fieldValue {

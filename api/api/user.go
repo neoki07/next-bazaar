@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/lib/pq"
+	"github.com/ot07/next-bazaar/api/validation"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/token"
 	"github.com/ot07/next-bazaar/util"
@@ -31,7 +32,7 @@ func (server *Server) createUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
-	validate := newValidator()
+	validate := validation.NewValidator()
 	if err := validate.Struct(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
@@ -85,7 +86,7 @@ func (server *Server) loginUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
-	validate := newValidator()
+	validate := validation.NewValidator()
 	if err := validate.Struct(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}

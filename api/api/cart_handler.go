@@ -9,6 +9,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/ot07/next-bazaar/api/domain"
 	"github.com/ot07/next-bazaar/api/service"
+	"github.com/ot07/next-bazaar/api/validation"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 )
 
@@ -108,7 +109,7 @@ func (h *cartHandler) addProduct(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
-	validate := newValidator()
+	validate := validation.NewValidator()
 	if err := validate.Struct(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
