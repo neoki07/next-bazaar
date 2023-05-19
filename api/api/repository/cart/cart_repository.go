@@ -1,10 +1,10 @@
-package repository
+package cart_repository
 
 import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/ot07/next-bazaar/api/domain"
+	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 )
 
@@ -60,8 +60,8 @@ func NewUpdateParams(
 }
 
 type CartRepository interface {
-	FindManyByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CartProduct, error)
-	FindOneByUserIDAndProductID(ctx context.Context, params FindOneByUserIDAndProductIDParams) (*domain.CartProduct, error)
+	FindManyByUserID(ctx context.Context, userID uuid.UUID) ([]cart_domain.CartProduct, error)
+	FindOneByUserIDAndProductID(ctx context.Context, params FindOneByUserIDAndProductIDParams) (*cart_domain.CartProduct, error)
 	Create(ctx context.Context, params CreateParams) error
 	Update(ctx context.Context, params UpdateParams) error
 }

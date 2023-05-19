@@ -7,8 +7,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/ot07/next-bazaar/api/domain"
-	"github.com/ot07/next-bazaar/api/service"
+	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
+	cart_service "github.com/ot07/next-bazaar/api/service/cart"
 	"github.com/ot07/next-bazaar/api/validation"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 )
@@ -22,7 +22,7 @@ type cartProductResponse struct {
 	Subtotal    string        `json:"subtotal"`
 }
 
-func newCartProductResponse(cartProduct domain.CartProduct) cartProductResponse {
+func newCartProductResponse(cartProduct cart_domain.CartProduct) cartProductResponse {
 	return cartProductResponse{
 		ID:          cartProduct.ID,
 		Name:        cartProduct.Name,
@@ -35,7 +35,7 @@ func newCartProductResponse(cartProduct domain.CartProduct) cartProductResponse 
 
 type cartResponse []cartProductResponse
 
-func newCartResponse(products []domain.CartProduct) cartResponse {
+func newCartResponse(products []cart_domain.CartProduct) cartResponse {
 	rsp := make(cartResponse, 0, len(products))
 	for _, product := range products {
 		rsp = append(rsp, newCartProductResponse(product))
@@ -48,10 +48,10 @@ type getProductsRequest struct {
 }
 
 type cartHandler struct {
-	service *service.CartService
+	service *cart_service.CartService
 }
 
-func newCartHandler(s *service.CartService) *cartHandler {
+func newCartHandler(s *cart_service.CartService) *cartHandler {
 	return &cartHandler{
 		service: s,
 	}
@@ -114,7 +114,7 @@ func (h *cartHandler) addProduct(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
-	err := h.service.AddProduct(c.Context(), service.NewAddProductParams(
+	err := h.service.AddProduct(c.Context(), cart_service.NewAddProductParams(
 		session.UserID,
 		req.ProductID,
 		req.Quantity,

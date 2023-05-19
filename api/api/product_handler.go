@@ -6,8 +6,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/ot07/next-bazaar/api/domain"
-	"github.com/ot07/next-bazaar/api/service"
+	product_domain "github.com/ot07/next-bazaar/api/domain/product"
+	product_service "github.com/ot07/next-bazaar/api/service/product"
 	"github.com/ot07/next-bazaar/api/validation"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 )
@@ -23,7 +23,7 @@ type productResponse struct {
 	ImageUrl      db.NullString `json:"image_url" swaggertype:"string"`
 }
 
-func newProductResponse(product domain.Product) productResponse {
+func newProductResponse(product product_domain.Product) productResponse {
 	return productResponse{
 		ID:            product.ID,
 		Name:          product.Name,
@@ -38,7 +38,7 @@ func newProductResponse(product domain.Product) productResponse {
 
 type productsResponse []productResponse
 
-func newProductsResponse(products []domain.Product) productsResponse {
+func newProductsResponse(products []product_domain.Product) productsResponse {
 	rsp := make(productsResponse, 0, len(products))
 	for _, product := range products {
 		rsp = append(rsp, newProductResponse(product))
@@ -51,10 +51,10 @@ type getProductRequest struct {
 }
 
 type productHandler struct {
-	service *service.ProductService
+	service *product_service.ProductService
 }
 
-func newProductHandler(s *service.ProductService) *productHandler {
+func newProductHandler(s *product_service.ProductService) *productHandler {
 	return &productHandler{
 		service: s,
 	}

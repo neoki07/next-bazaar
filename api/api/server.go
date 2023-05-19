@@ -4,8 +4,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
-	"github.com/ot07/next-bazaar/api/repository"
-	"github.com/ot07/next-bazaar/api/service"
+	cart_repository "github.com/ot07/next-bazaar/api/repository/cart"
+	product_repository "github.com/ot07/next-bazaar/api/repository/product"
+	cart_service "github.com/ot07/next-bazaar/api/service/cart"
+	product_service "github.com/ot07/next-bazaar/api/service/product"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/util"
 )
@@ -17,13 +19,13 @@ type handlers struct {
 
 func newHandlers(store db.Store) handlers {
 	/* Product */
-	productRepository := repository.NewProductRepository(store)
-	productService := service.NewProductService(productRepository)
+	productRepository := product_repository.NewProductRepository(store)
+	productService := product_service.NewProductService(productRepository)
 	productHandler := newProductHandler(productService)
 
 	/* Cart */
-	cartRepository := repository.NewCartRepository(store)
-	cartService := service.NewCartService(cartRepository)
+	cartRepository := cart_repository.NewCartRepository(store)
+	cartService := cart_service.NewCartService(cartRepository)
 	cartHandler := newCartHandler(cartService)
 
 	return handlers{

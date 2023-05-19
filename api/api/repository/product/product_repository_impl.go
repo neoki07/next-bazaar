@@ -1,10 +1,10 @@
-package repository
+package product_repository
 
 import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/ot07/next-bazaar/api/domain"
+	product_domain "github.com/ot07/next-bazaar/api/domain/product"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 )
 
@@ -30,7 +30,7 @@ type productRepositoryImpl struct {
 	store db.Store
 }
 
-func (r *productRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*domain.Product, error) {
+func (r *productRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*product_domain.Product, error) {
 	product, err := r.store.GetProduct(ctx, id)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (r *productRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*do
 		return nil, err
 	}
 
-	rsp := domain.NewProduct(
+	rsp := product_domain.NewProduct(
 		product.ID,
 		product.Name,
 		product.Description,
@@ -64,7 +64,7 @@ func (r *productRepositoryImpl) FindMany(
 	ctx context.Context,
 	pageID int32,
 	pageSize int32,
-) ([]domain.Product, error) {
+) ([]product_domain.Product, error) {
 	arg := db.ListProductsParams{
 		Limit:  pageSize,
 		Offset: (pageID - 1) * pageSize,
@@ -97,9 +97,9 @@ func (r *productRepositoryImpl) FindMany(
 		sellersMap[seller.ID] = seller.Name
 	}
 
-	rsp := make([]domain.Product, len(products))
+	rsp := make([]product_domain.Product, len(products))
 	for i, product := range products {
-		rsp[i] = *domain.NewProduct(
+		rsp[i] = *product_domain.NewProduct(
 			product.ID,
 			product.Name,
 			product.Description,
@@ -114,7 +114,7 @@ func (r *productRepositoryImpl) FindMany(
 	return rsp, nil
 }
 
-func (r *productRepositoryImpl) Create(ctx context.Context, product *domain.Product) error {
+func (r *productRepositoryImpl) Create(ctx context.Context, product *product_domain.Product) error {
 	return nil
 }
 

@@ -1,25 +1,25 @@
-package service
+package cart_service
 
 import (
 	"context"
 	"database/sql"
 
 	"github.com/google/uuid"
-	"github.com/ot07/next-bazaar/api/domain"
-	"github.com/ot07/next-bazaar/api/repository"
+	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
+	cart_repository "github.com/ot07/next-bazaar/api/repository/cart"
 )
 
 type CartService struct {
-	repository repository.CartRepository
+	repository cart_repository.CartRepository
 }
 
-func NewCartService(repository repository.CartRepository) *CartService {
+func NewCartService(repository cart_repository.CartRepository) *CartService {
 	return &CartService{
 		repository: repository,
 	}
 }
 
-func (s *CartService) GetProductsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CartProduct, error) {
+func (s *CartService) GetProductsByUserID(ctx context.Context, userID uuid.UUID) ([]cart_domain.CartProduct, error) {
 	cartProducts, err := s.repository.FindManyByUserID(ctx, userID)
 	return cartProducts, err
 }
@@ -43,7 +43,7 @@ func NewAddProductParams(
 }
 
 func (s *CartService) AddProduct(ctx context.Context, params AddProductParams) error {
-	arg := repository.NewFindOneByUserIDAndProductIDParams(
+	arg := cart_repository.NewFindOneByUserIDAndProductIDParams(
 		params.UserID,
 		params.ProductID,
 	)
@@ -52,14 +52,14 @@ func (s *CartService) AddProduct(ctx context.Context, params AddProductParams) e
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	} else if err != nil && err == sql.ErrNoRows {
-		return s.repository.Create(ctx, repository.NewCreateParams(
+		return s.repository.Create(ctx, cart_repository.NewCreateParams(
 			params.UserID,
 			params.ProductID,
 			params.Quantity,
 		))
 	}
 
-	return s.repository.Update(ctx, repository.NewUpdateParams(
+	return s.repository.Update(ctx, cart_repository.NewUpdateParams(
 		params.UserID,
 		params.ProductID,
 		params.Quantity+cartProduct.Quantity,

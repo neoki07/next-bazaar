@@ -1,10 +1,10 @@
-package repository
+package cart_repository
 
 import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/ot07/next-bazaar/api/domain"
+	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/shopspring/decimal"
 )
@@ -16,7 +16,7 @@ type cartRepositoryImpl struct {
 func (r *cartRepositoryImpl) FindOneByUserIDAndProductID(
 	ctx context.Context,
 	params FindOneByUserIDAndProductIDParams,
-) (*domain.CartProduct, error) {
+) (*cart_domain.CartProduct, error) {
 	arg := db.GetCartProductByUserIdAndProductIdParams{
 		UserID:    params.UserID,
 		ProductID: params.ProductID,
@@ -39,7 +39,7 @@ func (r *cartRepositoryImpl) FindOneByUserIDAndProductID(
 
 	quantity := decimal.NewFromInt32(cartProduct.Quantity)
 
-	return domain.NewCartProduct(
+	return cart_domain.NewCartProduct(
 		product.ID,
 		product.Name,
 		product.Description,
@@ -52,13 +52,13 @@ func (r *cartRepositoryImpl) FindOneByUserIDAndProductID(
 func (r *cartRepositoryImpl) FindManyByUserID(
 	ctx context.Context,
 	userID uuid.UUID,
-) ([]domain.CartProduct, error) {
+) ([]cart_domain.CartProduct, error) {
 	cartProducts, err := r.store.GetCartProductsByUserId(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	rsp := make([]domain.CartProduct, len(cartProducts))
+	rsp := make([]cart_domain.CartProduct, len(cartProducts))
 	for i, cartProduct := range cartProducts {
 		product, err := r.store.GetProduct(ctx, cartProduct.ProductID)
 		if err != nil {
@@ -72,7 +72,7 @@ func (r *cartRepositoryImpl) FindManyByUserID(
 
 		quantity := decimal.NewFromInt32(cartProduct.Quantity)
 
-		rsp[i] = *domain.NewCartProduct(
+		rsp[i] = *cart_domain.NewCartProduct(
 			product.ID,
 			product.Name,
 			product.Description,
