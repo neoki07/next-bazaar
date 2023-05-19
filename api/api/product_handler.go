@@ -5,50 +5,10 @@ import (
 	"math"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	product_domain "github.com/ot07/next-bazaar/api/domain/product"
 	product_service "github.com/ot07/next-bazaar/api/service/product"
 	"github.com/ot07/next-bazaar/api/validation"
-	db "github.com/ot07/next-bazaar/db/sqlc"
 )
-
-type productResponse struct {
-	ID            uuid.UUID     `json:"id"`
-	Name          string        `json:"name"`
-	Description   db.NullString `json:"description" swaggertype:"string"`
-	Price         string        `json:"price"`
-	StockQuantity int32         `json:"stock_quantity"`
-	Category      string        `json:"category"`
-	Seller        string        `json:"seller"`
-	ImageUrl      db.NullString `json:"image_url" swaggertype:"string"`
-}
-
-func newProductResponse(product product_domain.Product) productResponse {
-	return productResponse{
-		ID:            product.ID,
-		Name:          product.Name,
-		Description:   db.NullString{NullString: product.Description},
-		Price:         product.Price,
-		StockQuantity: product.StockQuantity,
-		Category:      product.Category,
-		Seller:        product.Seller,
-		ImageUrl:      db.NullString{NullString: product.ImageUrl},
-	}
-}
-
-type productsResponse []productResponse
-
-func newProductsResponse(products []product_domain.Product) productsResponse {
-	rsp := make(productsResponse, 0, len(products))
-	for _, product := range products {
-		rsp = append(rsp, newProductResponse(product))
-	}
-	return rsp
-}
-
-type getProductRequest struct {
-	ID uuid.UUID `params:"id"`
-}
 
 type productHandler struct {
 	service *product_service.ProductService
@@ -69,7 +29,7 @@ func newProductHandler(s *product_service.ProductService) *productHandler {
 // @Failure      500 {object} errorResponse
 // @Router       /products/{id} [get]
 func (h *productHandler) getProduct(c *fiber.Ctx) error {
-	req := new(getProductRequest)
+	req := new(product_domain.GetProductRequest)
 	if err := c.ParamsParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
@@ -82,25 +42,8 @@ func (h *productHandler) getProduct(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	rsp := newProductResponse(*product)
+	rsp := product_domain.NewProductResponse(*product)
 	return c.Status(fiber.StatusOK).JSON(rsp)
-}
-
-type listProductsRequest struct {
-	PageID   int32 `query:"page_id" json:"page_id" validate:"required,min=1"`
-	PageSize int32 `query:"page_size" json:"page_size" validate:"required,min=1,max=100"`
-}
-
-type listProductsResponseMeta struct {
-	PageID     int32 `json:"page_id"`
-	PageSize   int32 `json:"page_size"`
-	PageCount  int64 `json:"page_count"`
-	TotalCount int64 `json:"total_count"`
-}
-
-type listProductsResponse struct {
-	Meta listProductsResponseMeta `json:"meta"`
-	Data productsResponse         `json:"data"`
 }
 
 // @Summary      List products
@@ -111,7 +54,7 @@ type listProductsResponse struct {
 // @Failure      500 {object} errorResponse
 // @Router       /products [get]
 func (h *productHandler) listProducts(c *fiber.Ctx) error {
-	req := new(listProductsRequest)
+	req := new(product_domain.ListProductsRequest)
 	if err := c.QueryParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
@@ -133,14 +76,14 @@ func (h *productHandler) listProducts(c *fiber.Ctx) error {
 
 	pageCount := int64(math.Ceil(float64(totalCount) / float64(req.PageSize)))
 
-	rsp := listProductsResponse{
-		Meta: listProductsResponseMeta{
+	rsp := product_domain.ListProductsResponse{
+		Meta: product_domain.ListProductsResponseMeta{
 			PageID:     req.PageID,
 			PageSize:   req.PageSize,
 			PageCount:  pageCount,
 			TotalCount: totalCount,
 		},
-		Data: newProductsResponse(products),
+		Data: product_domain.NewProductsResponse(products),
 	}
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }

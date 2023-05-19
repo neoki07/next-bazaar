@@ -5,47 +5,12 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
 	cart_service "github.com/ot07/next-bazaar/api/service/cart"
 	"github.com/ot07/next-bazaar/api/validation"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 )
-
-type cartProductResponse struct {
-	ID          uuid.UUID     `json:"id"`
-	Name        string        `json:"name"`
-	Description db.NullString `json:"description" swaggertype:"string"`
-	Price       string        `json:"price"`
-	Quantity    int32         `json:"quantity"`
-	Subtotal    string        `json:"subtotal"`
-}
-
-func newCartProductResponse(cartProduct cart_domain.CartProduct) cartProductResponse {
-	return cartProductResponse{
-		ID:          cartProduct.ID,
-		Name:        cartProduct.Name,
-		Description: db.NullString{NullString: cartProduct.Description},
-		Price:       cartProduct.Price,
-		Quantity:    cartProduct.Quantity,
-		Subtotal:    cartProduct.Subtotal,
-	}
-}
-
-type cartResponse []cartProductResponse
-
-func newCartResponse(products []cart_domain.CartProduct) cartResponse {
-	rsp := make(cartResponse, 0, len(products))
-	for _, product := range products {
-		rsp = append(rsp, newCartProductResponse(product))
-	}
-	return rsp
-}
-
-type getProductsRequest struct {
-	ID uuid.UUID `params:"user_id"`
-}
 
 type cartHandler struct {
 	service *cart_service.CartService
@@ -66,7 +31,7 @@ func newCartHandler(s *cart_service.CartService) *cartHandler {
 // @Failure      500 {object} errorResponse
 // @Router       /cart-products/{userId} [get]
 func (h *cartHandler) getCart(c *fiber.Ctx) error {
-	req := new(getProductsRequest)
+	req := new(cart_domain.GetProductsRequest)
 	if err := c.ParamsParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
@@ -79,13 +44,8 @@ func (h *cartHandler) getCart(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	rsp := newCartResponse(cartProducts)
+	rsp := cart_domain.NewCartResponse(cartProducts)
 	return c.Status(fiber.StatusOK).JSON(rsp)
-}
-
-type addProductRequest struct {
-	ProductID uuid.UUID `json:"product_id" validate:"required"`
-	Quantity  int32     `json:"quantity" validate:"required,min=1"`
 }
 
 // @Summary      Add product to cart
@@ -104,7 +64,7 @@ func (h *cartHandler) addProduct(c *fiber.Ctx) error {
 		))
 	}
 
-	req := new(addProductRequest)
+	req := new(cart_domain.AddProductRequest)
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
