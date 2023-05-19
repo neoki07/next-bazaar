@@ -59,10 +59,7 @@ func (server *Server) createUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	rsp := messageResponse{
-		Message: "Congratulations! You are now a member of our online bazaar. Start exploring!",
-	}
-
+	rsp := newMessageResponse("Congratulations! You are now a member of our online bazaar. Start exploring!")
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
 
@@ -122,9 +119,7 @@ func (server *Server) loginUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	rsp := messageResponse{
-		Message: "Welcome to our online bazaar! Get ready to discover unique treasures and amazing deals.",
-	}
+	rsp := newMessageResponse("Welcome to our online bazaar! Get ready to discover unique treasures and amazing deals.")
 
 	c.Cookie(&fiber.Cookie{
 		Name:     cookieSessionTokenKey,
@@ -160,9 +155,7 @@ func (server *Server) logoutUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	rsp := messageResponse{
-		Message: "Thank you for visiting us, we look forward to your next visit!",
-	}
+	rsp := newMessageResponse("Thank you for visiting us, we look forward to your next visit!")
 
 	c.ClearCookie(cookieSessionTokenKey)
 

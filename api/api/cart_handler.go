@@ -129,9 +129,6 @@ func (h *cartHandler) addProduct(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	rsp := messageResponse{
-		Message: "Cart product created successfully",
-	}
-
+	rsp := newMessageResponse("Cart product added successfully")
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
