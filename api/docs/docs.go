@@ -18,7 +18,7 @@ const docTemplate = `{
         "/cart-products": {
             "post": {
                 "tags": [
-                    "cartProducts"
+                    "Cart"
                 ],
                 "summary": "Add product to cart",
                 "parameters": [
@@ -28,7 +28,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.addProductToCartRequest"
+                            "$ref": "#/definitions/cart_domain.AddProductRequest"
                         }
                     }
                 ],
@@ -63,9 +63,9 @@ const docTemplate = `{
         "/cart-products/{userId}": {
             "get": {
                 "tags": [
-                    "cartProducts"
+                    "Cart"
                 ],
-                "summary": "Get cart products",
+                "summary": "Get cart",
                 "parameters": [
                     {
                         "type": "string",
@@ -79,7 +79,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.productResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/cart_domain.CartProductResponse"
+                            }
                         }
                     },
                     "400": {
@@ -106,7 +109,7 @@ const docTemplate = `{
         "/products": {
             "get": {
                 "tags": [
-                    "products"
+                    "Products"
                 ],
                 "summary": "List products",
                 "parameters": [
@@ -130,7 +133,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.listProductsResponse"
+                            "$ref": "#/definitions/product_domain.ListProductsResponse"
                         }
                     },
                     "400": {
@@ -151,7 +154,7 @@ const docTemplate = `{
         "/products/{id}": {
             "get": {
                 "tags": [
-                    "products"
+                    "Products"
                 ],
                 "summary": "Get product",
                 "parameters": [
@@ -167,7 +170,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.productResponse"
+                            "$ref": "#/definitions/product_domain.ProductResponse"
                         }
                     },
                     "400": {
@@ -194,7 +197,7 @@ const docTemplate = `{
         "/users": {
             "post": {
                 "tags": [
-                    "users"
+                    "Users"
                 ],
                 "summary": "Create user",
                 "parameters": [
@@ -204,7 +207,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.createUserRequest"
+                            "$ref": "#/definitions/user_domain.CreateUserRequest"
                         }
                     }
                 ],
@@ -239,7 +242,7 @@ const docTemplate = `{
         "/users/login": {
             "post": {
                 "tags": [
-                    "users"
+                    "Users"
                 ],
                 "summary": "Login user",
                 "parameters": [
@@ -249,7 +252,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.loginUserRequest"
+                            "$ref": "#/definitions/user_domain.LoginUserRequest"
                         }
                     }
                 ],
@@ -290,7 +293,7 @@ const docTemplate = `{
         "/users/logout": {
             "post": {
                 "tags": [
-                    "users"
+                    "Users"
                 ],
                 "summary": "Logout user",
                 "responses": {
@@ -318,14 +321,14 @@ const docTemplate = `{
         "/users/me": {
             "get": {
                 "tags": [
-                    "users"
+                    "Users"
                 ],
                 "summary": "Get logged in user",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.userResponse"
+                            "$ref": "#/definitions/user_domain.UserResponse"
                         }
                     },
                     "401": {
@@ -345,7 +348,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "api.addProductToCartRequest": {
+        "api.errorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.messageResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "cart_domain.AddProductRequest": {
             "type": "object",
             "required": [
                 "product_id",
@@ -361,49 +380,44 @@ const docTemplate = `{
                 }
             }
         },
-        "api.createUserRequest": {
+        "cart_domain.CartProductResponse": {
             "type": "object",
-            "required": [
-                "email",
-                "name",
-                "password"
-            ],
             "properties": {
-                "email": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "name": {
                     "type": "string"
                 },
-                "password": {
-                    "type": "string",
-                    "minLength": 8
-                }
-            }
-        },
-        "api.errorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
+                "price": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "subtotal": {
                     "type": "string"
                 }
             }
         },
-        "api.listProductsResponse": {
+        "product_domain.ListProductsResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/api.productResponse"
+                        "$ref": "#/definitions/product_domain.ProductResponse"
                     }
                 },
                 "meta": {
-                    "$ref": "#/definitions/api.listProductsResponseMeta"
+                    "$ref": "#/definitions/product_domain.ListProductsResponseMeta"
                 }
             }
         },
-        "api.listProductsResponseMeta": {
+        "product_domain.ListProductsResponseMeta": {
             "type": "object",
             "properties": {
                 "page_count": {
@@ -420,31 +434,7 @@ const docTemplate = `{
                 }
             }
         },
-        "api.loginUserRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string",
-                    "minLength": 8
-                }
-            }
-        },
-        "api.messageResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "api.productResponse": {
+        "product_domain.ProductResponse": {
             "type": "object",
             "properties": {
                 "category": {
@@ -473,7 +463,43 @@ const docTemplate = `{
                 }
             }
         },
-        "api.userResponse": {
+        "user_domain.CreateUserRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                }
+            }
+        },
+        "user_domain.LoginUserRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                }
+            }
+        },
+        "user_domain.UserResponse": {
             "type": "object",
             "properties": {
                 "email": {

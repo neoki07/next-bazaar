@@ -16,11 +16,11 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import type { ErrorType } from '../../custom-axios-instance'
 import { customAxiosInstance } from '../../custom-axios-instance'
 import type {
-  ApiCreateUserRequest,
   ApiErrorResponse,
-  ApiLoginUserRequest,
   ApiMessageResponse,
-  ApiUserResponse,
+  UserDomainCreateUserRequest,
+  UserDomainLoginUserRequest,
+  UserDomainUserResponse,
 } from '../../model'
 
 // eslint-disable-next-line
@@ -35,7 +35,7 @@ type SecondParameter<T extends (...args: any) => any> = T extends (
  * @summary Create user
  */
 export const postUsers = (
-  apiCreateUserRequest: ApiCreateUserRequest,
+  userDomainCreateUserRequest: UserDomainCreateUserRequest,
   options?: SecondParameter<typeof customAxiosInstance>
 ) => {
   return customAxiosInstance<ApiMessageResponse>(
@@ -43,7 +43,7 @@ export const postUsers = (
       url: `/users`,
       method: 'post',
       headers: { 'Content-Type': 'application/json' },
-      data: apiCreateUserRequest,
+      data: userDomainCreateUserRequest,
     },
     options
   )
@@ -56,21 +56,21 @@ export const getPostUsersMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
     TError,
-    { data: ApiCreateUserRequest },
+    { data: UserDomainCreateUserRequest },
     TContext
   >
   request?: SecondParameter<typeof customAxiosInstance>
 }): UseMutationOptions<
   Awaited<ReturnType<typeof postUsers>>,
   TError,
-  { data: ApiCreateUserRequest },
+  { data: UserDomainCreateUserRequest },
   TContext
 > => {
   const { mutation: mutationOptions, request: requestOptions } = options ?? {}
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postUsers>>,
-    { data: ApiCreateUserRequest }
+    { data: UserDomainCreateUserRequest }
   > = (props) => {
     const { data } = props ?? {}
 
@@ -83,7 +83,7 @@ export const getPostUsersMutationOptions = <
 export type PostUsersMutationResult = NonNullable<
   Awaited<ReturnType<typeof postUsers>>
 >
-export type PostUsersMutationBody = ApiCreateUserRequest
+export type PostUsersMutationBody = UserDomainCreateUserRequest
 export type PostUsersMutationError = ErrorType<ApiErrorResponse>
 
 export const usePostUsers = <
@@ -93,7 +93,7 @@ export const usePostUsers = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
     TError,
-    { data: ApiCreateUserRequest },
+    { data: UserDomainCreateUserRequest },
     TContext
   >
   request?: SecondParameter<typeof customAxiosInstance>
@@ -106,7 +106,7 @@ export const usePostUsers = <
  * @summary Login user
  */
 export const postUsersLogin = (
-  apiLoginUserRequest: ApiLoginUserRequest,
+  userDomainLoginUserRequest: UserDomainLoginUserRequest,
   options?: SecondParameter<typeof customAxiosInstance>
 ) => {
   return customAxiosInstance<ApiMessageResponse>(
@@ -114,7 +114,7 @@ export const postUsersLogin = (
       url: `/users/login`,
       method: 'post',
       headers: { 'Content-Type': 'application/json' },
-      data: apiLoginUserRequest,
+      data: userDomainLoginUserRequest,
     },
     options
   )
@@ -127,21 +127,21 @@ export const getPostUsersLoginMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsersLogin>>,
     TError,
-    { data: ApiLoginUserRequest },
+    { data: UserDomainLoginUserRequest },
     TContext
   >
   request?: SecondParameter<typeof customAxiosInstance>
 }): UseMutationOptions<
   Awaited<ReturnType<typeof postUsersLogin>>,
   TError,
-  { data: ApiLoginUserRequest },
+  { data: UserDomainLoginUserRequest },
   TContext
 > => {
   const { mutation: mutationOptions, request: requestOptions } = options ?? {}
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postUsersLogin>>,
-    { data: ApiLoginUserRequest }
+    { data: UserDomainLoginUserRequest }
   > = (props) => {
     const { data } = props ?? {}
 
@@ -154,7 +154,7 @@ export const getPostUsersLoginMutationOptions = <
 export type PostUsersLoginMutationResult = NonNullable<
   Awaited<ReturnType<typeof postUsersLogin>>
 >
-export type PostUsersLoginMutationBody = ApiLoginUserRequest
+export type PostUsersLoginMutationBody = UserDomainLoginUserRequest
 export type PostUsersLoginMutationError = ErrorType<ApiErrorResponse>
 
 export const usePostUsersLogin = <
@@ -164,7 +164,7 @@ export const usePostUsersLogin = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsersLogin>>,
     TError,
-    { data: ApiLoginUserRequest },
+    { data: UserDomainLoginUserRequest },
     TContext
   >
   request?: SecondParameter<typeof customAxiosInstance>
@@ -245,7 +245,7 @@ export const getUsersMe = (
   options?: SecondParameter<typeof customAxiosInstance>,
   signal?: AbortSignal
 ) => {
-  return customAxiosInstance<ApiUserResponse>(
+  return customAxiosInstance<UserDomainUserResponse>(
     { url: `/users/me`, method: 'get', signal },
     options
   )

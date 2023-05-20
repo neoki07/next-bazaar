@@ -1,6 +1,16 @@
 basePath: /api/v1
 definitions:
-  api.addProductToCartRequest:
+  api.errorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  api.messageResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  cart_domain.AddProductRequest:
     properties:
       product_id:
         type: string
@@ -11,35 +21,31 @@ definitions:
     - product_id
     - quantity
     type: object
-  api.createUserRequest:
+  cart_domain.CartProductResponse:
     properties:
-      email:
+      description:
+        type: string
+      id:
         type: string
       name:
         type: string
-      password:
-        minLength: 8
+      price:
         type: string
-    required:
-    - email
-    - name
-    - password
-    type: object
-  api.errorResponse:
-    properties:
-      error:
+      quantity:
+        type: integer
+      subtotal:
         type: string
     type: object
-  api.listProductsResponse:
+  product_domain.ListProductsResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/api.productResponse'
+          $ref: '#/definitions/product_domain.ProductResponse'
         type: array
       meta:
-        $ref: '#/definitions/api.listProductsResponseMeta'
+        $ref: '#/definitions/product_domain.ListProductsResponseMeta'
     type: object
-  api.listProductsResponseMeta:
+  product_domain.ListProductsResponseMeta:
     properties:
       page_count:
         type: integer
@@ -50,23 +56,7 @@ definitions:
       total_count:
         type: integer
     type: object
-  api.loginUserRequest:
-    properties:
-      email:
-        type: string
-      password:
-        minLength: 8
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  api.messageResponse:
-    properties:
-      message:
-        type: string
-    type: object
-  api.productResponse:
+  product_domain.ProductResponse:
     properties:
       category:
         type: string
@@ -85,7 +75,32 @@ definitions:
       stock_quantity:
         type: integer
     type: object
-  api.userResponse:
+  user_domain.CreateUserRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  user_domain.LoginUserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  user_domain.UserResponse:
     properties:
       email:
         type: string
@@ -105,7 +120,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/api.addProductToCartRequest'
+          $ref: '#/definitions/cart_domain.AddProductRequest'
       responses:
         "200":
           description: OK
@@ -125,7 +140,7 @@ paths:
             $ref: '#/definitions/api.errorResponse'
       summary: Add product to cart
       tags:
-      - cartProducts
+      - Cart
   /cart-products/{userId}:
     get:
       parameters:
@@ -138,7 +153,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.productResponse'
+            items:
+              $ref: '#/definitions/cart_domain.CartProductResponse'
+            type: array
         "400":
           description: Bad Request
           schema:
@@ -151,9 +168,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/api.errorResponse'
-      summary: Get cart products
+      summary: Get cart
       tags:
-      - cartProducts
+      - Cart
   /products:
     get:
       parameters:
@@ -172,7 +189,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.listProductsResponse'
+            $ref: '#/definitions/product_domain.ListProductsResponse'
         "400":
           description: Bad Request
           schema:
@@ -183,7 +200,7 @@ paths:
             $ref: '#/definitions/api.errorResponse'
       summary: List products
       tags:
-      - products
+      - Products
   /products/{id}:
     get:
       parameters:
@@ -196,7 +213,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.productResponse'
+            $ref: '#/definitions/product_domain.ProductResponse'
         "400":
           description: Bad Request
           schema:
@@ -211,7 +228,7 @@ paths:
             $ref: '#/definitions/api.errorResponse'
       summary: Get product
       tags:
-      - products
+      - Products
   /users:
     post:
       parameters:
@@ -220,7 +237,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/api.createUserRequest'
+          $ref: '#/definitions/user_domain.CreateUserRequest'
       responses:
         "200":
           description: OK
@@ -240,7 +257,7 @@ paths:
             $ref: '#/definitions/api.errorResponse'
       summary: Create user
       tags:
-      - users
+      - Users
   /users/login:
     post:
       parameters:
@@ -249,7 +266,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/api.loginUserRequest'
+          $ref: '#/definitions/user_domain.LoginUserRequest'
       responses:
         "200":
           description: OK
@@ -273,7 +290,7 @@ paths:
             $ref: '#/definitions/api.errorResponse'
       summary: Login user
       tags:
-      - users
+      - Users
   /users/logout:
     post:
       responses:
@@ -291,14 +308,14 @@ paths:
             $ref: '#/definitions/api.errorResponse'
       summary: Logout user
       tags:
-      - users
+      - Users
   /users/me:
     get:
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.userResponse'
+            $ref: '#/definitions/user_domain.UserResponse'
         "401":
           description: Unauthorized
           schema:
@@ -309,5 +326,5 @@ paths:
             $ref: '#/definitions/api.errorResponse'
       summary: Get logged in user
       tags:
-      - users
+      - Users
 swagger: "2.0"

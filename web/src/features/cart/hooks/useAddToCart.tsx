@@ -1,5 +1,5 @@
 import { ErrorType } from '@/api/custom-axios-instance'
-import { usePostCartProducts } from '@/api/endpoints/cart-products/cart-products'
+import { usePostCartProducts } from '@/api/endpoints/cart/cart'
 import { ApiErrorResponse } from '@/api/model'
 
 interface UseAddToCartParams {
