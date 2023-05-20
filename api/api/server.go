@@ -55,7 +55,7 @@ type Server struct {
 func NewServer(config util.Config, store db.Store) (*Server, error) {
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000",
+		AllowOrigins:     "http://localhost:3000,https://next-bazaar.vercel.app",
 		AllowCredentials: true,
 	}))
 
