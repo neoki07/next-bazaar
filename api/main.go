@@ -16,7 +16,7 @@ import (
 // @version 0.0.1
 // @BasePath /api/v1
 func main() {
-	config, err := util.LoadConfig(".")
+	config, err := util.LoadConfig()
 	if err != nil {
 		log.Fatal("cannot load config:", err)
 	}

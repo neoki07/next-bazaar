@@ -16,7 +16,7 @@ import (
 func setup() (context.Context, *db.SQLStore, error) {
 	ctx := context.Background()
 
-	config, err := util.LoadConfig(".")
+	config, err := util.LoadConfig()
 	if err != nil {
 		return nil, nil, fmt.Errorf("cannot load config: %w", err)
 	}
