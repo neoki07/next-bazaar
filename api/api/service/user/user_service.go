@@ -20,19 +20,19 @@ func NewUserService(repository user_repository.UserRepository) *UserService {
 	}
 }
 
-func (s *UserService) GetUser(ctx context.Context, id uuid.UUID) (*user_domain.User, error) {
+func (s *UserService) GetUser(ctx context.Context, id uuid.UUID) (user_domain.User, error) {
 	user, err := s.repository.FindByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return user_domain.User{}, err
 	}
 
 	return user, err
 }
 
-func (s *UserService) GetUserByEmail(ctx context.Context, email string) (*user_domain.User, error) {
+func (s *UserService) GetUserByEmail(ctx context.Context, email string) (user_domain.User, error) {
 	user, err := s.repository.FindByEmail(ctx, email)
 	if err != nil {
-		return nil, err
+		return user_domain.User{}, err
 	}
 
 	return user, err

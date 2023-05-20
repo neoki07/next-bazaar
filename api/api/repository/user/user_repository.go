@@ -21,8 +21,8 @@ type CreateSessionParams struct {
 }
 
 type UserRepository interface {
-	FindByEmail(ctx context.Context, email string) (*user_domain.User, error)
-	FindByID(ctx context.Context, id uuid.UUID) (*user_domain.User, error)
+	FindByEmail(ctx context.Context, email string) (user_domain.User, error)
+	FindByID(ctx context.Context, id uuid.UUID) (user_domain.User, error)
 	Create(ctx context.Context, params CreateParams) error
 	CreateSession(ctx context.Context, params CreateSessionParams) error
 	DeleteSession(ctx context.Context, sessionToken uuid.UUID) error

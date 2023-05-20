@@ -61,7 +61,7 @@ func NewUpdateParams(
 
 type CartRepository interface {
 	FindManyByUserID(ctx context.Context, userID uuid.UUID) ([]cart_domain.CartProduct, error)
-	FindOneByUserIDAndProductID(ctx context.Context, params FindOneByUserIDAndProductIDParams) (*cart_domain.CartProduct, error)
+	FindOneByUserIDAndProductID(ctx context.Context, params FindOneByUserIDAndProductIDParams) (cart_domain.CartProduct, error)
 	Create(ctx context.Context, params CreateParams) error
 	Update(ctx context.Context, params UpdateParams) error
 }

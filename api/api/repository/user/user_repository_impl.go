@@ -12,38 +12,38 @@ type userRepositoryImpl struct {
 	store db.Store
 }
 
-func (r *userRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*user_domain.User, error) {
+func (r *userRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (user_domain.User, error) {
 	user, err := r.store.GetUser(ctx, id)
 	if err != nil {
-		return nil, err
+		return user_domain.User{}, err
 	}
 
-	rsp := user_domain.NewUser(
-		user.ID,
-		user.Name,
-		user.Email,
-		user.HashedPassword,
-		user.PasswordChangedAt,
-		user.CreatedAt,
-	)
+	rsp := user_domain.User{
+		ID:                user.ID,
+		Name:              user.Name,
+		Email:             user.Email,
+		HashedPassword:    user.HashedPassword,
+		PasswordChangedAt: user.PasswordChangedAt,
+		CreatedAt:         user.CreatedAt,
+	}
 
 	return rsp, nil
 }
 
-func (r *userRepositoryImpl) FindByEmail(ctx context.Context, email string) (*user_domain.User, error) {
+func (r *userRepositoryImpl) FindByEmail(ctx context.Context, email string) (user_domain.User, error) {
 	user, err := r.store.GetUserByEmail(ctx, email)
 	if err != nil {
-		return nil, err
+		return user_domain.User{}, err
 	}
 
-	rsp := user_domain.NewUser(
-		user.ID,
-		user.Name,
-		user.Email,
-		user.HashedPassword,
-		user.PasswordChangedAt,
-		user.CreatedAt,
-	)
+	rsp := user_domain.User{
+		ID:                user.ID,
+		Name:              user.Name,
+		Email:             user.Email,
+		HashedPassword:    user.HashedPassword,
+		PasswordChangedAt: user.PasswordChangedAt,
+		CreatedAt:         user.CreatedAt,
+	}
 
 	return rsp, nil
 }

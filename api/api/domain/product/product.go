@@ -16,25 +16,3 @@ type Product struct {
 	Seller        string
 	ImageUrl      sql.NullString
 }
-
-func NewProduct(
-	id uuid.UUID,
-	name string,
-	description sql.NullString,
-	price string,
-	stockQuantity int32,
-	category string,
-	seller string,
-	imageUrl sql.NullString,
-) *Product {
-	return &Product{
-		ID:            id,
-		Name:          name,
-		Description:   description,
-		Price:         price,
-		StockQuantity: stockQuantity,
-		Category:      category,
-		Seller:        seller,
-		ImageUrl:      imageUrl,
-	}
-}

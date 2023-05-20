@@ -176,7 +176,7 @@ func (h *userHandler) getLoggedInUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	rsp := user_domain.NewUserResponse(*user)
+	rsp := user_domain.NewUserResponse(user)
 
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }

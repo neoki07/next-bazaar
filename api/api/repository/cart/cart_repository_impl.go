@@ -16,7 +16,7 @@ type cartRepositoryImpl struct {
 func (r *cartRepositoryImpl) FindOneByUserIDAndProductID(
 	ctx context.Context,
 	params FindOneByUserIDAndProductIDParams,
-) (*cart_domain.CartProduct, error) {
+) (cart_domain.CartProduct, error) {
 	arg := db.GetCartProductByUserIdAndProductIdParams{
 		UserID:    params.UserID,
 		ProductID: params.ProductID,
@@ -24,29 +24,29 @@ func (r *cartRepositoryImpl) FindOneByUserIDAndProductID(
 
 	cartProduct, err := r.store.GetCartProductByUserIdAndProductId(ctx, arg)
 	if err != nil {
-		return nil, err
+		return cart_domain.CartProduct{}, err
 	}
 
 	product, err := r.store.GetProduct(ctx, cartProduct.ProductID)
 	if err != nil {
-		return nil, err
+		return cart_domain.CartProduct{}, err
 	}
 
 	price, err := decimal.NewFromString(product.Price)
 	if err != nil {
-		return nil, err
+		return cart_domain.CartProduct{}, err
 	}
 
 	quantity := decimal.NewFromInt32(cartProduct.Quantity)
 
-	return cart_domain.NewCartProduct(
-		product.ID,
-		product.Name,
-		product.Description,
-		product.Price,
-		cartProduct.Quantity,
-		price.Mul(quantity).String(),
-	), nil
+	return cart_domain.CartProduct{
+		ID:          product.ID,
+		Name:        product.Name,
+		Description: product.Description,
+		Price:       product.Price,
+		Quantity:    cartProduct.Quantity,
+		Subtotal:    price.Mul(quantity).String(),
+	}, nil
 }
 
 func (r *cartRepositoryImpl) FindManyByUserID(
@@ -72,14 +72,14 @@ func (r *cartRepositoryImpl) FindManyByUserID(
 
 		quantity := decimal.NewFromInt32(cartProduct.Quantity)
 
-		rsp[i] = *cart_domain.NewCartProduct(
-			product.ID,
-			product.Name,
-			product.Description,
-			product.Price,
-			cartProduct.Quantity,
-			price.Mul(quantity).String(),
-		)
+		rsp[i] = cart_domain.CartProduct{
+			ID:          product.ID,
+			Name:        product.Name,
+			Description: product.Description,
+			Price:       product.Price,
+			Quantity:    cartProduct.Quantity,
+			Subtotal:    price.Mul(quantity).String(),
+		}
 	}
 
 	return rsp, nil

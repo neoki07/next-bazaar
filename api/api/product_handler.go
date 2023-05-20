@@ -42,7 +42,7 @@ func (h *productHandler) getProduct(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	rsp := product_domain.NewProductResponse(*product)
+	rsp := product_domain.NewProductResponse(product)
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
 

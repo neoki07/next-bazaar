@@ -18,7 +18,7 @@ func NewProductService(repository product_repository.ProductRepository) *Product
 	}
 }
 
-func (s *ProductService) GetProduct(ctx context.Context, id uuid.UUID) (*product_domain.Product, error) {
+func (s *ProductService) GetProduct(ctx context.Context, id uuid.UUID) (product_domain.Product, error) {
 	product, err := s.repository.FindByID(ctx, id)
 	return product, err
 }

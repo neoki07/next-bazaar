@@ -14,22 +14,3 @@ type User struct {
 	PasswordChangedAt time.Time
 	CreatedAt         time.Time
 }
-
-func NewUser(
-	id uuid.UUID,
-	name string,
-	email string,
-	hashedPassword string,
-	passwordChangedAt time.Time,
-	createdAt time.Time,
-) *User {
-	return &User{
-		ID:                id,
-		Name:              name,
-		Email:             email,
-		HashedPassword:    hashedPassword,
-		PasswordChangedAt: passwordChangedAt,
-		CreatedAt:         createdAt,
-	}
-
-}

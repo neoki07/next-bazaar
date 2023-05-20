@@ -30,32 +30,32 @@ type productRepositoryImpl struct {
 	store db.Store
 }
 
-func (r *productRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*product_domain.Product, error) {
+func (r *productRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (product_domain.Product, error) {
 	product, err := r.store.GetProduct(ctx, id)
 	if err != nil {
-		return nil, err
+		return product_domain.Product{}, err
 	}
 
 	category, err := r.store.GetCategory(ctx, product.CategoryID)
 	if err != nil {
-		return nil, err
+		return product_domain.Product{}, err
 	}
 
 	seller, err := r.store.GetUser(ctx, product.SellerID)
 	if err != nil {
-		return nil, err
+		return product_domain.Product{}, err
 	}
 
-	rsp := product_domain.NewProduct(
-		product.ID,
-		product.Name,
-		product.Description,
-		product.Price,
-		product.StockQuantity,
-		category.Name,
-		seller.Name,
-		product.ImageUrl,
-	)
+	rsp := product_domain.Product{
+		ID:            product.ID,
+		Name:          product.Name,
+		Description:   product.Description,
+		Price:         product.Price,
+		StockQuantity: product.StockQuantity,
+		Category:      category.Name,
+		Seller:        seller.Name,
+		ImageUrl:      product.ImageUrl,
+	}
 
 	return rsp, nil
 }
@@ -99,22 +99,22 @@ func (r *productRepositoryImpl) FindMany(
 
 	rsp := make([]product_domain.Product, len(products))
 	for i, product := range products {
-		rsp[i] = *product_domain.NewProduct(
-			product.ID,
-			product.Name,
-			product.Description,
-			product.Price,
-			product.StockQuantity,
-			categoriesMap[product.CategoryID],
-			sellersMap[product.SellerID],
-			product.ImageUrl,
-		)
+		rsp[i] = product_domain.Product{
+			ID:            product.ID,
+			Name:          product.Name,
+			Description:   product.Description,
+			Price:         product.Price,
+			StockQuantity: product.StockQuantity,
+			Category:      categoriesMap[product.CategoryID],
+			Seller:        sellersMap[product.SellerID],
+			ImageUrl:      product.ImageUrl,
+		}
 	}
 
 	return rsp, nil
 }
 
-func (r *productRepositoryImpl) Create(ctx context.Context, product *product_domain.Product) error {
+func (r *productRepositoryImpl) Create(ctx context.Context, product product_domain.Product) error {
 	return nil
 }
 
