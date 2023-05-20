@@ -15,6 +15,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	user_domain "github.com/ot07/next-bazaar/api/domain/user"
 	mockdb "github.com/ot07/next-bazaar/db/mock"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/util"
@@ -625,7 +626,7 @@ func requireBodyMatchUser(t *testing.T, body io.ReadCloser, user db.User) {
 	data, err := io.ReadAll(body)
 	require.NoError(t, err)
 
-	var gotUser userResponse
+	var gotUser user_domain.UserResponse
 	err = json.Unmarshal(data, &gotUser)
 	require.NoError(t, err)
 
@@ -635,7 +636,7 @@ func requireBodyMatchUser(t *testing.T, body io.ReadCloser, user db.User) {
 	require.NoError(t, err)
 }
 
-func requireUserResponseMatchUser(t *testing.T, gotUser userResponse, user db.User) {
+func requireUserResponseMatchUser(t *testing.T, gotUser user_domain.UserResponse, user db.User) {
 	require.Equal(t, user.Name, gotUser.Name)
 	require.Equal(t, user.Email, gotUser.Email)
 }

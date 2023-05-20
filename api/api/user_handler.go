@@ -6,16 +6,23 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/lib/pq"
+	user_domain "github.com/ot07/next-bazaar/api/domain/user"
+	user_service "github.com/ot07/next-bazaar/api/service/user"
 	"github.com/ot07/next-bazaar/api/validation"
 	db "github.com/ot07/next-bazaar/db/sqlc"
-	"github.com/ot07/next-bazaar/token"
 	"github.com/ot07/next-bazaar/util"
 )
 
-type createUserRequest struct {
-	Name     string `json:"name" validate:"required,without_space,without_punct,without_symbol"`
-	Email    string `json:"email" validate:"required,email" swaggertype:"string"`
-	Password string `json:"password" validate:"required,min=8"`
+type userHandler struct {
+	service *user_service.UserService
+	config  util.Config
+}
+
+func newUserHandler(s *user_service.UserService, config util.Config) *userHandler {
+	return &userHandler{
+		service: s,
+		config:  config,
+	}
 }
 
 // @Summary      Create user
@@ -26,8 +33,8 @@ type createUserRequest struct {
 // @Failure      403 {object} errorResponse
 // @Failure      500 {object} errorResponse
 // @Router       /users [post]
-func (server *Server) createUser(c *fiber.Ctx) error {
-	req := new(createUserRequest)
+func (h *userHandler) createUser(c *fiber.Ctx) error {
+	req := new(user_domain.CreateUserRequest)
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
@@ -42,13 +49,13 @@ func (server *Server) createUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	arg := db.CreateUserParams{
+	arg := user_service.CreateUserParams{
 		Name:           req.Name,
 		Email:          req.Email,
 		HashedPassword: hashedPassword,
 	}
 
-	_, err = server.store.CreateUser(c.Context(), arg)
+	err = h.service.CreateUser(c.Context(), arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -63,11 +70,6 @@ func (server *Server) createUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
 
-type loginUserRequest struct {
-	Email    string `json:"email" validate:"required,email" swaggertype:"string"`
-	Password string `json:"password" validate:"required,min=8"`
-}
-
 // @Summary      Login user
 // @Tags         users
 // @Param        body body loginUserRequest true "User object"
@@ -77,8 +79,8 @@ type loginUserRequest struct {
 // @Failure      404 {object} errorResponse
 // @Failure      500 {object} errorResponse
 // @Router       /users/login [post]
-func (server *Server) loginUser(c *fiber.Ctx) error {
-	req := new(loginUserRequest)
+func (h *userHandler) loginUser(c *fiber.Ctx) error {
+	req := new(user_domain.LoginUserRequest)
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
@@ -88,7 +90,7 @@ func (server *Server) loginUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
-	user, err := server.store.GetUserByEmail(c.Context(), req.Email)
+	user, err := h.service.GetUserByEmail(c.Context(), req.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
@@ -101,17 +103,7 @@ func (server *Server) loginUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
 	}
 
-	sessionToken := token.NewToken(
-		server.config.SessionTokenDuration,
-	)
-
-	arg := db.CreateSessionParams{
-		UserID:       user.ID,
-		SessionToken: sessionToken.ID,
-		ExpiredAt:    sessionToken.ExpiredAt,
-	}
-
-	_, err = server.store.CreateSession(c.Context(), arg)
+	sessionToken, err := h.service.CreateSession(c.Context(), user.ID, h.config.SessionTokenDuration)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusNotFound).JSON(newErrorResponse(err))
@@ -127,7 +119,7 @@ func (server *Server) loginUser(c *fiber.Ctx) error {
 		HTTPOnly: true,
 		SameSite: "none",
 		Secure:   true,
-		MaxAge:   int(server.config.SessionTokenDuration.Seconds()),
+		MaxAge:   int(h.config.SessionTokenDuration.Seconds()),
 	})
 
 	return c.Status(fiber.StatusOK).JSON(rsp)
@@ -135,11 +127,11 @@ func (server *Server) loginUser(c *fiber.Ctx) error {
 
 // @Summary      Logout user
 // @Tags         users
-// @Success      200 {object} messageResponse
+// @Success      200 {object} messageRespose
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
 // @Router       /users/logout [post]
-func (server *Server) logoutUser(c *fiber.Ctx) error {
+func (h *userHandler) logoutUser(c *fiber.Ctx) error {
 	session, ok := c.Locals(ctxLocalSessionKey).(db.Session)
 	if !ok {
 		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(
@@ -147,7 +139,7 @@ func (server *Server) logoutUser(c *fiber.Ctx) error {
 		))
 	}
 
-	err := server.store.DeleteSession(c.Context(), session.SessionToken)
+	err := h.service.DeleteSession(c.Context(), session.SessionToken)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
@@ -162,25 +154,13 @@ func (server *Server) logoutUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
 
-type userResponse struct {
-	Name  string `json:"name"`
-	Email string `json:"email" swaggertype:"string"`
-}
-
-func newUserResponse(user db.User) userResponse {
-	return userResponse{
-		Name:  user.Name,
-		Email: user.Email,
-	}
-}
-
 // @Summary      Get logged in user
 // @Tags         users
 // @Success      200 {object} userResponse
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
 // @Router       /users/me [get]
-func (server *Server) getLoggedInUser(c *fiber.Ctx) error {
+func (h *userHandler) getLoggedInUser(c *fiber.Ctx) error {
 	session, ok := c.Locals(ctxLocalSessionKey).(db.Session)
 	if !ok {
 		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(
@@ -188,7 +168,7 @@ func (server *Server) getLoggedInUser(c *fiber.Ctx) error {
 		))
 	}
 
-	user, err := server.store.GetUser(c.Context(), session.UserID)
+	user, err := h.service.GetUser(c.Context(), session.UserID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
@@ -196,7 +176,7 @@ func (server *Server) getLoggedInUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	rsp := newUserResponse(user)
+	rsp := user_domain.NewUserResponse(*user)
 
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
