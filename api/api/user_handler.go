@@ -26,8 +26,8 @@ func newUserHandler(s *user_service.UserService, config util.Config) *userHandle
 }
 
 // @Summary      Create user
-// @Tags         users
-// @Param        body body createUserRequest true "User object"
+// @Tags         Users
+// @Param        body body user_domain.CreateUserRequest true "User object"
 // @Success      200 {object} messageResponse
 // @Failure      400 {object} errorResponse
 // @Failure      403 {object} errorResponse
@@ -71,8 +71,8 @@ func (h *userHandler) createUser(c *fiber.Ctx) error {
 }
 
 // @Summary      Login user
-// @Tags         users
-// @Param        body body loginUserRequest true "User object"
+// @Tags         Users
+// @Param        body body user_domain.LoginUserRequest true "User object"
 // @Success      200 {object} messageResponse
 // @Failure      400 {object} errorResponse
 // @Failure      401 {object} errorResponse
@@ -126,8 +126,8 @@ func (h *userHandler) loginUser(c *fiber.Ctx) error {
 }
 
 // @Summary      Logout user
-// @Tags         users
-// @Success      200 {object} messageRespose
+// @Tags         Users
+// @Success      200 {object} messageResponse
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
 // @Router       /users/logout [post]
@@ -155,8 +155,8 @@ func (h *userHandler) logoutUser(c *fiber.Ctx) error {
 }
 
 // @Summary      Get logged in user
-// @Tags         users
-// @Success      200 {object} userResponse
+// @Tags         Users
+// @Success      200 {object} user_domain.UserResponse
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
 // @Router       /users/me [get]

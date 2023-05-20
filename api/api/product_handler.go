@@ -21,9 +21,9 @@ func newProductHandler(s *product_service.ProductService) *productHandler {
 }
 
 // @Summary      Get product
-// @Tags         products
+// @Tags         Products
 // @Param        id path string true "Product ID"
-// @Success      200 {object} productResponse
+// @Success      200 {object} product_domain.ProductResponse
 // @Failure      400 {object} errorResponse
 // @Failure      404 {object} errorResponse
 // @Failure      500 {object} errorResponse
@@ -47,9 +47,9 @@ func (h *productHandler) getProduct(c *fiber.Ctx) error {
 }
 
 // @Summary      List products
-// @Tags         products
-// @Param        query query listProductsRequest true "query"
-// @Success      200 {object} listProductsResponse
+// @Tags         Products
+// @Param        query query product_domain.ListProductsRequest true "query"
+// @Success      200 {object} product_domain.ListProductsResponse
 // @Failure      400 {object} errorResponse
 // @Failure      500 {object} errorResponse
 // @Router       /products [get]

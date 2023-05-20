@@ -23,9 +23,9 @@ func newCartHandler(s *cart_service.CartService) *cartHandler {
 }
 
 // @Summary      Get cart
-// @Tags         cart
+// @Tags         Cart
 // @Param        userId path string true "User ID"
-// @Success      200 {object} productResponse
+// @Success      200 {object} cart_domain.CartResponse
 // @Failure      400 {object} errorResponse
 // @Failure      404 {object} errorResponse
 // @Failure      500 {object} errorResponse
@@ -49,8 +49,8 @@ func (h *cartHandler) getCart(c *fiber.Ctx) error {
 }
 
 // @Summary      Add product to cart
-// @Tags         cart
-// @Param        body body addProductRequest true "Cart product object"
+// @Tags         Cart
+// @Param        body body cart_domain.AddProductRequest true "Cart product object"
 // @Success      200 {object} messageResponse
 // @Failure      400 {object} errorResponse
 // @Failure      403 {object} errorResponse
