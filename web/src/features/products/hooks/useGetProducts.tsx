@@ -1,19 +1,19 @@
 import { useGetProducts as useGetProductsQuery } from '@/api/endpoints/products/products'
 import {
-  ApiListProductsResponse,
-  ApiListProductsResponseMeta,
+  ProductDomainListProductsResponse,
+  ProductDomainListProductsResponseMeta,
 } from '@/api/model'
 import { transformProduct } from '@/features/products/utils/transform'
 import { AxiosResponse } from 'axios'
 import { Product } from '../types'
 
 interface GetProductsResultData {
-  meta: ApiListProductsResponseMeta
+  meta: ProductDomainListProductsResponseMeta
   data: Product[]
 }
 
 function transform(
-  response: AxiosResponse<ApiListProductsResponse>
+  response: AxiosResponse<ProductDomainListProductsResponse>
 ): GetProductsResultData {
   const { data } = response
   if (data.meta === undefined || data.data === undefined) {

@@ -1,8 +1,10 @@
-import { ApiProductResponse } from '@/api/model'
+import { ProductDomainProductResponse } from '@/api/model'
 import { Product } from '@/features/products'
 import Decimal from 'decimal.js'
 
-export function transformProduct(product: ApiProductResponse): Product {
+export function transformProduct(
+  product: ProductDomainProductResponse
+): Product {
   if (
     product.id === undefined ||
     product.name === undefined ||

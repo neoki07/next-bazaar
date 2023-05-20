@@ -1,10 +1,12 @@
 import { useGetProductsId as useGetProductQuery } from '@/api/endpoints/products/products'
-import { ApiProductResponse } from '@/api/model'
+import { ProductDomainProductResponse } from '@/api/model'
 import { transformProduct } from '@/features/products/utils/transform'
 import { AxiosResponse } from 'axios'
 import { Product } from '../types'
 
-function transform(response: AxiosResponse<ApiProductResponse>): Product {
+function transform(
+  response: AxiosResponse<ProductDomainProductResponse>
+): Product {
   return transformProduct(response.data)
 }
 
