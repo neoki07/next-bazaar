@@ -5,7 +5,8 @@
  * OpenAPI spec version: 0.0.1
  */
 
-export interface ApiAddProductToCartRequest {
-  product_id: string
-  quantity: number
+export interface UserDomainCreateUserRequest {
+  email: string
+  name: string
+  password: string
 }

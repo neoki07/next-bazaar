@@ -5,13 +5,14 @@
  * OpenAPI spec version: 0.0.1
  */
 
-export * from './apiAddProductToCartRequest'
-export * from './apiCreateUserRequest'
 export * from './apiErrorResponse'
-export * from './apiListProductsResponse'
-export * from './apiListProductsResponseMeta'
-export * from './apiLoginUserRequest'
 export * from './apiMessageResponse'
-export * from './apiProductResponse'
-export * from './apiUserResponse'
+export * from './cartDomainAddProductRequest'
+export * from './cartDomainCartProductResponse'
 export * from './getProductsParams'
+export * from './productDomainListProductsResponse'
+export * from './productDomainListProductsResponseMeta'
+export * from './productDomainProductResponse'
+export * from './userDomainCreateUserRequest'
+export * from './userDomainLoginUserRequest'
+export * from './userDomainUserResponse'

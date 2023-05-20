@@ -16,10 +16,10 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import type { ErrorType } from '../../custom-axios-instance'
 import { customAxiosInstance } from '../../custom-axios-instance'
 import type {
-  ApiAddProductToCartRequest,
   ApiErrorResponse,
   ApiMessageResponse,
-  ApiProductResponse,
+  CartDomainAddProductRequest,
+  CartDomainCartProductResponse,
 } from '../../model'
 
 // eslint-disable-next-line
@@ -34,7 +34,7 @@ type SecondParameter<T extends (...args: any) => any> = T extends (
  * @summary Add product to cart
  */
 export const postCartProducts = (
-  apiAddProductToCartRequest: ApiAddProductToCartRequest,
+  cartDomainAddProductRequest: CartDomainAddProductRequest,
   options?: SecondParameter<typeof customAxiosInstance>
 ) => {
   return customAxiosInstance<ApiMessageResponse>(
@@ -42,7 +42,7 @@ export const postCartProducts = (
       url: `/cart-products`,
       method: 'post',
       headers: { 'Content-Type': 'application/json' },
-      data: apiAddProductToCartRequest,
+      data: cartDomainAddProductRequest,
     },
     options
   )
@@ -55,21 +55,21 @@ export const getPostCartProductsMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postCartProducts>>,
     TError,
-    { data: ApiAddProductToCartRequest },
+    { data: CartDomainAddProductRequest },
     TContext
   >
   request?: SecondParameter<typeof customAxiosInstance>
 }): UseMutationOptions<
   Awaited<ReturnType<typeof postCartProducts>>,
   TError,
-  { data: ApiAddProductToCartRequest },
+  { data: CartDomainAddProductRequest },
   TContext
 > => {
   const { mutation: mutationOptions, request: requestOptions } = options ?? {}
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postCartProducts>>,
-    { data: ApiAddProductToCartRequest }
+    { data: CartDomainAddProductRequest }
   > = (props) => {
     const { data } = props ?? {}
 
@@ -82,7 +82,7 @@ export const getPostCartProductsMutationOptions = <
 export type PostCartProductsMutationResult = NonNullable<
   Awaited<ReturnType<typeof postCartProducts>>
 >
-export type PostCartProductsMutationBody = ApiAddProductToCartRequest
+export type PostCartProductsMutationBody = CartDomainAddProductRequest
 export type PostCartProductsMutationError = ErrorType<ApiErrorResponse>
 
 export const usePostCartProducts = <
@@ -92,7 +92,7 @@ export const usePostCartProducts = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postCartProducts>>,
     TError,
-    { data: ApiAddProductToCartRequest },
+    { data: CartDomainAddProductRequest },
     TContext
   >
   request?: SecondParameter<typeof customAxiosInstance>
@@ -102,14 +102,14 @@ export const usePostCartProducts = <
   return useMutation(mutationOptions)
 }
 /**
- * @summary Get cart products
+ * @summary Get cart
  */
 export const getCartProductsUserId = (
   userId: string,
   options?: SecondParameter<typeof customAxiosInstance>,
   signal?: AbortSignal
 ) => {
-  return customAxiosInstance<ApiProductResponse>(
+  return customAxiosInstance<CartDomainCartProductResponse[]>(
     { url: `/cart-products/${userId}`, method: 'get', signal },
     options
   )

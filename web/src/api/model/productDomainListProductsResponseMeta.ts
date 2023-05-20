@@ -5,7 +5,7 @@
  * OpenAPI spec version: 0.0.1
  */
 
-export interface ApiListProductsResponseMeta {
+export interface ProductDomainListProductsResponseMeta {
   page_count?: number
   page_id?: number
   page_size?: number

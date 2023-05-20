@@ -5,7 +5,7 @@
  * OpenAPI spec version: 0.0.1
  */
 
-export interface ApiUserResponse {
-  email?: string
-  name?: string
+export interface CartDomainAddProductRequest {
+  product_id: string
+  quantity: number
 }

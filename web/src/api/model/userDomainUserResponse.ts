@@ -5,8 +5,7 @@
  * OpenAPI spec version: 0.0.1
  */
 
-export interface ApiCreateUserRequest {
-  email: string
-  name: string
-  password: string
+export interface UserDomainUserResponse {
+  email?: string
+  name?: string
 }

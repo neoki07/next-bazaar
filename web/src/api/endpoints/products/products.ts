@@ -15,9 +15,9 @@ import type { ErrorType } from '../../custom-axios-instance'
 import { customAxiosInstance } from '../../custom-axios-instance'
 import type {
   ApiErrorResponse,
-  ApiListProductsResponse,
-  ApiProductResponse,
   GetProductsParams,
+  ProductDomainListProductsResponse,
+  ProductDomainProductResponse,
 } from '../../model'
 
 // eslint-disable-next-line
@@ -36,7 +36,7 @@ export const getProducts = (
   options?: SecondParameter<typeof customAxiosInstance>,
   signal?: AbortSignal
 ) => {
-  return customAxiosInstance<ApiListProductsResponse>(
+  return customAxiosInstance<ProductDomainListProductsResponse>(
     { url: `/products`, method: 'get', params, signal },
     options
   )
@@ -110,7 +110,7 @@ export const getProductsId = (
   options?: SecondParameter<typeof customAxiosInstance>,
   signal?: AbortSignal
 ) => {
-  return customAxiosInstance<ApiProductResponse>(
+  return customAxiosInstance<ProductDomainProductResponse>(
     { url: `/products/${id}`, method: 'get', signal },
     options
   )

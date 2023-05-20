@@ -5,7 +5,7 @@
  * OpenAPI spec version: 0.0.1
  */
 
-export interface ApiProductResponse {
+export interface ProductDomainProductResponse {
   category?: string
   description?: string
   id?: string
