@@ -13,13 +13,8 @@ import (
 	_ "github.com/ot07/next-bazaar/docs"
 )
 
-func setup() (context.Context, *db.SQLStore, error) {
+func setup(config util.Config) (context.Context, *db.SQLStore, error) {
 	ctx := context.Background()
-
-	config, err := util.LoadConfig()
-	if err != nil {
-		return nil, nil, fmt.Errorf("cannot load config: %w", err)
-	}
 
 	conn, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
@@ -56,9 +51,9 @@ func truncateAllTables(ctx context.Context, store *db.SQLStore) error {
 	return nil
 }
 
-func runSeed(ctx context.Context, store *db.SQLStore) error {
+func runSeed(ctx context.Context, store *db.SQLStore, config util.Config) error {
 	log.Println("creating user test data...")
-	err := db.CreateUserTestData(ctx, store)
+	err := db.CreateUserTestData(ctx, store, config)
 	if err != nil {
 		log.Fatal("cannot create user test data:", err)
 	}
@@ -70,7 +65,7 @@ func runSeed(ctx context.Context, store *db.SQLStore) error {
 	}
 
 	log.Println("creating product test data...")
-	err = db.CreateProductTestData(ctx, store)
+	err = db.CreateProductTestData(ctx, store, config)
 	if err != nil {
 		log.Fatal("cannot create product test data:", err)
 	}
@@ -81,7 +76,12 @@ func runSeed(ctx context.Context, store *db.SQLStore) error {
 func main() {
 	log.Println("starting seed...")
 
-	ctx, store, err := setup()
+	config, err := util.LoadConfig()
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+
+	ctx, store, err := setup(config)
 	if err != nil {
 		log.Fatalf("failed to set up: %v", err)
 	}
@@ -91,7 +91,7 @@ func main() {
 		log.Fatalf("failed to truncate all tables: %v", err)
 	}
 
-	err = runSeed(ctx, store)
+	err = runSeed(ctx, store, config)
 	if err != nil {
 		log.Fatalf("failed to run seed: %v", err)
 	}

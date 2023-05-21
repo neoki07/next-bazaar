@@ -13,6 +13,9 @@ type Config struct {
 	DBSource             string
 	ServerAddress        string
 	SessionTokenDuration time.Duration
+	TestAccountUsername  string
+	TestAccountEmail     string
+	TestAccountPassword  string
 }
 
 func getEnv(key string) (string, error) {
@@ -46,12 +49,33 @@ func LoadConfig() (config Config, err error) {
 	}
 
 	sessionTokenDuration, err := time.ParseDuration(sessionTokenDurationStr)
+	if err != nil {
+		return
+	}
+
+	testAccountUsername, err := getEnv("TEST_ACCOUNT_USERNAME")
+	if err != nil {
+		return
+	}
+
+	testAccountEmail, err := getEnv("TEST_ACCOUNT_EMAIL")
+	if err != nil {
+		return
+	}
+
+	testAccountPassword, err := getEnv("TEST_ACCOUNT_PASSWORD")
+	if err != nil {
+		return
+	}
 
 	config = Config{
 		DBDriver:             dbDriver,
 		DBSource:             dbSource,
 		ServerAddress:        serverAddress,
 		SessionTokenDuration: sessionTokenDuration,
+		TestAccountUsername:  testAccountUsername,
+		TestAccountEmail:     testAccountEmail,
+		TestAccountPassword:  testAccountPassword,
 	}
 
 	return

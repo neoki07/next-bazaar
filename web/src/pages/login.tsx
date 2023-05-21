@@ -6,6 +6,7 @@ import {
   Button,
   Center,
   Container,
+  Divider,
   Paper,
   Stack,
   Text,
@@ -34,6 +35,14 @@ export default function LoginPage() {
   const { login } = useAuth({
     onLoginError: handleLoginError,
   })
+
+  const loginWithTestAccount = useCallback(() => {
+    setIsLoginButtonClicked(true)
+    login({
+      email: process.env.NEXT_PUBLIC_TEST_ACCOUNT_EMAIL || '',
+      password: process.env.NEXT_PUBLIC_TEST_ACCOUNT_PASSWORD || '',
+    })
+  }, [login])
 
   const [Form, methods] = useForm<{
     email: string
@@ -101,6 +110,17 @@ export default function LoginPage() {
             </Anchor>
           </Link>
         </Text>
+
+        <Divider my="xs" label="OR" labelPosition="center" />
+
+        <Button
+          variant="outline"
+          fullWidth
+          disabled={isLoginButtonClicked}
+          onClick={loginWithTestAccount}
+        >
+          Log in with Test Account
+        </Button>
       </Stack>
     </Container>
   )
