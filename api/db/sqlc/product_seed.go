@@ -9,8 +9,8 @@ import (
 	"github.com/ot07/next-bazaar/util"
 )
 
-func CreateProductTestData(ctx context.Context, store *SQLStore) error {
-	user, err := store.GetUserByEmail(ctx, testUserEmail)
+func CreateProductTestData(ctx context.Context, store *SQLStore, config util.Config) error {
+	user, err := store.GetUserByEmail(ctx, config.TestAccountEmail)
 	if err != nil {
 		return err
 	}

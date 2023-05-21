@@ -6,20 +6,15 @@ import (
 	"github.com/ot07/next-bazaar/util"
 )
 
-const (
-	testUsername  = "testuser"
-	testUserEmail = "testuser@email.com"
-)
-
-func CreateUserTestData(ctx context.Context, store *SQLStore) error {
-	hashedPassword, err := util.HashPassword("password")
+func CreateUserTestData(ctx context.Context, store *SQLStore, config util.Config) error {
+	hashedPassword, err := util.HashPassword(config.TestAccountPassword)
 	if err != nil {
 		return err
 	}
 
 	arg := CreateUserParams{
-		Name:           testUsername,
-		Email:          testUserEmail,
+		Name:           config.TestAccountUsername,
+		Email:          config.TestAccountEmail,
 		HashedPassword: hashedPassword,
 	}
 
