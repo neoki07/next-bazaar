@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ot07/next-bazaar/test_util"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/stretchr/testify/require"
 )
@@ -36,8 +37,8 @@ func createRandomSession(t *testing.T, testQueries *Queries) Session {
 func TestCreateSession(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	tx := test_util.BeginTransaction(t, testDB)
+	defer test_util.RollbackTransaction(t, tx)
 
 	testQueries := New(tx)
 
@@ -47,8 +48,8 @@ func TestCreateSession(t *testing.T) {
 func TestGetSession(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	tx := test_util.BeginTransaction(t, testDB)
+	defer test_util.RollbackTransaction(t, tx)
 
 	testQueries := New(tx)
 
@@ -67,8 +68,8 @@ func TestGetSession(t *testing.T) {
 func TestDeleteSession(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	tx := test_util.BeginTransaction(t, testDB)
+	defer test_util.RollbackTransaction(t, tx)
 
 	testQueries := New(tx)
 

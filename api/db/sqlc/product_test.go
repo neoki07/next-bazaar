@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ot07/next-bazaar/test_util"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/stretchr/testify/require"
 )
@@ -49,8 +50,8 @@ func createRandomProduct(t *testing.T, testQueries *Queries) Product {
 func TestCreateProduct(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	tx := test_util.BeginTransaction(t, testDB)
+	defer test_util.RollbackTransaction(t, tx)
 
 	testQueries := New(tx)
 
@@ -60,8 +61,8 @@ func TestCreateProduct(t *testing.T) {
 func TestGetProduct(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	tx := test_util.BeginTransaction(t, testDB)
+	defer test_util.RollbackTransaction(t, tx)
 
 	testQueries := New(tx)
 

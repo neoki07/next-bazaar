@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ot07/next-bazaar/test_util"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/stretchr/testify/require"
 )
@@ -37,8 +38,8 @@ func createRandomUser(t *testing.T, testQueries *Queries) User {
 func TestCreateUser(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	tx := test_util.BeginTransaction(t, testDB)
+	defer test_util.RollbackTransaction(t, tx)
 
 	testQueries := New(tx)
 
@@ -48,8 +49,8 @@ func TestCreateUser(t *testing.T) {
 func TestGetUser(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	tx := test_util.BeginTransaction(t, testDB)
+	defer test_util.RollbackTransaction(t, tx)
 
 	testQueries := New(tx)
 
@@ -69,8 +70,8 @@ func TestGetUser(t *testing.T) {
 func TestGetUserByEmail(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	tx := test_util.BeginTransaction(t, testDB)
+	defer test_util.RollbackTransaction(t, tx)
 
 	testQueries := New(tx)
 

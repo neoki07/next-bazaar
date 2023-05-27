@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ot07/next-bazaar/test_util"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/stretchr/testify/require"
 )
@@ -28,8 +29,8 @@ func createRandomCategory(t *testing.T, testQueries *Queries) Category {
 func TestCreateCategory(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	tx := test_util.BeginTransaction(t, testDB)
+	defer test_util.RollbackTransaction(t, tx)
 
 	testQueries := New(tx)
 
@@ -39,8 +40,8 @@ func TestCreateCategory(t *testing.T) {
 func TestGetCategory(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	tx := test_util.BeginTransaction(t, testDB)
+	defer test_util.RollbackTransaction(t, tx)
 
 	testQueries := New(tx)
 
@@ -57,8 +58,8 @@ func TestGetCategory(t *testing.T) {
 func TestListCategories(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	tx := test_util.BeginTransaction(t, testDB)
+	defer test_util.RollbackTransaction(t, tx)
 
 	testQueries := New(tx)
 
@@ -80,8 +81,8 @@ func TestListCategories(t *testing.T) {
 func TestDeleteCategory(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	tx := test_util.BeginTransaction(t, testDB)
+	defer test_util.RollbackTransaction(t, tx)
 
 	testQueries := New(tx)
 
