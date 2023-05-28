@@ -19,12 +19,13 @@ func TestMain(m *testing.M) {
 	var err error
 
 	dbConfig := test_util.DatabaseConfig{
-		Image:      "postgres:15-alpine",
-		Port:       5432,
-		User:       "postgres",
-		Password:   "secret",
-		DBName:     "next-bazaar",
-		DriverName: "postgres",
+		Image:            "postgres:15-alpine",
+		Port:             5432,
+		User:             "postgres",
+		Password:         "secret",
+		DBName:           "next-bazaar",
+		DriverName:       "postgres",
+		MigrateSourceURL: "file://../migration",
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)

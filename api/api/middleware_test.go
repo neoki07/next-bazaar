@@ -45,7 +45,7 @@ func TestAuthMiddleware(t *testing.T) {
 	testCases := []struct {
 		name          string
 		setupAuth     func(request *http.Request)
-		buildStubs    func(store *mockdb.MockStore)
+		buildStore    func(t *testing.T) (store db.Store, cleanup func())
 		checkResponse func(t *testing.T, response *http.Response)
 	}{
 		{
@@ -53,8 +53,10 @@ func TestAuthMiddleware(t *testing.T) {
 			setupAuth: func(request *http.Request) {
 				addSessionTokenInCookie(request, session.SessionToken.String())
 			},
-			buildStubs: func(store *mockdb.MockStore) {
-				buildValidSessionStubs(store, session)
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				mockStore, cleanup := newMockStore(t)
+				buildValidSessionStubs(mockStore, session)
+				return mockStore, cleanup
 			},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
@@ -64,10 +66,14 @@ func TestAuthMiddleware(t *testing.T) {
 			name: "NoAuthorization",
 			setupAuth: func(request *http.Request) {
 			},
-			buildStubs: func(store *mockdb.MockStore) {
-				store.EXPECT().
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				mockStore, cleanup := newMockStore(t)
+
+				mockStore.EXPECT().
 					GetSession(gomock.Any(), gomock.Any()).
 					Times(0)
+
+				return mockStore, cleanup
 			},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -78,10 +84,14 @@ func TestAuthMiddleware(t *testing.T) {
 			setupAuth: func(request *http.Request) {
 				addSessionTokenInCookie(request, "invalid")
 			},
-			buildStubs: func(store *mockdb.MockStore) {
-				store.EXPECT().
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				mockStore, cleanup := newMockStore(t)
+
+				mockStore.EXPECT().
 					GetSession(gomock.Any(), gomock.Any()).
 					Times(0)
+
+				return mockStore, cleanup
 			},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -92,8 +102,10 @@ func TestAuthMiddleware(t *testing.T) {
 			setupAuth: func(request *http.Request) {
 				addSessionTokenInCookie(request, expiredSession.SessionToken.String())
 			},
-			buildStubs: func(store *mockdb.MockStore) {
-				buildValidSessionStubs(store, expiredSession)
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				mockStore, cleanup := newMockStore(t)
+				buildValidSessionStubs(mockStore, expiredSession)
+				return mockStore, cleanup
 			},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -104,11 +116,15 @@ func TestAuthMiddleware(t *testing.T) {
 			setupAuth: func(request *http.Request) {
 				addSessionTokenInCookie(request, session.SessionToken.String())
 			},
-			buildStubs: func(store *mockdb.MockStore) {
-				store.EXPECT().
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				mockStore, cleanup := newMockStore(t)
+
+				mockStore.EXPECT().
 					GetSession(gomock.Any(), gomock.Eq(session.SessionToken)).
 					Times(1).
 					Return(db.Session{}, sql.ErrConnDone)
+
+				return mockStore, cleanup
 			},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
@@ -122,11 +138,8 @@ func TestAuthMiddleware(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			store := mockdb.NewMockStore(ctrl)
-			tc.buildStubs(store)
+			store, cleanupStore := tc.buildStore(t)
+			defer cleanupStore()
 
 			server := newTestServer(t, store)
 

@@ -19,12 +19,13 @@ import (
 )
 
 type DatabaseConfig struct {
-	Image      string
-	Port       int
-	User       string
-	Password   string
-	DBName     string
-	DriverName string
+	Image            string
+	Port             int
+	User             string
+	Password         string
+	DBName           string
+	DriverName       string
+	MigrateSourceURL string
 }
 
 func newTestContainer(ctx context.Context, config DatabaseConfig) (testcontainers.Container, nat.Port, error) {
@@ -68,7 +69,7 @@ func migrateUp(db *sql.DB, config DatabaseConfig) error {
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://../migration",
+		config.MigrateSourceURL,
 		config.DBName, driver)
 	if err != nil {
 		return err
