@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ot07/next-bazaar/test_util"
+	"github.com/google/uuid"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/stretchr/testify/require"
 )
@@ -37,10 +37,11 @@ func createRandomSession(t *testing.T, testQueries *Queries) Session {
 func TestCreateSession(t *testing.T) {
 	t.Parallel()
 
-	tx := test_util.BeginTransaction(t, testDB)
-	defer test_util.RollbackTransaction(t, tx)
+	db, err := sql.Open(testDBDriverName, uuid.New().String())
+	require.NoError(t, err)
+	defer db.Close()
 
-	testQueries := New(tx)
+	testQueries := New(db)
 
 	createRandomSession(t, testQueries)
 }
@@ -48,10 +49,11 @@ func TestCreateSession(t *testing.T) {
 func TestGetSession(t *testing.T) {
 	t.Parallel()
 
-	tx := test_util.BeginTransaction(t, testDB)
-	defer test_util.RollbackTransaction(t, tx)
+	db, err := sql.Open(testDBDriverName, uuid.New().String())
+	require.NoError(t, err)
+	defer db.Close()
 
-	testQueries := New(tx)
+	testQueries := New(db)
 
 	session1 := createRandomSession(t, testQueries)
 	session2, err := testQueries.GetSession(context.Background(), session1.SessionToken)
@@ -68,13 +70,14 @@ func TestGetSession(t *testing.T) {
 func TestDeleteSession(t *testing.T) {
 	t.Parallel()
 
-	tx := test_util.BeginTransaction(t, testDB)
-	defer test_util.RollbackTransaction(t, tx)
+	db, err := sql.Open(testDBDriverName, uuid.New().String())
+	require.NoError(t, err)
+	defer db.Close()
 
-	testQueries := New(tx)
+	testQueries := New(db)
 
 	session1 := createRandomSession(t, testQueries)
-	err := testQueries.DeleteSession(context.Background(), session1.ID)
+	err = testQueries.DeleteSession(context.Background(), session1.ID)
 	require.NoError(t, err)
 
 	session2, err := testQueries.GetSession(context.Background(), session1.ID)

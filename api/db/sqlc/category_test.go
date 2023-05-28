@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ot07/next-bazaar/test_util"
+	"github.com/google/uuid"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/stretchr/testify/require"
 )
@@ -29,10 +29,11 @@ func createRandomCategory(t *testing.T, testQueries *Queries) Category {
 func TestCreateCategory(t *testing.T) {
 	t.Parallel()
 
-	tx := test_util.BeginTransaction(t, testDB)
-	defer test_util.RollbackTransaction(t, tx)
+	db, err := sql.Open(testDBDriverName, uuid.New().String())
+	require.NoError(t, err)
+	defer db.Close()
 
-	testQueries := New(tx)
+	testQueries := New(db)
 
 	createRandomCategory(t, testQueries)
 }
@@ -40,10 +41,11 @@ func TestCreateCategory(t *testing.T) {
 func TestGetCategory(t *testing.T) {
 	t.Parallel()
 
-	tx := test_util.BeginTransaction(t, testDB)
-	defer test_util.RollbackTransaction(t, tx)
+	db, err := sql.Open(testDBDriverName, uuid.New().String())
+	require.NoError(t, err)
+	defer db.Close()
 
-	testQueries := New(tx)
+	testQueries := New(db)
 
 	category1 := createRandomCategory(t, testQueries)
 	category2, err := testQueries.GetCategory(context.Background(), category1.ID)
@@ -58,10 +60,11 @@ func TestGetCategory(t *testing.T) {
 func TestListCategories(t *testing.T) {
 	t.Parallel()
 
-	tx := test_util.BeginTransaction(t, testDB)
-	defer test_util.RollbackTransaction(t, tx)
+	db, err := sql.Open(testDBDriverName, uuid.New().String())
+	require.NoError(t, err)
+	defer db.Close()
 
-	testQueries := New(tx)
+	testQueries := New(db)
 
 	for i := 0; i < 10; i++ {
 		createRandomCategory(t, testQueries)
@@ -81,13 +84,14 @@ func TestListCategories(t *testing.T) {
 func TestDeleteCategory(t *testing.T) {
 	t.Parallel()
 
-	tx := test_util.BeginTransaction(t, testDB)
-	defer test_util.RollbackTransaction(t, tx)
+	db, err := sql.Open(testDBDriverName, uuid.New().String())
+	require.NoError(t, err)
+	defer db.Close()
 
-	testQueries := New(tx)
+	testQueries := New(db)
 
 	category1 := createRandomCategory(t, testQueries)
-	err := testQueries.DeleteCategory(context.Background(), category1.ID)
+	err = testQueries.DeleteCategory(context.Background(), category1.ID)
 	require.NoError(t, err)
 
 	category2, err := testQueries.GetCategory(context.Background(), category1.ID)

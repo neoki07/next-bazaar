@@ -119,3 +119,29 @@ func NewTestDB(ctx context.Context, config DatabaseConfig) (testDB *sql.DB, err 
 
 	return
 }
+
+func InitTestDB(ctx context.Context, config DatabaseConfig) (string, error) {
+	_, mappedPort, err := newTestContainer(ctx, config)
+	if err != nil {
+		return "", err
+	}
+
+	sourceName := fmt.Sprintf("postgresql://%s:%s@127.0.0.1:%d/%s?sslmode=disable",
+		config.User,
+		config.Password,
+		mappedPort.Int(),
+		config.DBName,
+	)
+
+	testDB, err := sql.Open(config.DriverName, sourceName)
+	if err != nil {
+		return "", err
+	}
+
+	err = migrateUp(testDB, config)
+	if err != nil {
+		return "", err
+	}
+
+	return sourceName, nil
+}
