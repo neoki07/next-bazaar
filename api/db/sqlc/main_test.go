@@ -31,7 +31,7 @@ func TestMain(m *testing.M) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	sourceName, err := test_util.InitTestDB(ctx, dbConfig)
+	sourceName, err := test_util.NewTestDB(ctx, dbConfig)
 	if err != nil {
 		log.Fatal("cannot create test db:", err)
 	}

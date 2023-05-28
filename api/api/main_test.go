@@ -8,7 +8,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/DATA-DOG/go-txdb"
 	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
 	mockdb "github.com/ot07/next-bazaar/db/mock"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/test_util"
@@ -16,11 +18,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var testDB *sql.DB
+const testDBDriverName = "txdb-api"
 
 func newTestDBStore(t *testing.T) (store *db.SQLStore, cleanup func()) {
-	tx := test_util.BeginTransaction(t, testDB)
-	return db.NewStore(tx), func() { test_util.RollbackTransaction(t, tx) }
+	conn, err := sql.Open(testDBDriverName, uuid.New().String())
+	require.NoError(t, err)
+	return db.NewStore(conn), func() { conn.Close() }
 }
 
 func newMockStore(t *testing.T) (store *mockdb.MockStore, cleanup func()) {
@@ -55,10 +58,12 @@ func TestMain(m *testing.M) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	testDB, err = test_util.NewTestDB(ctx, dbConfig)
+	sourceName, err := test_util.NewTestDB(ctx, dbConfig)
 	if err != nil {
 		log.Fatal("cannot create test db:", err)
 	}
+
+	txdb.Register(testDBDriverName, dbConfig.DriverName, sourceName)
 
 	os.Exit(m.Run())
 }

@@ -4,13 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"testing"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/go-connections/nat"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
-	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 
@@ -83,44 +81,8 @@ func migrateUp(db *sql.DB, config DatabaseConfig) error {
 	return nil
 }
 
-func BeginTransaction(t *testing.T, testDB *sql.DB) *sql.Tx {
-	tx, err := testDB.Begin()
-	require.NoError(t, err)
-	return tx
-}
-
-func RollbackTransaction(t *testing.T, tx *sql.Tx) {
-	err := tx.Rollback()
-	require.NoError(t, err)
-}
-
-func NewTestDB(ctx context.Context, config DatabaseConfig) (testDB *sql.DB, err error) {
-	_, mappedPort, err := newTestContainer(ctx, config)
-	if err != nil {
-		return
-	}
-
-	sourceName := fmt.Sprintf("postgresql://%s:%s@127.0.0.1:%d/%s?sslmode=disable",
-		config.User,
-		config.Password,
-		mappedPort.Int(),
-		config.DBName,
-	)
-
-	testDB, err = sql.Open(config.DriverName, sourceName)
-	if err != nil {
-		return
-	}
-
-	err = migrateUp(testDB, config)
-	if err != nil {
-		return
-	}
-
-	return
-}
-
-func InitTestDB(ctx context.Context, config DatabaseConfig) (string, error) {
+// NewTestDB creates a new test database and returns the source name.
+func NewTestDB(ctx context.Context, config DatabaseConfig) (string, error) {
 	_, mappedPort, err := newTestContainer(ctx, config)
 	if err != nil {
 		return "", err
