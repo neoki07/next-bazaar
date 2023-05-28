@@ -50,6 +50,8 @@ func EqCreateUserParams(arg db.CreateUserParams, password string) gomock.Matcher
 }
 
 func TestCreateUserAPI(t *testing.T) {
+	t.Parallel()
+
 	user, password := randomUser(t)
 
 	testCases := []struct {
@@ -57,6 +59,7 @@ func TestCreateUserAPI(t *testing.T) {
 		body          fiber.Map
 		buildStore    func(t *testing.T) (store db.Store, cleanup func())
 		checkResponse func(t *testing.T, response *http.Response)
+		allowParallel bool
 	}{
 		{
 			name: "OK",
@@ -71,6 +74,7 @@ func TestCreateUserAPI(t *testing.T) {
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
 			},
+			allowParallel: false,
 		},
 		{
 			name: "InternalError",
@@ -92,6 +96,7 @@ func TestCreateUserAPI(t *testing.T) {
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 			},
+			allowParallel: true,
 		},
 		{
 			name: "DuplicateEmail",
@@ -106,7 +111,7 @@ func TestCreateUserAPI(t *testing.T) {
 				_, err := store.CreateUser(context.Background(), db.CreateUserParams{
 					Name:           "user",
 					Email:          user.Email,
-					HashedPassword: "password",
+					HashedPassword: "hashed_password",
 				})
 				require.NoError(t, err)
 
@@ -115,6 +120,7 @@ func TestCreateUserAPI(t *testing.T) {
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusForbidden, response.StatusCode)
 			},
+			allowParallel: false,
 		},
 		{
 			name: "NameWithSpace",
@@ -129,6 +135,7 @@ func TestCreateUserAPI(t *testing.T) {
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
+			allowParallel: true,
 		},
 		{
 			name: "NameWithPunct",
@@ -143,6 +150,7 @@ func TestCreateUserAPI(t *testing.T) {
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
+			allowParallel: true,
 		},
 		{
 			name: "NameWithSymbol",
@@ -157,6 +165,7 @@ func TestCreateUserAPI(t *testing.T) {
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
+			allowParallel: true,
 		},
 		{
 			name: "InvalidEmail",
@@ -171,6 +180,7 @@ func TestCreateUserAPI(t *testing.T) {
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
+			allowParallel: true,
 		},
 		{
 			name: "TooShortPassword",
@@ -185,6 +195,7 @@ func TestCreateUserAPI(t *testing.T) {
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
+			allowParallel: true,
 		},
 	}
 
@@ -192,6 +203,10 @@ func TestCreateUserAPI(t *testing.T) {
 		tc := testCases[i]
 
 		t.Run(tc.name, func(t *testing.T) {
+			if tc.allowParallel {
+				t.Parallel()
+			}
+
 			store, cleanupStore := tc.buildStore(t)
 			defer cleanupStore()
 
