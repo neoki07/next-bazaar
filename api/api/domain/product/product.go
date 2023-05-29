@@ -18,3 +18,8 @@ type Product struct {
 	Seller        string
 	ImageUrl      sql.NullString
 }
+
+type Category struct {
+	ID   uuid.UUID
+	Name string
+}

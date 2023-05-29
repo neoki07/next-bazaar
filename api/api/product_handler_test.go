@@ -17,23 +17,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type product struct {
-	ID            uuid.UUID
-	Name          string
-	Description   string
-	Price         string
-	StockQuantity int32
-	CategoryID    uuid.UUID
-	SellerID      uuid.UUID
-	ImageUrl      string
-}
-
-type category struct {
-	ID   uuid.UUID
-	Name string
-}
-
-func createSeed(t *testing.T, store db.Store, user db.User, category category, product product) (productId uuid.UUID) {
+func createSeed(t *testing.T, store db.Store, user db.User, category product_domain.Category, product product_domain.Product) (productId uuid.UUID) {
 	ctx := context.Background()
 
 	createdUser, err := store.CreateUser(ctx, db.CreateUserParams{
@@ -48,12 +32,12 @@ func createSeed(t *testing.T, store db.Store, user db.User, category category, p
 
 	createdProduct, err := store.CreateProduct(ctx, db.CreateProductParams{
 		Name:          product.Name,
-		Description:   sql.NullString{String: product.Description, Valid: true},
+		Description:   product.Description,
 		Price:         product.Price,
 		StockQuantity: product.StockQuantity,
 		CategoryID:    createdCategory.ID,
 		SellerID:      createdUser.ID,
-		ImageUrl:      sql.NullString{String: product.ImageUrl, Valid: true},
+		ImageUrl:      product.ImageUrl,
 	})
 	require.NoError(t, err)
 
@@ -110,26 +94,30 @@ func TestGetProduct(t *testing.T) {
 	}
 }
 
-func randomProduct(t *testing.T, user db.User, category category) product {
+func randomProduct(t *testing.T, user db.User, category product_domain.Category) product_domain.Product {
 	price, err := util.RandomMoney()
 	require.NoError(t, err)
 
-	return product{
+	return product_domain.Product{
 		Name:          util.RandomName(),
-		Description:   util.RandomString(30),
+		Description:   sql.NullString{String: util.RandomString(30), Valid: true},
 		Price:         price,
 		StockQuantity: util.RandomInt32(10),
-		ImageUrl:      util.RandomImageUrl(),
+		CategoryID:    category.ID,
+		Category:      category.Name,
+		SellerID:      user.ID,
+		Seller:        user.Name,
+		ImageUrl:      sql.NullString{String: util.RandomImageUrl(), Valid: true},
 	}
 }
 
-func randomCategory(t *testing.T) category {
-	return category{
+func randomCategory(t *testing.T) product_domain.Category {
+	return product_domain.Category{
 		Name: util.RandomName(),
 	}
 }
 
-func requireBodyMatchProduct(t *testing.T, body io.ReadCloser, product product) {
+func requireBodyMatchProduct(t *testing.T, body io.ReadCloser, product product_domain.Product) {
 	data, err := io.ReadAll(body)
 	require.NoError(t, err)
 
@@ -144,7 +132,12 @@ func requireBodyMatchProduct(t *testing.T, body io.ReadCloser, product product) 
 	require.NoError(t, err)
 }
 
-func requireProductResponseMatchUser(t *testing.T, gotProduct product_domain.ProductResponse, product product) {
+func requireProductResponseMatchUser(t *testing.T, gotProduct product_domain.ProductResponse, product product_domain.Product) {
 	require.Equal(t, product.Name, gotProduct.Name)
-	require.Equal(t, product.Description, gotProduct.Description.String)
+	require.Equal(t, product.Description, gotProduct.Description.NullString)
+	require.Equal(t, product.Price, gotProduct.Price)
+	require.Equal(t, product.StockQuantity, gotProduct.StockQuantity)
+	require.Equal(t, product.Category, gotProduct.Category)
+	require.Equal(t, product.Seller, gotProduct.Seller)
+	require.Equal(t, product.ImageUrl, gotProduct.ImageUrl.NullString)
 }
