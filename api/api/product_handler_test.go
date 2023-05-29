@@ -126,13 +126,13 @@ func requireBodyMatchProduct(t *testing.T, body io.ReadCloser, product product_d
 	require.NoError(t, err)
 
 	require.NotEmpty(t, gotProduct.ID)
-	requireProductResponseMatchUser(t, gotProduct, product)
+	requireProductResponseMatchProduct(t, gotProduct, product)
 
 	err = body.Close()
 	require.NoError(t, err)
 }
 
-func requireProductResponseMatchUser(t *testing.T, gotProduct product_domain.ProductResponse, product product_domain.Product) {
+func requireProductResponseMatchProduct(t *testing.T, gotProduct product_domain.ProductResponse, product product_domain.Product) {
 	require.Equal(t, product.Name, gotProduct.Name)
 	require.Equal(t, product.Description, gotProduct.Description.NullString)
 	require.Equal(t, product.Price, gotProduct.Price)
