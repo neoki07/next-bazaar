@@ -17,6 +17,11 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
+// RandomInt32 generates a random int32
+func RandomInt32(n int32) int32 {
+	return rand.Int31n(n)
+}
+
 // RandomString generates a random string of length n
 func RandomString(n int) string {
 	var sb strings.Builder
@@ -45,7 +50,7 @@ func RandomUUID() uuid.UUID {
 	return uuid.New()
 }
 
-func RandomPrice() (string, error) {
+func RandomMoney() (string, error) {
 	amountWithCurrency, err := faker.GetPrice().AmountWithCurrency(reflect.Value{})
 	if err != nil {
 		return "", err
@@ -57,6 +62,10 @@ func RandomPrice() (string, error) {
 	}
 
 	return strings.Split(amountWithCurrencyStr, " ")[1], nil
+}
+
+func RandomPrice() (string, error) {
+	return RandomMoney()
 }
 
 func RandomImageUrl() string {
