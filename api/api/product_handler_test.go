@@ -10,14 +10,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
+	"github.com/golang/mock/gomock"
 	product_domain "github.com/ot07/next-bazaar/api/domain/product"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/stretchr/testify/require"
 )
 
-func createSeed(t *testing.T, store db.Store, user db.User, category product_domain.Category, product product_domain.Product) (productId uuid.UUID) {
+func createSeed(t *testing.T, store db.Store, user db.User, category product_domain.Category, product product_domain.Product) (productId string) {
 	ctx := context.Background()
 
 	createdUser, err := store.CreateUser(ctx, db.CreateUserParams{
@@ -41,19 +41,24 @@ func createSeed(t *testing.T, store db.Store, user db.User, category product_dom
 	})
 	require.NoError(t, err)
 
-	return createdProduct.ID
+	return createdProduct.ID.String()
+}
+
+func createSeedDummy(t *testing.T, store db.Store, user db.User, category product_domain.Category, product product_domain.Product) (productId string) {
+	return util.RandomUUID().String()
 }
 
 func TestGetProduct(t *testing.T) {
 	t.Parallel()
 
-	u, _ := randomUser(t)
-	c := randomCategory(t)
-	p := randomProduct(t, u, c)
+	user, _ := randomUser(t)
+	category := randomCategory(t)
+	product := randomProduct(t, user, category)
 
 	testCases := []struct {
 		name          string
 		buildStore    func(t *testing.T) (store db.Store, cleanup func())
+		createSeed    func(t *testing.T, store db.Store, user db.User, category product_domain.Category, product product_domain.Product) (productID string)
 		checkResponse func(t *testing.T, response *http.Response)
 	}{
 		{
@@ -61,9 +66,48 @@ func TestGetProduct(t *testing.T) {
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				return newTestDBStore(t)
 			},
+			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
-				requireBodyMatchProduct(t, response.Body, p)
+				requireBodyMatchProduct(t, response.Body, product)
+			},
+		},
+		{
+			name: "NotFound",
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				return newTestDBStore(t)
+			},
+			createSeed: createSeedDummy,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusNotFound, response.StatusCode)
+			},
+		},
+		{
+			name: "InvalidID",
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				return newTestDBStore(t)
+			},
+			createSeed: func(t *testing.T, store db.Store, user db.User, category product_domain.Category, product product_domain.Product) (productID string) {
+				return "InvalidID"
+			},
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+		},
+		{
+			name: "InternalError",
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				mockStore, cleanup := newMockStore(t)
+
+				mockStore.EXPECT().
+					GetProduct(gomock.Any(), gomock.Any()).
+					Return(db.Product{}, sql.ErrConnDone)
+
+				return mockStore, cleanup
+			},
+			createSeed: createSeedDummy,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 			},
 		},
 	}
@@ -76,7 +120,7 @@ func TestGetProduct(t *testing.T) {
 			store, cleanupStore := tc.buildStore(t)
 			defer cleanupStore()
 
-			productId := createSeed(t, store, u, c, p)
+			productId := tc.createSeed(t, store, user, category, product)
 
 			server := newTestServer(t, store)
 
