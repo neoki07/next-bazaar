@@ -186,6 +186,126 @@ func TestListProducts(t *testing.T) {
 				checkListProductsResponse(t, response.Body, products, 1, int32(n), 1, int64(n))
 			},
 		},
+		{
+			name: "PageIDNotFound",
+			query: Query{
+				pageSize: n,
+			},
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				return newTestDBStore(t)
+			},
+			createSeed: func(t *testing.T, store db.Store, users []db.User, categories []product_domain.Category, products []product_domain.Product) (productIDs []string) {
+				productIDs = make([]string, n)
+				for i := 0; i < n; i++ {
+					productIDs[i] = createSeed(t, store, users[i], categories[i], products[i])
+				}
+				return
+			},
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+		},
+		{
+			name: "PageIDLessThanLowerLimit",
+			query: Query{
+				pageID:   0,
+				pageSize: n,
+			},
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				return newTestDBStore(t)
+			},
+			createSeed: func(t *testing.T, store db.Store, users []db.User, categories []product_domain.Category, products []product_domain.Product) (productIDs []string) {
+				productIDs = make([]string, n)
+				for i := 0; i < n; i++ {
+					productIDs[i] = createSeed(t, store, users[i], categories[i], products[i])
+				}
+				return
+			},
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+		},
+		{
+			name: "PageSizeNotFound",
+			query: Query{
+				pageID: 1,
+			},
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				return newTestDBStore(t)
+			},
+			createSeed: func(t *testing.T, store db.Store, users []db.User, categories []product_domain.Category, products []product_domain.Product) (productIDs []string) {
+				productIDs = make([]string, n)
+				for i := 0; i < n; i++ {
+					productIDs[i] = createSeed(t, store, users[i], categories[i], products[i])
+				}
+				return
+			},
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+		},
+		{
+			name: "PageSizeLessThanLowerLimit",
+			query: Query{
+				pageID:   1,
+				pageSize: 0,
+			},
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				return newTestDBStore(t)
+			},
+			createSeed: func(t *testing.T, store db.Store, users []db.User, categories []product_domain.Category, products []product_domain.Product) (productIDs []string) {
+				productIDs = make([]string, n)
+				for i := 0; i < n; i++ {
+					productIDs[i] = createSeed(t, store, users[i], categories[i], products[i])
+				}
+				return
+			},
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+		},
+		{
+			name: "PageSizeMoreThanUpperLimit",
+			query: Query{
+				pageID:   1,
+				pageSize: 101,
+			},
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				return newTestDBStore(t)
+			},
+			createSeed: func(t *testing.T, store db.Store, users []db.User, categories []product_domain.Category, products []product_domain.Product) (productIDs []string) {
+				productIDs = make([]string, n)
+				for i := 0; i < n; i++ {
+					productIDs[i] = createSeed(t, store, users[i], categories[i], products[i])
+				}
+				return
+			},
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+		},
+		{
+			name: "InternalServerError",
+			query: Query{
+				pageID:   1,
+				pageSize: 1,
+			},
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				mockStore, cleanup := newMockStore(t)
+
+				mockStore.EXPECT().
+					ListProducts(gomock.Any(), gomock.Any()).
+					Return([]db.Product{}, sql.ErrConnDone)
+
+				return mockStore, cleanup
+			},
+			createSeed: func(t *testing.T, store db.Store, users []db.User, categories []product_domain.Category, products []product_domain.Product) (productIDs []string) {
+				return make([]string, n)
+			},
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
+			},
+		},
 	}
 
 	for i := range testCases {
