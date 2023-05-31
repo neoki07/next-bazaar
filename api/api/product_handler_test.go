@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
 	"testing"
 	"time"
 
@@ -120,11 +121,11 @@ func TestGetProduct(t *testing.T) {
 			store, cleanupStore := tc.buildStore(t)
 			defer cleanupStore()
 
-			productId := tc.createSeed(t, store, user, category, product)
+			productID := tc.createSeed(t, store, user, category, product)
 
 			server := newTestServer(t, store)
 
-			url := fmt.Sprintf("/api/v1/products/%s", productId)
+			url := fmt.Sprintf("/api/v1/products/%s", productID)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
@@ -135,6 +136,87 @@ func TestGetProduct(t *testing.T) {
 
 			tc.checkResponse(t, response)
 		})
+	}
+}
+
+func TestListProducts(t *testing.T) {
+	t.Parallel()
+
+	n := 5
+
+	users := make([]db.User, n)
+	categories := make([]product_domain.Category, n)
+	products := make([]product_domain.Product, n)
+	for i := 0; i < n; i++ {
+		users[i], _ = randomUser(t)
+		categories[i] = randomCategory(t)
+		products[i] = randomProduct(t, users[i], categories[i])
+	}
+
+	type Query struct {
+		pageID   int
+		pageSize int
+	}
+
+	testCases := []struct {
+		name          string
+		query         Query
+		buildStore    func(t *testing.T) (store db.Store, cleanup func())
+		createSeed    func(t *testing.T, store db.Store, users []db.User, categories []product_domain.Category, products []product_domain.Product) (productIDs []string)
+		checkResponse func(t *testing.T, response *http.Response)
+	}{
+		{
+			name: "OK",
+			query: Query{
+				pageID:   1,
+				pageSize: n,
+			},
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				return newTestDBStore(t)
+			},
+			createSeed: func(t *testing.T, store db.Store, users []db.User, categories []product_domain.Category, products []product_domain.Product) (productIDs []string) {
+				productIDs = make([]string, n)
+				for i := 0; i < n; i++ {
+					productIDs[i] = createSeed(t, store, users[i], categories[i], products[i])
+				}
+				return
+			},
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusOK, response.StatusCode)
+				checkListProductsResponse(t, response.Body, products, 1, int32(n), 1, int64(n))
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			store, cleanupStore := tc.buildStore(t)
+			defer cleanupStore()
+
+			tc.createSeed(t, store, users, categories, products)
+
+			server := newTestServer(t, store)
+
+			url := "/api/v1/products"
+			request, err := http.NewRequest(http.MethodGet, url, nil)
+			require.NoError(t, err)
+
+			request.Header.Set("Content-Type", "application/json")
+
+			q := request.URL.Query()
+			q.Add("page_id", fmt.Sprintf("%d", tc.query.pageID))
+			q.Add("page_size", fmt.Sprintf("%d", tc.query.pageSize))
+			request.URL.RawQuery = q.Encode()
+
+			response, err := server.app.Test(request, int(time.Second.Milliseconds()))
+			require.NoError(t, err)
+
+			tc.checkResponse(t, response)
+		})
+
 	}
 }
 
@@ -184,4 +266,48 @@ func requireProductResponseMatchProduct(t *testing.T, gotProduct product_domain.
 	require.Equal(t, product.Category, gotProduct.Category)
 	require.Equal(t, product.Seller, gotProduct.Seller)
 	require.Equal(t, product.ImageUrl, gotProduct.ImageUrl.NullString)
+}
+
+func checkListProductsResponse(t *testing.T, body io.ReadCloser, products []product_domain.Product, pageID int32, pageSize int32, pageCount int64, totalCount int64) {
+	data, err := io.ReadAll(body)
+	require.NoError(t, err)
+
+	var gotResponse product_domain.ListProductsResponse
+	err = json.Unmarshal(data, &gotResponse)
+	require.NoError(t, err)
+
+	require.Equal(t, pageID, gotResponse.Meta.PageID)
+	require.Equal(t, pageSize, gotResponse.Meta.PageSize)
+	require.Equal(t, pageCount, gotResponse.Meta.PageCount)
+	require.Equal(t, totalCount, gotResponse.Meta.TotalCount)
+
+	gotProducts := gotResponse.Data
+	require.Len(t, gotProducts, len(products))
+
+	sortedGotProducts := sortProductResponseByName(gotProducts)
+	sortedProducts := sortProductByName(products)
+	for i := range products {
+		requireProductResponseMatchProduct(t, sortedGotProducts[i], sortedProducts[i])
+	}
+
+	err = body.Close()
+	require.NoError(t, err)
+}
+
+func sortProductByName(products []product_domain.Product) []product_domain.Product {
+	sortedProducts := make([]product_domain.Product, len(products))
+	copy(sortedProducts, products)
+	sort.Slice(sortedProducts, func(i, j int) bool {
+		return sortedProducts[i].Name < sortedProducts[j].Name
+	})
+	return sortedProducts
+}
+
+func sortProductResponseByName(products product_domain.ProductsResponse) product_domain.ProductsResponse {
+	sortedProducts := make([]product_domain.ProductResponse, len(products))
+	copy(sortedProducts, products)
+	sort.Slice(sortedProducts, func(i, j int) bool {
+		return sortedProducts[i].Name < sortedProducts[j].Name
+	})
+	return sortedProducts
 }
