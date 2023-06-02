@@ -102,7 +102,7 @@ func (q *Queries) GetProduct(ctx context.Context, id uuid.UUID) (Product, error)
 
 const listProducts = `-- name: ListProducts :many
 SELECT id, name, description, price, stock_quantity, category_id, seller_id, image_url, created_at FROM products
-ORDER BY id
+ORDER BY created_at
 LIMIT $1
 OFFSET $2
 `
