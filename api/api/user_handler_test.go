@@ -8,51 +8,24 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"reflect"
 	"testing"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang/mock/gomock"
-	"github.com/google/uuid"
 	user_domain "github.com/ot07/next-bazaar/api/domain/user"
 	db "github.com/ot07/next-bazaar/db/sqlc"
+	"github.com/ot07/next-bazaar/token"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/stretchr/testify/require"
 )
 
-type eqCreateUserParamsMatcher struct {
-	arg      db.CreateUserParams
-	password string
-}
-
-func (e eqCreateUserParamsMatcher) Matches(x interface{}) bool {
-	arg, ok := x.(db.CreateUserParams)
-	if !ok {
-		return false
-	}
-
-	err := util.CheckPassword(e.password, arg.HashedPassword)
-	if err != nil {
-		return false
-	}
-
-	e.arg.HashedPassword = arg.HashedPassword
-	return reflect.DeepEqual(e.arg, arg)
-}
-
-func (e eqCreateUserParamsMatcher) String() string {
-	return fmt.Sprintf("matches arg %v and password %v", e.arg, e.password)
-}
-
-func EqCreateUserParams(arg db.CreateUserParams, password string) gomock.Matcher {
-	return eqCreateUserParamsMatcher{arg, password}
-}
-
 func TestCreateUserAPI(t *testing.T) {
 	t.Parallel()
 
-	user, password := randomUser(t)
+	validName := "testuser"
+	validEmail := "test@example.com"
+	validPassword := "test-password"
 
 	testCases := []struct {
 		name          string
@@ -64,9 +37,9 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "OK",
 			body: fiber.Map{
-				"name":     user.Name,
-				"email":    user.Email,
-				"password": password,
+				"name":     validName,
+				"email":    validEmail,
+				"password": validPassword,
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				return newTestDBStore(t)
@@ -79,9 +52,9 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "InternalError",
 			body: fiber.Map{
-				"name":     user.Name,
-				"email":    user.Email,
-				"password": password,
+				"name":     validName,
+				"email":    validEmail,
+				"password": validPassword,
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				mockStore, cleanup := newMockStore(t)
@@ -101,16 +74,16 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "DuplicateEmail",
 			body: fiber.Map{
-				"name":     user.Name,
-				"email":    user.Email,
-				"password": password,
+				"name":     validName,
+				"email":    validEmail,
+				"password": validPassword,
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				store, cleanup = newTestDBStore(t)
 
 				_, err := store.CreateUser(context.Background(), db.CreateUserParams{
-					Name:           "user",
-					Email:          user.Email,
+					Name:           "testuser0",
+					Email:          validEmail,
 					HashedPassword: "hashed_password",
 				})
 				require.NoError(t, err)
@@ -125,9 +98,9 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "NameWithSpace",
 			body: fiber.Map{
-				"name":     "user ",
-				"email":    user.Email,
-				"password": password,
+				"name":     "testuser ",
+				"email":    validEmail,
+				"password": validPassword,
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				return newTestDBStore(t)
@@ -140,9 +113,9 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "NameWithPunct",
 			body: fiber.Map{
-				"name":     "user!",
-				"email":    user.Email,
-				"password": password,
+				"name":     "testuser!",
+				"email":    validEmail,
+				"password": validPassword,
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				return newTestDBStore(t)
@@ -155,9 +128,9 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "NameWithSymbol",
 			body: fiber.Map{
-				"name":     "user|",
-				"email":    user.Email,
-				"password": password,
+				"name":     "testuser|",
+				"email":    validEmail,
+				"password": validPassword,
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				return newTestDBStore(t)
@@ -170,9 +143,9 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "InvalidEmail",
 			body: fiber.Map{
-				"name":     user.Name,
+				"name":     validName,
 				"email":    "invalid-email",
-				"password": password,
+				"password": validPassword,
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				return newTestDBStore(t)
@@ -185,8 +158,8 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "TooShortPassword",
 			body: fiber.Map{
-				"name":     user.Name,
-				"email":    user.Email,
+				"name":     validName,
+				"email":    validEmail,
 				"password": "1234567",
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
@@ -230,34 +203,48 @@ func TestCreateUserAPI(t *testing.T) {
 }
 
 func TestLoginUserAPI(t *testing.T) {
-	user, password := randomUser(t)
+	validName := "testuser"
+	validEmail := "test@example.com"
+	validPassword := "test-password"
+
+	validHashedPassword, err := util.HashPassword(validPassword)
+	require.NoError(t, err)
+
+	validUser := db.User{
+		ID:             util.RandomUUID(),
+		Name:           validName,
+		Email:          validEmail,
+		HashedPassword: validHashedPassword,
+	}
+
+	createSeed := func(t *testing.T, store db.Store) {
+		ctx := context.Background()
+
+		_, err := store.CreateUser(ctx, db.CreateUserParams{
+			Name:           validName,
+			Email:          validEmail,
+			HashedPassword: validHashedPassword,
+		})
+		require.NoError(t, err)
+	}
 
 	testCases := []struct {
 		name          string
 		body          fiber.Map
 		buildStore    func(t *testing.T) (store db.Store, cleanup func())
+		createSeed    func(t *testing.T, store db.Store)
 		checkResponse func(t *testing.T, response *http.Response)
 	}{
 		{
 			name: "OK",
 			body: fiber.Map{
-				"email":    user.Email,
-				"password": password,
+				"email":    validEmail,
+				"password": validPassword,
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
-
-				mockStore.EXPECT().
-					GetUserByEmail(gomock.Any(), gomock.Eq(user.Email)).
-					Times(1).
-					Return(user, nil)
-				mockStore.EXPECT().
-					CreateSession(gomock.Any(), gomock.Any()).
-					Times(1).
-					Return(db.Session{}, nil)
-
-				return mockStore, cleanup
+				return newTestDBStore(t)
 			},
+			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
 			},
@@ -266,17 +253,12 @@ func TestLoginUserAPI(t *testing.T) {
 			name: "InvalidEmail",
 			body: fiber.Map{
 				"email":    "invalid-email",
-				"password": password,
+				"password": validPassword,
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
-
-				mockStore.EXPECT().
-					GetUserByEmail(gomock.Any(), gomock.Eq("invalid-email")).
-					Times(0)
-
-				return mockStore, cleanup
+				return newTestDBStore(t)
 			},
+			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
@@ -284,18 +266,13 @@ func TestLoginUserAPI(t *testing.T) {
 		{
 			name: "TooShortPassword",
 			body: fiber.Map{
-				"email":    user.Email,
+				"email":    validEmail,
 				"password": "1234567",
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
-
-				mockStore.EXPECT().
-					GetUserByEmail(gomock.Any(), gomock.Eq(user.Email)).
-					Times(0)
-
-				return mockStore, cleanup
+				return newTestDBStore(t)
 			},
+			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
@@ -303,22 +280,13 @@ func TestLoginUserAPI(t *testing.T) {
 		{
 			name: "NoExistsUser",
 			body: fiber.Map{
-				"email":    user.Email,
-				"password": password,
+				"email":    validEmail,
+				"password": validPassword,
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
-
-				mockStore.EXPECT().
-					GetUserByEmail(gomock.Any(), gomock.Eq(user.Email)).
-					Times(1).
-					Return(db.User{}, sql.ErrNoRows)
-				mockStore.EXPECT().
-					CreateSession(gomock.Any(), gomock.Any()).
-					Times(0)
-
-				return mockStore, cleanup
+				return newTestDBStore(t)
 			},
+			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
 			},
@@ -326,19 +294,19 @@ func TestLoginUserAPI(t *testing.T) {
 		{
 			name: "GetUserInternalError",
 			body: fiber.Map{
-				"email":    user.Email,
-				"password": password,
+				"email":    validEmail,
+				"password": validPassword,
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				mockStore, cleanup := newMockStore(t)
 
 				mockStore.EXPECT().
-					GetUserByEmail(gomock.Any(), gomock.Eq(user.Email)).
-					Times(1).
+					GetUserByEmail(gomock.Any(), gomock.Eq(validEmail)).
 					Return(db.User{}, sql.ErrConnDone)
 
 				return mockStore, cleanup
 			},
+			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 			},
@@ -346,23 +314,22 @@ func TestLoginUserAPI(t *testing.T) {
 		{
 			name: "CreateSessionInternalError",
 			body: fiber.Map{
-				"email":    user.Email,
-				"password": password,
+				"email":    validEmail,
+				"password": validPassword,
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				mockStore, cleanup := newMockStore(t)
 
 				mockStore.EXPECT().
-					GetUserByEmail(gomock.Any(), gomock.Eq(user.Email)).
-					Times(1).
-					Return(user, nil)
+					GetUserByEmail(gomock.Any(), gomock.Eq(validEmail)).
+					Return(validUser, nil)
 				mockStore.EXPECT().
 					CreateSession(gomock.Any(), gomock.Any()).
-					Times(1).
 					Return(db.Session{}, sql.ErrConnDone)
 
 				return mockStore, cleanup
 			},
+			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 			},
@@ -370,19 +337,13 @@ func TestLoginUserAPI(t *testing.T) {
 		{
 			name: "MistakePassword",
 			body: fiber.Map{
-				"email":    user.Email,
+				"email":    validEmail,
 				"password": "12345678",
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
-
-				mockStore.EXPECT().
-					GetUserByEmail(gomock.Any(), gomock.Eq(user.Email)).
-					Times(1).
-					Return(user, nil)
-
-				return mockStore, cleanup
+				return newTestDBStore(t)
 			},
+			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
 			},
@@ -395,6 +356,8 @@ func TestLoginUserAPI(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			store, cleanupStore := tc.buildStore(t)
 			defer cleanupStore()
+
+			tc.createSeed(t, store)
 
 			server := newTestServer(t, store)
 
@@ -416,30 +379,51 @@ func TestLoginUserAPI(t *testing.T) {
 }
 
 func TestLogoutUserAPI(t *testing.T) {
-	session := randomSession()
+	validName := "testuser"
+	validEmail := "test@example.com"
+	validPassword := "test-password"
+
+	validHashedPassword, err := util.HashPassword(validPassword)
+	require.NoError(t, err)
+
+	sessionToken := token.NewToken(time.Minute)
+
+	createSeed := func(t *testing.T, store db.Store) {
+		ctx := context.Background()
+
+		createdUser, err := store.CreateUser(ctx, db.CreateUserParams{
+			Name:           validName,
+			Email:          validEmail,
+			HashedPassword: validHashedPassword,
+		})
+		require.NoError(t, err)
+
+		createdSession, err := store.CreateSession(ctx, db.CreateSessionParams{
+			UserID:       createdUser.ID,
+			SessionToken: sessionToken.ID,
+			ExpiredAt:    sessionToken.ExpiredAt,
+		})
+		require.NoError(t, err)
+
+		fmt.Printf("[d][test]createdSession: %+v\n", createdSession)
+	}
 
 	testCases := []struct {
 		name          string
 		setupAuth     func(request *http.Request)
 		buildStore    func(t *testing.T) (store db.Store, cleanup func())
+		createSeed    func(t *testing.T, store db.Store)
 		checkResponse func(t *testing.T, response *http.Response)
 	}{
 		{
 			name: "OK",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, session.SessionToken.String())
+				addSessionTokenInCookie(request, sessionToken.ID.String())
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
-
-				buildValidSessionStubs(mockStore, session)
-				mockStore.EXPECT().
-					DeleteSession(gomock.Any(), gomock.Eq(session.SessionToken)).
-					Times(1).
-					Return(nil)
-
-				return mockStore, cleanup
+				return newTestDBStore(t)
 			},
+			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
 			},
@@ -448,8 +432,9 @@ func TestLogoutUserAPI(t *testing.T) {
 			name:      "NoAuthorization",
 			setupAuth: func(request *http.Request) {},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				return newMockStore(t)
+				return newTestDBStore(t)
 			},
+			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
 			},
@@ -457,19 +442,12 @@ func TestLogoutUserAPI(t *testing.T) {
 		{
 			name: "NoExistsSessionToken",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, session.SessionToken.String())
+				addSessionTokenInCookie(request, util.RandomUUID().String())
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
-
-				buildValidSessionStubs(mockStore, session)
-				mockStore.EXPECT().
-					DeleteSession(gomock.Any(), gomock.Eq(session.SessionToken)).
-					Times(1).
-					Return(sql.ErrNoRows)
-
-				return mockStore, cleanup
+				return newTestDBStore(t)
 			},
+			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
 			},
@@ -477,19 +455,26 @@ func TestLogoutUserAPI(t *testing.T) {
 		{
 			name: "InternalError",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, session.SessionToken.String())
+				addSessionTokenInCookie(request, sessionToken.ID.String())
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				mockStore, cleanup := newMockStore(t)
 
-				buildValidSessionStubs(mockStore, session)
+				buildValidSessionStubs(mockStore, db.Session{
+					ID:           util.RandomUUID(),
+					UserID:       util.RandomUUID(),
+					SessionToken: sessionToken.ID,
+					ExpiredAt:    sessionToken.ExpiredAt,
+					CreatedAt:    time.Now(),
+				})
+
 				mockStore.EXPECT().
-					DeleteSession(gomock.Any(), gomock.Eq(session.SessionToken)).
-					Times(1).
+					DeleteSession(gomock.Any(), gomock.Eq(sessionToken.ID)).
 					Return(sql.ErrConnDone)
 
 				return mockStore, cleanup
 			},
+			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 			},
@@ -502,6 +487,8 @@ func TestLogoutUserAPI(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			store, cleanupStore := tc.buildStore(t)
 			defer cleanupStore()
+
+			tc.createSeed(t, store)
 
 			server := newTestServer(t, store)
 
@@ -521,42 +508,67 @@ func TestLogoutUserAPI(t *testing.T) {
 }
 
 func TestGetLoggedInUserAPI(t *testing.T) {
-	user, _ := randomUser(t)
-	session := randomExistsUserSession(user.ID)
+	validName := "testuser"
+	validEmail := "test@example.com"
+	validPassword := "test-password"
+
+	validHashedPassword, err := util.HashPassword(validPassword)
+	require.NoError(t, err)
+
+	sessionToken := token.NewToken(time.Minute)
+
+	createSeed := func(t *testing.T, store db.Store) {
+		ctx := context.Background()
+
+		createdUser, err := store.CreateUser(ctx, db.CreateUserParams{
+			Name:           validName,
+			Email:          validEmail,
+			HashedPassword: validHashedPassword,
+		})
+		require.NoError(t, err)
+
+		createdSession, err := store.CreateSession(ctx, db.CreateSessionParams{
+			UserID:       createdUser.ID,
+			SessionToken: sessionToken.ID,
+			ExpiredAt:    sessionToken.ExpiredAt,
+		})
+		require.NoError(t, err)
+
+		fmt.Printf("[d][test]createdSession: %+v\n", createdSession)
+	}
 
 	testCases := []struct {
 		name          string
 		setupAuth     func(request *http.Request)
 		buildStore    func(t *testing.T) (store db.Store, cleanup func())
+		createSeed    func(t *testing.T, store db.Store)
 		checkResponse func(t *testing.T, response *http.Response)
 	}{
 		{
 			name: "OK",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, session.SessionToken.String())
+				addSessionTokenInCookie(request, sessionToken.ID.String())
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
-
-				buildValidSessionStubs(mockStore, session)
-				mockStore.EXPECT().
-					GetUser(gomock.Any(), gomock.Eq(session.UserID)).
-					Times(1).
-					Return(user, nil)
-
-				return mockStore, cleanup
+				return newTestDBStore(t)
 			},
+			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
-				requireBodyMatchUser(t, response.Body, user)
+
+				gotUser := unmarshalUserResponse(t, response.Body)
+
+				require.Equal(t, validName, gotUser.Name)
+				require.Equal(t, validEmail, gotUser.Email)
 			},
 		},
 		{
 			name:      "NoAuthorization",
 			setupAuth: func(request *http.Request) {},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				return newMockStore(t)
+				return newTestDBStore(t)
 			},
+			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
 			},
@@ -564,19 +576,12 @@ func TestGetLoggedInUserAPI(t *testing.T) {
 		{
 			name: "NoExistsUser",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, session.SessionToken.String())
+				addSessionTokenInCookie(request, util.RandomUUID().String())
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
-
-				buildValidSessionStubs(mockStore, session)
-				mockStore.EXPECT().
-					GetUser(gomock.Any(), gomock.Eq(session.UserID)).
-					Times(1).
-					Return(db.User{}, sql.ErrNoRows)
-
-				return mockStore, cleanup
+				return newTestDBStore(t)
 			},
+			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
 			},
@@ -584,19 +589,28 @@ func TestGetLoggedInUserAPI(t *testing.T) {
 		{
 			name: "InternalError",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, session.SessionToken.String())
+				addSessionTokenInCookie(request, sessionToken.ID.String())
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				mockStore, cleanup := newMockStore(t)
 
+				session := db.Session{
+					ID:           util.RandomUUID(),
+					UserID:       util.RandomUUID(),
+					SessionToken: sessionToken.ID,
+					ExpiredAt:    sessionToken.ExpiredAt,
+					CreatedAt:    time.Now(),
+				}
+
 				buildValidSessionStubs(mockStore, session)
+
 				mockStore.EXPECT().
 					GetUser(gomock.Any(), gomock.Eq(session.UserID)).
-					Times(1).
 					Return(db.User{}, sql.ErrConnDone)
 
 				return mockStore, cleanup
 			},
+			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 			},
@@ -609,6 +623,8 @@ func TestGetLoggedInUserAPI(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			store, cleanupStore := tc.buildStore(t)
 			defer cleanupStore()
+
+			tc.createSeed(t, store)
 
 			server := newTestServer(t, store)
 
@@ -627,44 +643,13 @@ func TestGetLoggedInUserAPI(t *testing.T) {
 	}
 }
 
-func randomUser(t *testing.T) (user db.User, password string) {
-	password = util.RandomString(8)
-	hashedPassword, err := util.HashPassword(password)
-	require.NoError(t, err)
-
-	user = db.User{
-		ID:             util.RandomUUID(),
-		Name:           util.RandomName(),
-		Email:          util.RandomEmail(),
-		HashedPassword: hashedPassword,
-	}
-	return
-}
-
-func randomExistsUserSession(userID uuid.UUID) db.Session {
-	return db.Session{
-		ID:           util.RandomUUID(),
-		UserID:       userID,
-		SessionToken: util.RandomUUID(),
-		ExpiredAt:    time.Now().Add(time.Minute),
-	}
-}
-
-func requireBodyMatchUser(t *testing.T, body io.ReadCloser, user db.User) {
+func unmarshalUserResponse(t *testing.T, body io.ReadCloser) user_domain.UserResponse {
 	data, err := io.ReadAll(body)
 	require.NoError(t, err)
 
-	var gotUser user_domain.UserResponse
-	err = json.Unmarshal(data, &gotUser)
+	var parsed user_domain.UserResponse
+	err = json.Unmarshal(data, &parsed)
 	require.NoError(t, err)
 
-	requireUserResponseMatchUser(t, gotUser, user)
-
-	err = body.Close()
-	require.NoError(t, err)
-}
-
-func requireUserResponseMatchUser(t *testing.T, gotUser user_domain.UserResponse, user db.User) {
-	require.Equal(t, user.Name, gotUser.Name)
-	require.Equal(t, user.Email, gotUser.Email)
+	return parsed
 }

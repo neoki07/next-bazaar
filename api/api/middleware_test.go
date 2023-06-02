@@ -32,7 +32,6 @@ func addSessionTokenInCookie(
 func buildValidSessionStubs(store *mockdb.MockStore, session db.Session) {
 	store.EXPECT().
 		GetSession(gomock.Any(), gomock.Eq(session.SessionToken)).
-		Times(1).
 		Return(session, nil)
 }
 
