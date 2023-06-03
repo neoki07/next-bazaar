@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/lib/pq"
 	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
 	cart_service "github.com/ot07/next-bazaar/api/service/cart"
 	"github.com/ot07/next-bazaar/api/validation"
@@ -76,12 +75,6 @@ func (h *cartHandler) addProduct(c *fiber.Ctx) error {
 		req.Quantity,
 	))
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok {
-			switch pqErr.Code.Name() {
-			case "unique_violation":
-				return c.Status(fiber.StatusForbidden).JSON(newErrorResponse(err))
-			}
-		}
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
