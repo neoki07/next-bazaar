@@ -18,8 +18,6 @@ import (
 )
 
 func TestGetProduct(t *testing.T) {
-	t.Parallel()
-
 	testCases := []struct {
 		name          string
 		buildStore    func(t *testing.T) (store db.Store, cleanup func())
@@ -143,8 +141,6 @@ func TestGetProduct(t *testing.T) {
 }
 
 func TestListProducts(t *testing.T) {
-	t.Parallel()
-
 	pageSize := 5
 
 	type Query struct {

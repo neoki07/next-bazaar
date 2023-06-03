@@ -21,8 +21,6 @@ import (
 )
 
 func TestCreateUserAPI(t *testing.T) {
-	t.Parallel()
-
 	validName := "testuser"
 	validEmail := "test@example.com"
 	validPassword := "test-password"

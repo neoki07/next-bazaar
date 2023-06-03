@@ -37,8 +37,6 @@ func buildValidSessionStubs(store *mockdb.MockStore, session db.Session) {
 }
 
 func TestAuthMiddleware(t *testing.T) {
-	t.Parallel()
-
 	validName := "testuser"
 	validEmail := "test@example.com"
 	validHashedPassword := "test-hashed-password"
