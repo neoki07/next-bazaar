@@ -5,7 +5,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"testing"
@@ -396,14 +395,12 @@ func TestLogoutUserAPI(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		createdSession, err := store.CreateSession(ctx, db.CreateSessionParams{
+		_, err = store.CreateSession(ctx, db.CreateSessionParams{
 			UserID:       createdUser.ID,
 			SessionToken: sessionToken.ID,
 			ExpiredAt:    sessionToken.ExpiredAt,
 		})
 		require.NoError(t, err)
-
-		fmt.Printf("[d][test]createdSession: %+v\n", createdSession)
 	}
 
 	testCases := []struct {
@@ -525,14 +522,12 @@ func TestGetLoggedInUserAPI(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		createdSession, err := store.CreateSession(ctx, db.CreateSessionParams{
+		_, err = store.CreateSession(ctx, db.CreateSessionParams{
 			UserID:       createdUser.ID,
 			SessionToken: sessionToken.ID,
 			ExpiredAt:    sessionToken.ExpiredAt,
 		})
 		require.NoError(t, err)
-
-		fmt.Printf("[d][test]createdSession: %+v\n", createdSession)
 	}
 
 	testCases := []struct {
