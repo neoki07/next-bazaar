@@ -210,13 +210,6 @@ func TestLoginUserAPI(t *testing.T) {
 	validHashedPassword, err := util.HashPassword(validPassword)
 	require.NoError(t, err)
 
-	validUser := db.User{
-		ID:             util.RandomUUID(),
-		Name:           validName,
-		Email:          validEmail,
-		HashedPassword: validHashedPassword,
-	}
-
 	createSeed := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
 
@@ -320,9 +313,16 @@ func TestLoginUserAPI(t *testing.T) {
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				mockStore, cleanup := newMockStore(t)
 
+				user := db.User{
+					ID:             util.RandomUUID(),
+					Name:           validName,
+					Email:          validEmail,
+					HashedPassword: validHashedPassword,
+				}
 				mockStore.EXPECT().
 					GetUserByEmail(gomock.Any(), gomock.Eq(validEmail)).
-					Return(validUser, nil)
+					Return(user, nil)
+
 				mockStore.EXPECT().
 					CreateSession(gomock.Any(), gomock.Any()).
 					Return(db.Session{}, sql.ErrConnDone)
