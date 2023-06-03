@@ -89,7 +89,7 @@ func (server *Server) setupRouter() {
 	v1.Post("/users/logout", server.handlers.user.logoutUser)
 	v1.Get("/users/me", server.handlers.user.getLoggedInUser)
 
-	v1.Get("/cart-products/:user-id", server.handlers.cart.getCart)
+	v1.Get("/cart-products/:user_id", server.handlers.cart.getCart)
 	v1.Post("/cart-products", server.handlers.cart.addProduct)
 }
 

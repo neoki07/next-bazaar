@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
@@ -38,9 +37,6 @@ func (h *cartHandler) getCart(c *fiber.Ctx) error {
 
 	cartProducts, err := h.service.GetProductsByUserID(c.Context(), req.ID)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(newErrorResponse(err))
-		}
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
