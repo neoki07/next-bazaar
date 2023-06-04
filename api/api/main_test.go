@@ -26,6 +26,10 @@ func newTestDBStore(t *testing.T) (store *db.SQLStore, cleanup func()) {
 	return db.NewStore(conn), func() { conn.Close() }
 }
 
+func buildTestDBStore(t *testing.T) (store db.Store, cleanup func()) {
+	return newTestDBStore(t)
+}
+
 func newMockStore(t *testing.T) (store *mockdb.MockStore, cleanup func()) {
 	ctrl := gomock.NewController(t)
 	return mockdb.NewMockStore(ctrl), func() { ctrl.Finish() }

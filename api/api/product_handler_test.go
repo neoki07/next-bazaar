@@ -25,10 +25,8 @@ func TestGetProduct(t *testing.T) {
 		checkResponse func(t *testing.T, response *http.Response)
 	}{
 		{
-			name: "OK",
-			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				return newTestDBStore(t)
-			},
+			name:       "OK",
+			buildStore: buildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) (productID string) {
 				ctx := context.Background()
 
@@ -71,10 +69,8 @@ func TestGetProduct(t *testing.T) {
 			},
 		},
 		{
-			name: "NotFound",
-			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				return newTestDBStore(t)
-			},
+			name:       "NotFound",
+			buildStore: buildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) (productID string) {
 				return util.RandomUUID().String()
 			},
@@ -83,10 +79,8 @@ func TestGetProduct(t *testing.T) {
 			},
 		},
 		{
-			name: "InvalidID",
-			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				return newTestDBStore(t)
-			},
+			name:       "InvalidID",
+			buildStore: buildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) (productID string) {
 				return "InvalidID"
 			},
@@ -116,6 +110,7 @@ func TestGetProduct(t *testing.T) {
 
 	for i := range testCases {
 		tc := testCases[i]
+
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -161,9 +156,7 @@ func TestListProducts(t *testing.T) {
 				pageID:   1,
 				pageSize: pageSize,
 			},
-			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				return newTestDBStore(t)
-			},
+			buildStore: buildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) {
 				var err error
 
@@ -230,11 +223,8 @@ func TestListProducts(t *testing.T) {
 			query: Query{
 				pageSize: pageSize,
 			},
-			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				return newTestDBStore(t)
-			},
-			createSeed: func(t *testing.T, store db.Store) {
-			},
+			buildStore: buildTestDBStore,
+			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
@@ -245,11 +235,8 @@ func TestListProducts(t *testing.T) {
 				pageID:   0,
 				pageSize: pageSize,
 			},
-			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				return newTestDBStore(t)
-			},
-			createSeed: func(t *testing.T, store db.Store) {
-			},
+			buildStore: buildTestDBStore,
+			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
@@ -259,11 +246,8 @@ func TestListProducts(t *testing.T) {
 			query: Query{
 				pageID: 1,
 			},
-			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				return newTestDBStore(t)
-			},
-			createSeed: func(t *testing.T, store db.Store) {
-			},
+			buildStore: buildTestDBStore,
+			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
@@ -274,11 +258,8 @@ func TestListProducts(t *testing.T) {
 				pageID:   1,
 				pageSize: 0,
 			},
-			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				return newTestDBStore(t)
-			},
-			createSeed: func(t *testing.T, store db.Store) {
-			},
+			buildStore: buildTestDBStore,
+			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
@@ -289,11 +270,8 @@ func TestListProducts(t *testing.T) {
 				pageID:   1,
 				pageSize: 101,
 			},
-			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				return newTestDBStore(t)
-			},
-			createSeed: func(t *testing.T, store db.Store) {
-			},
+			buildStore: buildTestDBStore,
+			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
@@ -313,8 +291,7 @@ func TestListProducts(t *testing.T) {
 
 				return mockStore, cleanup
 			},
-			createSeed: func(t *testing.T, store db.Store) {
-			},
+			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 			},
@@ -323,6 +300,7 @@ func TestListProducts(t *testing.T) {
 
 	for i := range testCases {
 		tc := testCases[i]
+
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

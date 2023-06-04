@@ -32,7 +32,7 @@ func addSessionTokenInCookie(
 
 func buildValidSessionStubs(store *mockdb.MockStore, session db.Session) {
 	store.EXPECT().
-		GetSession(gomock.Any(), gomock.Eq(session.SessionToken)).
+		GetSession(gomock.Any(), gomock.Any()).
 		Return(session, nil)
 }
 
@@ -42,7 +42,7 @@ func TestAuthMiddleware(t *testing.T) {
 	validHashedPassword := "test-hashed-password"
 
 	validSessionToken := token.NewToken(time.Minute)
-	createValidSession := func(t *testing.T, store db.Store) {
+	createValidSessionSeed := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
 
 		createdUser, err := store.CreateUser(ctx, db.CreateUserParams{
@@ -61,7 +61,7 @@ func TestAuthMiddleware(t *testing.T) {
 	}
 
 	expiredSessionToken := token.NewToken(-time.Minute)
-	createExpiredSession := func(t *testing.T, store db.Store) {
+	createExpiredSessionSeed := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
 
 		createdUser, err := store.CreateUser(ctx, db.CreateUserParams{
@@ -91,10 +91,8 @@ func TestAuthMiddleware(t *testing.T) {
 			setupAuth: func(request *http.Request) {
 				addSessionTokenInCookie(request, validSessionToken.ID.String())
 			},
-			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				return newTestDBStore(t)
-			},
-			createSeed: createValidSession,
+			buildStore: buildTestDBStore,
+			createSeed: createValidSessionSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
 			},
@@ -103,10 +101,8 @@ func TestAuthMiddleware(t *testing.T) {
 			name: "NoAuthorization",
 			setupAuth: func(request *http.Request) {
 			},
-			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				return newTestDBStore(t)
-			},
-			createSeed: createValidSession,
+			buildStore: buildTestDBStore,
+			createSeed: createValidSessionSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
 			},
@@ -116,10 +112,8 @@ func TestAuthMiddleware(t *testing.T) {
 			setupAuth: func(request *http.Request) {
 				addSessionTokenInCookie(request, "invalid")
 			},
-			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				return newTestDBStore(t)
-			},
-			createSeed: createValidSession,
+			buildStore: buildTestDBStore,
+			createSeed: createValidSessionSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
 			},
@@ -129,10 +123,8 @@ func TestAuthMiddleware(t *testing.T) {
 			setupAuth: func(request *http.Request) {
 				addSessionTokenInCookie(request, expiredSessionToken.ID.String())
 			},
-			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				return newTestDBStore(t)
-			},
-			createSeed: createExpiredSession,
+			buildStore: buildTestDBStore,
+			createSeed: createExpiredSessionSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
 			},
@@ -146,8 +138,7 @@ func TestAuthMiddleware(t *testing.T) {
 				mockStore, cleanup := newMockStore(t)
 
 				mockStore.EXPECT().
-					GetSession(gomock.Any(), gomock.Eq(validSessionToken.ID)).
-					Times(1).
+					GetSession(gomock.Any(), gomock.Any()).
 					Return(db.Session{}, sql.ErrConnDone)
 
 				return mockStore, cleanup

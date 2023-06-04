@@ -141,12 +141,12 @@ paths:
       summary: Add product to cart
       tags:
       - Cart
-  /cart-products/{userId}:
+  /cart-products/{user_id}:
     get:
       parameters:
       - description: User ID
         in: path
-        name: userId
+        name: user_id
         required: true
         type: string
       responses:

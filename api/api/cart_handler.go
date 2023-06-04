@@ -22,12 +22,12 @@ func newCartHandler(s *cart_service.CartService) *cartHandler {
 
 // @Summary      Get cart
 // @Tags         Cart
-// @Param        userId path string true "User ID"
+// @Param        user_id path string true "User ID"
 // @Success      200 {object} cart_domain.CartResponse
 // @Failure      400 {object} errorResponse
 // @Failure      404 {object} errorResponse
 // @Failure      500 {object} errorResponse
-// @Router       /cart-products/{userId} [get]
+// @Router       /cart-products/{user_id} [get]
 func (h *cartHandler) getCart(c *fiber.Ctx) error {
 	req := new(cart_domain.GetProductsRequest)
 	if err := c.ParamsParser(req); err != nil {
