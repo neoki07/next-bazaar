@@ -1,11 +1,9 @@
 package api
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/lib/pq"
 	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
 	cart_service "github.com/ot07/next-bazaar/api/service/cart"
 	"github.com/ot07/next-bazaar/api/validation"
@@ -24,12 +22,12 @@ func newCartHandler(s *cart_service.CartService) *cartHandler {
 
 // @Summary      Get cart
 // @Tags         Cart
-// @Param        userId path string true "User ID"
+// @Param        user_id path string true "User ID"
 // @Success      200 {object} cart_domain.CartResponse
 // @Failure      400 {object} errorResponse
 // @Failure      404 {object} errorResponse
 // @Failure      500 {object} errorResponse
-// @Router       /cart-products/{userId} [get]
+// @Router       /cart-products/{user_id} [get]
 func (h *cartHandler) getCart(c *fiber.Ctx) error {
 	req := new(cart_domain.GetProductsRequest)
 	if err := c.ParamsParser(req); err != nil {
@@ -38,9 +36,6 @@ func (h *cartHandler) getCart(c *fiber.Ctx) error {
 
 	cartProducts, err := h.service.GetProductsByUserID(c.Context(), req.ID)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(newErrorResponse(err))
-		}
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
@@ -80,12 +75,6 @@ func (h *cartHandler) addProduct(c *fiber.Ctx) error {
 		req.Quantity,
 	))
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok {
-			switch pqErr.Code.Name() {
-			case "unique_violation":
-				return c.Status(fiber.StatusForbidden).JSON(newErrorResponse(err))
-			}
-		}
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 

@@ -14,11 +14,11 @@ SET
 WHERE user_id = $1 AND product_id = $2
 RETURNING *;
 
--- name: GetCartProductByUserIdAndProductId :one
+-- name: GetCartProductByUserIDAndProductID :one
 SELECT * FROM cart_products
 WHERE user_id = $1 AND product_id = $2;
 
--- name: GetCartProductsByUserId :many
+-- name: GetCartProductsByUserID :many
 SELECT * FROM cart_products
 WHERE user_id = $1;
 

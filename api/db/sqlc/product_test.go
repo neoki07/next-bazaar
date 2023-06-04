@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/stretchr/testify/require"
 )
@@ -49,10 +50,11 @@ func createRandomProduct(t *testing.T, testQueries *Queries) Product {
 func TestCreateProduct(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	db, err := sql.Open(testDBDriverName, uuid.New().String())
+	require.NoError(t, err)
+	defer db.Close()
 
-	testQueries := New(tx)
+	testQueries := New(db)
 
 	createRandomProduct(t, testQueries)
 }
@@ -60,10 +62,11 @@ func TestCreateProduct(t *testing.T) {
 func TestGetProduct(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	db, err := sql.Open(testDBDriverName, uuid.New().String())
+	require.NoError(t, err)
+	defer db.Close()
 
-	testQueries := New(tx)
+	testQueries := New(db)
 
 	product1 := createRandomProduct(t, testQueries)
 	product2, err := testQueries.GetProduct(context.Background(), product1.ID)

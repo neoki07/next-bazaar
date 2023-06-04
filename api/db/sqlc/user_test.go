@@ -2,9 +2,11 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/stretchr/testify/require"
 )
@@ -37,10 +39,11 @@ func createRandomUser(t *testing.T, testQueries *Queries) User {
 func TestCreateUser(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	db, err := sql.Open(testDBDriverName, uuid.New().String())
+	require.NoError(t, err)
+	defer db.Close()
 
-	testQueries := New(tx)
+	testQueries := New(db)
 
 	createRandomUser(t, testQueries)
 }
@@ -48,10 +51,11 @@ func TestCreateUser(t *testing.T) {
 func TestGetUser(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	db, err := sql.Open(testDBDriverName, uuid.New().String())
+	require.NoError(t, err)
+	defer db.Close()
 
-	testQueries := New(tx)
+	testQueries := New(db)
 
 	user1 := createRandomUser(t, testQueries)
 	user2, err := testQueries.GetUser(context.Background(), user1.ID)
@@ -69,10 +73,11 @@ func TestGetUser(t *testing.T) {
 func TestGetUserByEmail(t *testing.T) {
 	t.Parallel()
 
-	tx := beginTransaction(t)
-	defer rollbackTransaction(t, tx)
+	db, err := sql.Open(testDBDriverName, uuid.New().String())
+	require.NoError(t, err)
+	defer db.Close()
 
-	testQueries := New(tx)
+	testQueries := New(db)
 
 	user1 := createRandomUser(t, testQueries)
 	user2, err := testQueries.GetUserByEmail(context.Background(), user1.Email)

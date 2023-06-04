@@ -26,6 +26,21 @@ func productsToSellersIDs(products []db.Product) []uuid.UUID {
 	return sellersIDs
 }
 
+func toProductDomain(product db.Product, category db.Category, seller db.User) product_domain.Product {
+	return product_domain.Product{
+		ID:            product.ID,
+		Name:          product.Name,
+		Description:   product.Description,
+		Price:         product.Price,
+		StockQuantity: product.StockQuantity,
+		CategoryID:    category.ID,
+		Category:      category.Name,
+		SellerID:      seller.ID,
+		Seller:        seller.Name,
+		ImageUrl:      product.ImageUrl,
+	}
+}
+
 type productRepositoryImpl struct {
 	store db.Store
 }
@@ -46,18 +61,7 @@ func (r *productRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (pro
 		return product_domain.Product{}, err
 	}
 
-	rsp := product_domain.Product{
-		ID:            product.ID,
-		Name:          product.Name,
-		Description:   product.Description,
-		Price:         product.Price,
-		StockQuantity: product.StockQuantity,
-		Category:      category.Name,
-		Seller:        seller.Name,
-		ImageUrl:      product.ImageUrl,
-	}
-
-	return rsp, nil
+	return toProductDomain(product, category, seller), nil
 }
 
 func (r *productRepositoryImpl) FindMany(
@@ -81,9 +85,9 @@ func (r *productRepositoryImpl) FindMany(
 		return nil, err
 	}
 
-	categoriesMap := make(map[uuid.UUID]string)
+	categoriesMap := make(map[uuid.UUID]db.Category)
 	for _, category := range categories {
-		categoriesMap[category.ID] = category.Name
+		categoriesMap[category.ID] = category
 	}
 
 	sellersIDs := productsToSellersIDs(products)
@@ -92,30 +96,31 @@ func (r *productRepositoryImpl) FindMany(
 		return nil, err
 	}
 
-	sellersMap := make(map[uuid.UUID]string)
+	sellersMap := make(map[uuid.UUID]db.User)
 	for _, seller := range sellers {
-		sellersMap[seller.ID] = seller.Name
+		sellersMap[seller.ID] = seller
 	}
 
 	rsp := make([]product_domain.Product, len(products))
 	for i, product := range products {
-		rsp[i] = product_domain.Product{
-			ID:            product.ID,
-			Name:          product.Name,
-			Description:   product.Description,
-			Price:         product.Price,
-			StockQuantity: product.StockQuantity,
-			Category:      categoriesMap[product.CategoryID],
-			Seller:        sellersMap[product.SellerID],
-			ImageUrl:      product.ImageUrl,
-		}
+		rsp[i] = toProductDomain(product, categoriesMap[product.CategoryID], sellersMap[product.SellerID])
 	}
 
 	return rsp, nil
 }
 
 func (r *productRepositoryImpl) Create(ctx context.Context, product product_domain.Product) error {
-	return nil
+	_, err := r.store.CreateProduct(ctx, db.CreateProductParams{
+		Name:          product.Name,
+		Description:   product.Description,
+		Price:         product.Price,
+		StockQuantity: product.StockQuantity,
+		CategoryID:    product.CategoryID,
+		SellerID:      product.SellerID,
+		ImageUrl:      product.ImageUrl,
+	})
+
+	return err
 }
 
 func (r *productRepositoryImpl) Count(ctx context.Context) (int64, error) {

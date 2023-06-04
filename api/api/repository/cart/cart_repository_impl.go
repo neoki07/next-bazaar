@@ -17,12 +17,12 @@ func (r *cartRepositoryImpl) FindOneByUserIDAndProductID(
 	ctx context.Context,
 	params FindOneByUserIDAndProductIDParams,
 ) (cart_domain.CartProduct, error) {
-	arg := db.GetCartProductByUserIdAndProductIdParams{
+	arg := db.GetCartProductByUserIDAndProductIDParams{
 		UserID:    params.UserID,
 		ProductID: params.ProductID,
 	}
 
-	cartProduct, err := r.store.GetCartProductByUserIdAndProductId(ctx, arg)
+	cartProduct, err := r.store.GetCartProductByUserIDAndProductID(ctx, arg)
 	if err != nil {
 		return cart_domain.CartProduct{}, err
 	}
@@ -53,7 +53,7 @@ func (r *cartRepositoryImpl) FindManyByUserID(
 	ctx context.Context,
 	userID uuid.UUID,
 ) ([]cart_domain.CartProduct, error) {
-	cartProducts, err := r.store.GetCartProductsByUserId(ctx, userID)
+	cartProducts, err := r.store.GetCartProductsByUserID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}

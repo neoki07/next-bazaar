@@ -12,7 +12,14 @@ type Product struct {
 	Description   sql.NullString
 	Price         string
 	StockQuantity int32
+	CategoryID    uuid.UUID
 	Category      string
+	SellerID      uuid.UUID
 	Seller        string
 	ImageUrl      sql.NullString
+}
+
+type Category struct {
+	ID   uuid.UUID
+	Name string
 }

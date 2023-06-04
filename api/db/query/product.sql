@@ -23,7 +23,7 @@ WHERE id = $1 LIMIT 1;
 
 -- name: ListProducts :many
 SELECT * FROM products
-ORDER BY id
+ORDER BY created_at
 LIMIT $1
 OFFSET $2;
 
