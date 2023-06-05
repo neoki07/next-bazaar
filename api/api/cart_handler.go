@@ -1,12 +1,9 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
 	"github.com/ot07/next-bazaar/api/validation"
-	db "github.com/ot07/next-bazaar/db/sqlc"
 )
 
 type cartHandler struct {
@@ -21,19 +18,18 @@ func newCartHandler(s *cart_domain.CartService) *cartHandler {
 
 // @Summary      Get cart
 // @Tags         Cart
-// @Param        user_id path string true "User ID"
 // @Success      200 {object} cart_domain.CartResponse
 // @Failure      400 {object} errorResponse
-// @Failure      404 {object} errorResponse
+// @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
-// @Router       /cart-products/{user_id} [get]
+// @Router       /cart-products [get]
 func (h *cartHandler) getCart(c *fiber.Ctx) error {
-	req := new(cart_domain.GetProductsRequest)
-	if err := c.ParamsParser(req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	session, err := getSession(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
 	}
 
-	cartProducts, err := h.service.GetProductsByUserID(c.Context(), req.ID)
+	cartProducts, err := h.service.GetProductsByUserID(c.Context(), session.UserID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
@@ -47,15 +43,13 @@ func (h *cartHandler) getCart(c *fiber.Ctx) error {
 // @Param        body body cart_domain.AddProductRequest true "Cart product object"
 // @Success      200 {object} messageResponse
 // @Failure      400 {object} errorResponse
-// @Failure      403 {object} errorResponse
+// @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
 // @Router       /cart-products [post]
 func (h *cartHandler) addProduct(c *fiber.Ctx) error {
-	session, ok := c.Locals(ctxLocalSessionKey).(db.Session)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(
-			fmt.Errorf("session token not found"),
-		))
+	session, err := getSession(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
 	}
 
 	req := new(cart_domain.AddProductRequest)
@@ -68,7 +62,7 @@ func (h *cartHandler) addProduct(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
-	err := h.service.AddProduct(c.Context(), cart_domain.NewAddProductParams(
+	err = h.service.AddProduct(c.Context(), cart_domain.NewAddProductParams(
 		session.UserID,
 		req.ProductID,
 		req.Quantity,
