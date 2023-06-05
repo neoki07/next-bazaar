@@ -69,5 +69,5 @@ func RandomPrice() (string, error) {
 }
 
 func RandomImageUrl() string {
-	return "https://picsum.photos/300/300/?random"
+	return fmt.Sprintf("https://picsum.photos/id/%d/300/300/", rand.Intn(1085))
 }
