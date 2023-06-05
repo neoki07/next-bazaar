@@ -2,13 +2,11 @@ package api
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/lib/pq"
 	user_domain "github.com/ot07/next-bazaar/api/domain/user"
 	"github.com/ot07/next-bazaar/api/validation"
-	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/util"
 )
 
@@ -131,14 +129,12 @@ func (h *userHandler) loginUser(c *fiber.Ctx) error {
 // @Failure      500 {object} errorResponse
 // @Router       /users/logout [post]
 func (h *userHandler) logoutUser(c *fiber.Ctx) error {
-	session, ok := c.Locals(ctxLocalSessionKey).(db.Session)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(
-			fmt.Errorf("session token not found"),
-		))
+	session, err := getSession(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
 	}
 
-	err := h.service.DeleteSession(c.Context(), session.SessionToken)
+	err = h.service.DeleteSession(c.Context(), session.SessionToken)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
@@ -160,11 +156,9 @@ func (h *userHandler) logoutUser(c *fiber.Ctx) error {
 // @Failure      500 {object} errorResponse
 // @Router       /users/me [get]
 func (h *userHandler) getLoggedInUser(c *fiber.Ctx) error {
-	session, ok := c.Locals(ctxLocalSessionKey).(db.Session)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(
-			fmt.Errorf("session token not found"),
-		))
+	session, err := getSession(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
 	}
 
 	user, err := h.service.GetUser(c.Context(), session.UserID)

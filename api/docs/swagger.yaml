@@ -113,6 +113,29 @@ info:
   version: 0.0.1
 paths:
   /cart-products:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/cart_domain.CartProductResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Get cart
+      tags:
+      - Cart
     post:
       parameters:
       - description: Cart product object
@@ -130,8 +153,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/api.errorResponse'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/api.errorResponse'
         "500":
@@ -139,36 +162,6 @@ paths:
           schema:
             $ref: '#/definitions/api.errorResponse'
       summary: Add product to cart
-      tags:
-      - Cart
-  /cart-products/{user_id}:
-    get:
-      parameters:
-      - description: User ID
-        in: path
-        name: user_id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/cart_domain.CartProductResponse'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.errorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/api.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.errorResponse'
-      summary: Get cart
       tags:
       - Cart
   /products:

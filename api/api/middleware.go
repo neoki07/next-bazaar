@@ -2,10 +2,11 @@ package api
 
 import (
 	"database/sql"
-	"errors"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/token"
 )
 
@@ -18,7 +19,7 @@ func authMiddleware(server *Server) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		sessionToken := c.Cookies(cookieSessionTokenKey)
 		if len(sessionToken) == 0 {
-			err := errors.New("session token not found")
+			err := fmt.Errorf("session token not found")
 			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
 		}
 
@@ -48,4 +49,12 @@ func authMiddleware(server *Server) fiber.Handler {
 		c.Locals(ctxLocalSessionKey, session)
 		return c.Next()
 	}
+}
+
+func getSession(c *fiber.Ctx) (db.Session, error) {
+	session, ok := c.Locals(ctxLocalSessionKey).(db.Session)
+	if !ok {
+		return db.Session{}, fmt.Errorf("session token not found")
+	}
+	return session, nil
 }

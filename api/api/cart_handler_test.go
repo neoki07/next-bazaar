@@ -5,7 +5,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -28,7 +27,7 @@ func TestGetCart(t *testing.T) {
 
 	validSessionToken := token.NewToken(time.Minute)
 
-	defaultCreateSeed := func(t *testing.T, store db.Store) (userID string) {
+	defaultCreateSeed := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
 
 		user, err := store.CreateUser(ctx, db.CreateUserParams{
@@ -59,21 +58,19 @@ func TestGetCart(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		cartProduct, err := store.CreateCartProduct(ctx, db.CreateCartProductParams{
+		_, err = store.CreateCartProduct(ctx, db.CreateCartProductParams{
 			UserID:    user.ID,
 			ProductID: createdProduct.ID,
 			Quantity:  5,
 		})
 		require.NoError(t, err)
-
-		return cartProduct.UserID.String()
 	}
 
 	testCases := []struct {
 		name          string
 		setupAuth     func(request *http.Request)
 		buildStore    func(t *testing.T) (store db.Store, cleanup func())
-		createSeed    func(t *testing.T, store db.Store) (userID string)
+		createSeed    func(t *testing.T, store db.Store)
 		checkResponse func(t *testing.T, response *http.Response)
 	}{
 		{
@@ -94,20 +91,6 @@ func TestGetCart(t *testing.T) {
 			createSeed: defaultCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
-			},
-		},
-		{
-			name: "InvalidUserID",
-			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
-			},
-			buildStore: buildTestDBStore,
-			createSeed: func(t *testing.T, store db.Store) (userID string) {
-				_ = defaultCreateSeed(t, store)
-				return "InvalidUserID"
-			},
-			checkResponse: func(t *testing.T, response *http.Response) {
-				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
@@ -132,9 +115,7 @@ func TestGetCart(t *testing.T) {
 
 				return mockStore, cleanup
 			},
-			createSeed: func(t *testing.T, store db.Store) (userID string) {
-				return util.RandomUUID().String()
-			},
+			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 			},
@@ -150,11 +131,11 @@ func TestGetCart(t *testing.T) {
 			store, cleanupStore := tc.buildStore(t)
 			defer cleanupStore()
 
-			userID := tc.createSeed(t, store)
+			tc.createSeed(t, store)
 
 			server := newTestServer(t, store)
 
-			url := fmt.Sprintf("/api/v1/cart-products/%s", userID)
+			url := "/api/v1/cart-products"
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
