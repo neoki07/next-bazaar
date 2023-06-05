@@ -1,10 +1,9 @@
-package user_repository
+package user_domain
 
 import (
 	"context"
 
 	"github.com/google/uuid"
-	user_domain "github.com/ot07/next-bazaar/api/domain/user"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/token"
 )
@@ -21,8 +20,8 @@ type CreateSessionParams struct {
 }
 
 type UserRepository interface {
-	FindByEmail(ctx context.Context, email string) (user_domain.User, error)
-	FindByID(ctx context.Context, id uuid.UUID) (user_domain.User, error)
+	FindByEmail(ctx context.Context, email string) (User, error)
+	FindByID(ctx context.Context, id uuid.UUID) (User, error)
 	Create(ctx context.Context, params CreateParams) error
 	CreateSession(ctx context.Context, params CreateSessionParams) error
 	DeleteSession(ctx context.Context, sessionToken uuid.UUID) error

@@ -6,15 +6,14 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	product_domain "github.com/ot07/next-bazaar/api/domain/product"
-	product_service "github.com/ot07/next-bazaar/api/service/product"
 	"github.com/ot07/next-bazaar/api/validation"
 )
 
 type productHandler struct {
-	service *product_service.ProductService
+	service *product_domain.ProductService
 }
 
-func newProductHandler(s *product_service.ProductService) *productHandler {
+func newProductHandler(s *product_domain.ProductService) *productHandler {
 	return &productHandler{
 		service: s,
 	}

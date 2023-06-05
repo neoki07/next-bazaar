@@ -1,9 +1,29 @@
 package cart_domain
 
 import (
+	"database/sql"
+
 	"github.com/google/uuid"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 )
+
+type CartProduct struct {
+	ID          uuid.UUID
+	Name        string
+	Description sql.NullString
+	Price       string
+	Quantity    int32
+	Subtotal    string
+}
+
+type GetProductsRequest struct {
+	ID uuid.UUID `params:"user_id"`
+}
+
+type AddProductRequest struct {
+	ProductID uuid.UUID `json:"product_id" validate:"required"`
+	Quantity  int32     `json:"quantity" validate:"required,min=1"`
+}
 
 type CartProductResponse struct {
 	ID          uuid.UUID     `json:"id"`

@@ -5,16 +5,15 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
-	cart_service "github.com/ot07/next-bazaar/api/service/cart"
 	"github.com/ot07/next-bazaar/api/validation"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 )
 
 type cartHandler struct {
-	service *cart_service.CartService
+	service *cart_domain.CartService
 }
 
-func newCartHandler(s *cart_service.CartService) *cartHandler {
+func newCartHandler(s *cart_domain.CartService) *cartHandler {
 	return &cartHandler{
 		service: s,
 	}
@@ -69,7 +68,7 @@ func (h *cartHandler) addProduct(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
-	err := h.service.AddProduct(c.Context(), cart_service.NewAddProductParams(
+	err := h.service.AddProduct(c.Context(), cart_domain.NewAddProductParams(
 		session.UserID,
 		req.ProductID,
 		req.Quantity,

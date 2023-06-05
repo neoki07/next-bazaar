@@ -1,10 +1,9 @@
-package user_repository
+package user_domain
 
 import (
 	"context"
 
 	"github.com/google/uuid"
-	user_domain "github.com/ot07/next-bazaar/api/domain/user"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 )
 
@@ -12,13 +11,13 @@ type userRepositoryImpl struct {
 	store db.Store
 }
 
-func (r *userRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (user_domain.User, error) {
+func (r *userRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (User, error) {
 	user, err := r.store.GetUser(ctx, id)
 	if err != nil {
-		return user_domain.User{}, err
+		return User{}, err
 	}
 
-	rsp := user_domain.User{
+	rsp := User{
 		ID:                user.ID,
 		Name:              user.Name,
 		Email:             user.Email,
@@ -30,13 +29,13 @@ func (r *userRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (user_d
 	return rsp, nil
 }
 
-func (r *userRepositoryImpl) FindByEmail(ctx context.Context, email string) (user_domain.User, error) {
+func (r *userRepositoryImpl) FindByEmail(ctx context.Context, email string) (User, error) {
 	user, err := r.store.GetUserByEmail(ctx, email)
 	if err != nil {
-		return user_domain.User{}, err
+		return User{}, err
 	}
 
-	rsp := user_domain.User{
+	rsp := User{
 		ID:                user.ID,
 		Name:              user.Name,
 		Email:             user.Email,

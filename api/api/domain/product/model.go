@@ -1,9 +1,38 @@
 package product_domain
 
 import (
+	"database/sql"
+
 	"github.com/google/uuid"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 )
+
+type Product struct {
+	ID            uuid.UUID
+	Name          string
+	Description   sql.NullString
+	Price         string
+	StockQuantity int32
+	CategoryID    uuid.UUID
+	Category      string
+	SellerID      uuid.UUID
+	Seller        string
+	ImageUrl      sql.NullString
+}
+
+type Category struct {
+	ID   uuid.UUID
+	Name string
+}
+
+type GetProductRequest struct {
+	ID uuid.UUID `params:"id"`
+}
+
+type ListProductsRequest struct {
+	PageID   int32 `query:"page_id" json:"page_id" validate:"required,min=1"`
+	PageSize int32 `query:"page_size" json:"page_size" validate:"required,min=1,max=100"`
+}
 
 type ProductResponse struct {
 	ID            uuid.UUID     `json:"id"`

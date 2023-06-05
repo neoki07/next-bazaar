@@ -1,10 +1,9 @@
-package product_repository
+package product_domain
 
 import (
 	"context"
 
 	"github.com/google/uuid"
-	product_domain "github.com/ot07/next-bazaar/api/domain/product"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 )
 
@@ -26,8 +25,8 @@ func productsToSellersIDs(products []db.Product) []uuid.UUID {
 	return sellersIDs
 }
 
-func toProductDomain(product db.Product, category db.Category, seller db.User) product_domain.Product {
-	return product_domain.Product{
+func toProductDomain(product db.Product, category db.Category, seller db.User) Product {
+	return Product{
 		ID:            product.ID,
 		Name:          product.Name,
 		Description:   product.Description,
@@ -45,20 +44,20 @@ type productRepositoryImpl struct {
 	store db.Store
 }
 
-func (r *productRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (product_domain.Product, error) {
+func (r *productRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (Product, error) {
 	product, err := r.store.GetProduct(ctx, id)
 	if err != nil {
-		return product_domain.Product{}, err
+		return Product{}, err
 	}
 
 	category, err := r.store.GetCategory(ctx, product.CategoryID)
 	if err != nil {
-		return product_domain.Product{}, err
+		return Product{}, err
 	}
 
 	seller, err := r.store.GetUser(ctx, product.SellerID)
 	if err != nil {
-		return product_domain.Product{}, err
+		return Product{}, err
 	}
 
 	return toProductDomain(product, category, seller), nil
@@ -68,7 +67,7 @@ func (r *productRepositoryImpl) FindMany(
 	ctx context.Context,
 	pageID int32,
 	pageSize int32,
-) ([]product_domain.Product, error) {
+) ([]Product, error) {
 	arg := db.ListProductsParams{
 		Limit:  pageSize,
 		Offset: (pageID - 1) * pageSize,
@@ -101,7 +100,7 @@ func (r *productRepositoryImpl) FindMany(
 		sellersMap[seller.ID] = seller
 	}
 
-	rsp := make([]product_domain.Product, len(products))
+	rsp := make([]Product, len(products))
 	for i, product := range products {
 		rsp[i] = toProductDomain(product, categoriesMap[product.CategoryID], sellersMap[product.SellerID])
 	}
@@ -109,7 +108,7 @@ func (r *productRepositoryImpl) FindMany(
 	return rsp, nil
 }
 
-func (r *productRepositoryImpl) Create(ctx context.Context, product product_domain.Product) error {
+func (r *productRepositoryImpl) Create(ctx context.Context, product Product) error {
 	_, err := r.store.CreateProduct(ctx, db.CreateProductParams{
 		Name:          product.Name,
 		Description:   product.Description,

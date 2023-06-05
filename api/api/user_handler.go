@@ -7,18 +7,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/lib/pq"
 	user_domain "github.com/ot07/next-bazaar/api/domain/user"
-	user_service "github.com/ot07/next-bazaar/api/service/user"
 	"github.com/ot07/next-bazaar/api/validation"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/util"
 )
 
 type userHandler struct {
-	service *user_service.UserService
+	service *user_domain.UserService
 	config  util.Config
 }
 
-func newUserHandler(s *user_service.UserService, config util.Config) *userHandler {
+func newUserHandler(s *user_domain.UserService, config util.Config) *userHandler {
 	return &userHandler{
 		service: s,
 		config:  config,
@@ -49,7 +48,7 @@ func (h *userHandler) createUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	arg := user_service.CreateUserParams{
+	arg := user_domain.CreateUserParams{
 		Name:           req.Name,
 		Email:          req.Email,
 		HashedPassword: hashedPassword,
