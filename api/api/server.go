@@ -4,12 +4,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
-	cart_repository "github.com/ot07/next-bazaar/api/repository/cart"
-	product_repository "github.com/ot07/next-bazaar/api/repository/product"
-	user_repository "github.com/ot07/next-bazaar/api/repository/user"
-	cart_service "github.com/ot07/next-bazaar/api/service/cart"
-	product_service "github.com/ot07/next-bazaar/api/service/product"
-	user_service "github.com/ot07/next-bazaar/api/service/user"
+	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
+	product_domain "github.com/ot07/next-bazaar/api/domain/product"
+	user_domain "github.com/ot07/next-bazaar/api/domain/user"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/util"
 )
@@ -22,18 +19,18 @@ type handlers struct {
 
 func newHandlers(config util.Config, store db.Store) handlers {
 	/* User */
-	userRepository := user_repository.NewUserRepository(store)
-	userService := user_service.NewUserService(userRepository)
+	userRepository := user_domain.NewUserRepository(store)
+	userService := user_domain.NewUserService(userRepository)
 	userHandler := newUserHandler(userService, config)
 
 	/* Product */
-	productRepository := product_repository.NewProductRepository(store)
-	productService := product_service.NewProductService(productRepository)
+	productRepository := product_domain.NewProductRepository(store)
+	productService := product_domain.NewProductService(productRepository)
 	productHandler := newProductHandler(productService)
 
 	/* Cart */
-	cartRepository := cart_repository.NewCartRepository(store)
-	cartService := cart_service.NewCartService(cartRepository)
+	cartRepository := cart_domain.NewCartRepository(store)
+	cartService := cart_domain.NewCartService(cartRepository)
 	cartHandler := newCartHandler(cartService)
 
 	return handlers{
@@ -43,7 +40,7 @@ func newHandlers(config util.Config, store db.Store) handlers {
 	}
 }
 
-// Server serves HTTP requests for this app service.
+// Server serves HTTP requests for this app domain.
 type Server struct {
 	config   util.Config
 	store    db.Store
