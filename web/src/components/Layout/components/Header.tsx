@@ -10,8 +10,8 @@ import {
   createStyles,
   rem,
 } from '@mantine/core'
-import { MantineLogo } from '@mantine/ds'
 import { IconChevronDown, IconLogout, IconSettings } from '@tabler/icons-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
 
@@ -44,7 +44,9 @@ export function Header() {
   return (
     <MantineHeader height={60} px="md">
       <Group position="apart" sx={{ height: '100%' }}>
-        <MantineLogo size={30} />
+        <Link href="/">
+          <Image src="/logo.svg" alt="Logo" width={136} height={36} priority />
+        </Link>
 
         {status === 'authenticated' && (
           <Menu
