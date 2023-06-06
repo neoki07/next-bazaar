@@ -11,7 +11,7 @@ import {
   Text,
   Title,
 } from '@mantine/core'
-import { MantineLogo } from '@mantine/ds'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
 import { z } from 'zod'
@@ -65,8 +65,14 @@ export default function RegisterPage() {
     <Container size={420} my={40}>
       <Stack>
         <Center>
-          <Link href={'/'}>
-            <MantineLogo size={30} />
+          <Link href="/">
+            <Image
+              src="/logo.svg"
+              alt="Logo"
+              width={180}
+              height={48}
+              priority
+            />
           </Link>
         </Center>
 
