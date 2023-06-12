@@ -45,6 +45,7 @@ func (r *cartRepositoryImpl) FindOneByUserIDAndProductID(
 		Price:       product.Price,
 		Quantity:    cartProduct.Quantity,
 		Subtotal:    price.Mul(quantity).String(),
+		ImageUrl:    product.ImageUrl,
 	}, nil
 }
 
@@ -78,6 +79,7 @@ func (r *cartRepositoryImpl) FindManyByUserID(
 			Price:       product.Price,
 			Quantity:    cartProduct.Quantity,
 			Subtotal:    price.Mul(quantity).String(),
+			ImageUrl:    product.ImageUrl,
 		}
 	}
 

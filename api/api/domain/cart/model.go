@@ -14,6 +14,7 @@ type CartProduct struct {
 	Price       string
 	Quantity    int32
 	Subtotal    string
+	ImageUrl    sql.NullString
 }
 
 type GetProductsRequest struct {
@@ -32,6 +33,7 @@ type CartProductResponse struct {
 	Price       string        `json:"price"`
 	Quantity    int32         `json:"quantity"`
 	Subtotal    string        `json:"subtotal"`
+	ImageUrl    db.NullString `json:"image_url" swaggertype:"string"`
 }
 
 func NewCartProductResponse(cartProduct CartProduct) CartProductResponse {
@@ -42,6 +44,7 @@ func NewCartProductResponse(cartProduct CartProduct) CartProductResponse {
 		Price:       cartProduct.Price,
 		Quantity:    cartProduct.Quantity,
 		Subtotal:    cartProduct.Subtotal,
+		ImageUrl:    db.NullString{NullString: cartProduct.ImageUrl},
 	}
 }
 
