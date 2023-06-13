@@ -16,7 +16,7 @@ export function ProductCard({ product, getProductLink }: ProductCardProps) {
   return (
     <Stack spacing="xs">
       <Link href={productLink}>
-        <Image src={product.imageUrl} alt="Tesla Model S" />
+        <Image src={product.imageUrl} alt={product.name} />
       </Link>
       <div>
         <Text

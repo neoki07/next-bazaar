@@ -8,6 +8,7 @@
 export interface CartDomainCartProductResponse {
   description?: string
   id?: string
+  image_url?: string
   name?: string
   price?: string
   quantity?: number
