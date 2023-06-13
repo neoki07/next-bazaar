@@ -63,3 +63,29 @@ func (s *CartService) AddProduct(ctx context.Context, params AddProductParams) e
 		params.Quantity+cartProduct.Quantity,
 	))
 }
+
+type UpdateProductQuantityParams struct {
+	UserID    uuid.UUID
+	ProductID uuid.UUID
+	Quantity  int32
+}
+
+func NewUpdateProductQuantityParams(
+	userID uuid.UUID,
+	productID uuid.UUID,
+	quantity int32,
+) UpdateProductQuantityParams {
+	return UpdateProductQuantityParams{
+		UserID:    userID,
+		ProductID: productID,
+		Quantity:  quantity,
+	}
+}
+
+func (s *CartService) UpdateProductQuantity(ctx context.Context, params UpdateProductQuantityParams) error {
+	return s.repository.Update(ctx, NewUpdateParams(
+		params.UserID,
+		params.ProductID,
+		params.Quantity,
+	))
+}

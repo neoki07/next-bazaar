@@ -88,6 +88,7 @@ func (server *Server) setupRouter() {
 
 	v1.Get("/cart-products", server.handlers.cart.getCart)
 	v1.Post("/cart-products", server.handlers.cart.addProduct)
+	v1.Put("/cart-products", server.handlers.cart.updateProductQuantity)
 }
 
 // Start runs the HTTP server on a specific address.

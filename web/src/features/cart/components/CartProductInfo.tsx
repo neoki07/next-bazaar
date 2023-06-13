@@ -2,8 +2,10 @@ import { NumberSelect, useForm } from '@/components/Form'
 import { Price } from '@/components/Price'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Flex, Group, Image, Stack, Text, rem } from '@mantine/core'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { z } from 'zod'
+import { useCartProducts } from '../hooks/useCartProducts'
+import { useUpdateProductQuantity } from '../hooks/useUpdateProductQuantity'
 import { CartProduct } from '../types'
 
 interface CartProductInfoProps {
@@ -11,6 +13,11 @@ interface CartProductInfoProps {
 }
 
 export function CartProductInfo({ cartProduct }: CartProductInfoProps) {
+  const { refetch } = useCartProducts()
+  const updateProductQuantityMutation = useUpdateProductQuantity({
+    onSuccess: () => refetch(),
+  })
+
   const schema = z.object({
     quantity: z.number().min(1).max(10),
   })
@@ -24,9 +31,19 @@ export function CartProductInfo({ cartProduct }: CartProductInfoProps) {
     },
   })
 
-  const handleSubmit = useCallback((data: z.infer<typeof schema>) => {
-    alert(`data: ${JSON.stringify(data, null, 2)}`)
-  }, [])
+  useEffect(() => {
+    const { setValue } = methods
+    setValue('quantity', cartProduct.quantity)
+  }, [methods, cartProduct.quantity])
+
+  const handleSubmit = useCallback(
+    (data: z.infer<typeof schema>) => {
+      updateProductQuantityMutation.mutate({
+        data: { product_id: cartProduct.id, quantity: data.quantity },
+      })
+    },
+    [updateProductQuantityMutation, cartProduct.id]
+  )
 
   const handleChangeQuantity = useCallback(
     (value: string | null) => {

@@ -74,3 +74,40 @@ func (h *cartHandler) addProduct(c *fiber.Ctx) error {
 	rsp := newMessageResponse("Cart product added successfully")
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
+
+// @Summary      Update cart product quantity
+// @Tags         Cart
+// @Param        body body cart_domain.UpdateProductQuantityRequest true "Cart product object"
+// @Success      200 {object} messageResponse
+// @Failure      400 {object} errorResponse
+// @Failure      401 {object} errorResponse
+// @Failure      500 {object} errorResponse
+// @Router       /cart-products [put]
+func (h *cartHandler) updateProductQuantity(c *fiber.Ctx) error {
+	session, err := getSession(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
+	}
+
+	req := new(cart_domain.UpdateProductQuantityRequest)
+	if err := c.BodyParser(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	validate := validation.NewValidator()
+	if err := validate.Struct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	err = h.service.UpdateProductQuantity(c.Context(), cart_domain.NewUpdateProductQuantityParams(
+		session.UserID,
+		req.ProductID,
+		req.Quantity,
+	))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
+	}
+
+	rsp := newMessageResponse("Cart product added successfully")
+	return c.Status(fiber.StatusOK).JSON(rsp)
+}

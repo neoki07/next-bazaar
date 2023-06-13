@@ -38,6 +38,17 @@ definitions:
       subtotal:
         type: string
     type: object
+  cart_domain.UpdateProductQuantityRequest:
+    properties:
+      product_id:
+        type: string
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - product_id
+    - quantity
+    type: object
   product_domain.ListProductsResponse:
     properties:
       data:
@@ -164,6 +175,34 @@ paths:
           schema:
             $ref: '#/definitions/api.errorResponse'
       summary: Add product to cart
+      tags:
+      - Cart
+    put:
+      parameters:
+      - description: Cart product object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/cart_domain.UpdateProductQuantityRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.messageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Update cart product quantity
       tags:
       - Cart
   /products:

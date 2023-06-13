@@ -20,6 +20,7 @@ import type {
   ApiMessageResponse,
   CartDomainAddProductRequest,
   CartDomainCartProductResponse,
+  CartDomainUpdateProductQuantityRequest,
 } from '../../model'
 
 // eslint-disable-next-line
@@ -166,6 +167,77 @@ export const usePostCartProducts = <
   request?: SecondParameter<typeof customAxiosInstance>
 }) => {
   const mutationOptions = getPostCartProductsMutationOptions(options)
+
+  return useMutation(mutationOptions)
+}
+/**
+ * @summary Update cart product quantity
+ */
+export const putCartProducts = (
+  cartDomainUpdateProductQuantityRequest: CartDomainUpdateProductQuantityRequest,
+  options?: SecondParameter<typeof customAxiosInstance>
+) => {
+  return customAxiosInstance<ApiMessageResponse>(
+    {
+      url: `/cart-products`,
+      method: 'put',
+      headers: { 'Content-Type': 'application/json' },
+      data: cartDomainUpdateProductQuantityRequest,
+    },
+    options
+  )
+}
+
+export const getPutCartProductsMutationOptions = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putCartProducts>>,
+    TError,
+    { data: CartDomainUpdateProductQuantityRequest },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putCartProducts>>,
+  TError,
+  { data: CartDomainUpdateProductQuantityRequest },
+  TContext
+> => {
+  const { mutation: mutationOptions, request: requestOptions } = options ?? {}
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putCartProducts>>,
+    { data: CartDomainUpdateProductQuantityRequest }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return putCartProducts(data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PutCartProductsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putCartProducts>>
+>
+export type PutCartProductsMutationBody = CartDomainUpdateProductQuantityRequest
+export type PutCartProductsMutationError = ErrorType<ApiErrorResponse>
+
+export const usePutCartProducts = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putCartProducts>>,
+    TError,
+    { data: CartDomainUpdateProductQuantityRequest },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}) => {
+  const mutationOptions = getPutCartProductsMutationOptions(options)
 
   return useMutation(mutationOptions)
 }

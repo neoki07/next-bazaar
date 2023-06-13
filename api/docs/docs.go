@@ -51,6 +51,49 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Update cart product quantity",
+                "parameters": [
+                    {
+                        "description": "Cart product object",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cart_domain.UpdateProductQuantityRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.messageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "tags": [
                     "Cart"
@@ -392,6 +435,22 @@ const docTemplate = `{
                 },
                 "subtotal": {
                     "type": "string"
+                }
+            }
+        },
+        "cart_domain.UpdateProductQuantityRequest": {
+            "type": "object",
+            "required": [
+                "product_id",
+                "quantity"
+            ],
+            "properties": {
+                "product_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "minimum": 1
                 }
             }
         },

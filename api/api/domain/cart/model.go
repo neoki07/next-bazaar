@@ -26,6 +26,11 @@ type AddProductRequest struct {
 	Quantity  int32     `json:"quantity" validate:"required,min=1"`
 }
 
+type UpdateProductQuantityRequest struct {
+	ProductID uuid.UUID `json:"product_id" validate:"required"`
+	Quantity  int32     `json:"quantity" validate:"required,min=1"`
+}
+
 type CartProductResponse struct {
 	ID          uuid.UUID     `json:"id"`
 	Name        string        `json:"name"`
