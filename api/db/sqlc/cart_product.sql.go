@@ -18,7 +18,7 @@ INSERT INTO cart_products (
   quantity
 ) VALUES (
   $1, $2, $3
-) RETURNING user_id, product_id, quantity
+) RETURNING user_id, product_id, quantity, created_at
 `
 
 type CreateCartProductParams struct {
@@ -30,13 +30,19 @@ type CreateCartProductParams struct {
 func (q *Queries) CreateCartProduct(ctx context.Context, arg CreateCartProductParams) (CartProduct, error) {
 	row := q.db.QueryRowContext(ctx, createCartProduct, arg.UserID, arg.ProductID, arg.Quantity)
 	var i CartProduct
-	err := row.Scan(&i.UserID, &i.ProductID, &i.Quantity)
+	err := row.Scan(
+		&i.UserID,
+		&i.ProductID,
+		&i.Quantity,
+		&i.CreatedAt,
+	)
 	return i, err
 }
 
 const getCartProductByUserIDAndProductID = `-- name: GetCartProductByUserIDAndProductID :one
-SELECT user_id, product_id, quantity FROM cart_products
+SELECT user_id, product_id, quantity, created_at FROM cart_products
 WHERE user_id = $1 AND product_id = $2
+ORDER BY created_at
 `
 
 type GetCartProductByUserIDAndProductIDParams struct {
@@ -47,12 +53,17 @@ type GetCartProductByUserIDAndProductIDParams struct {
 func (q *Queries) GetCartProductByUserIDAndProductID(ctx context.Context, arg GetCartProductByUserIDAndProductIDParams) (CartProduct, error) {
 	row := q.db.QueryRowContext(ctx, getCartProductByUserIDAndProductID, arg.UserID, arg.ProductID)
 	var i CartProduct
-	err := row.Scan(&i.UserID, &i.ProductID, &i.Quantity)
+	err := row.Scan(
+		&i.UserID,
+		&i.ProductID,
+		&i.Quantity,
+		&i.CreatedAt,
+	)
 	return i, err
 }
 
 const getCartProductsByUserID = `-- name: GetCartProductsByUserID :many
-SELECT user_id, product_id, quantity FROM cart_products
+SELECT user_id, product_id, quantity, created_at FROM cart_products
 WHERE user_id = $1
 `
 
@@ -65,7 +76,12 @@ func (q *Queries) GetCartProductsByUserID(ctx context.Context, userID uuid.UUID)
 	items := []CartProduct{}
 	for rows.Next() {
 		var i CartProduct
-		if err := rows.Scan(&i.UserID, &i.ProductID, &i.Quantity); err != nil {
+		if err := rows.Scan(
+			&i.UserID,
+			&i.ProductID,
+			&i.Quantity,
+			&i.CreatedAt,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -93,7 +109,7 @@ UPDATE cart_products
 SET
   quantity = $3
 WHERE user_id = $1 AND product_id = $2
-RETURNING user_id, product_id, quantity
+RETURNING user_id, product_id, quantity, created_at
 `
 
 type UpdateCartProductParams struct {
@@ -105,6 +121,11 @@ type UpdateCartProductParams struct {
 func (q *Queries) UpdateCartProduct(ctx context.Context, arg UpdateCartProductParams) (CartProduct, error) {
 	row := q.db.QueryRowContext(ctx, updateCartProduct, arg.UserID, arg.ProductID, arg.Quantity)
 	var i CartProduct
-	err := row.Scan(&i.UserID, &i.ProductID, &i.Quantity)
+	err := row.Scan(
+		&i.UserID,
+		&i.ProductID,
+		&i.Quantity,
+		&i.CreatedAt,
+	)
 	return i, err
 }
