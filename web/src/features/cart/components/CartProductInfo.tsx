@@ -1,10 +1,19 @@
 import { NumberSelect, useForm } from '@/components/Form'
 import { Price } from '@/components/Price'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Flex, Group, Image, Stack, Text, rem } from '@mantine/core'
-import { useCallback, useEffect } from 'react'
+import {
+  CloseButton,
+  Flex,
+  Group,
+  Image,
+  Stack,
+  Text,
+  rem,
+} from '@mantine/core'
+import { useCallback, useEffect, useState } from 'react'
 import { z } from 'zod'
 import { useCartProducts } from '../hooks/useCartProducts'
+import { useDeleteProduct } from '../hooks/useDeleteProduct'
 import { useUpdateProductQuantity } from '../hooks/useUpdateProductQuantity'
 import { CartProduct } from '../types'
 
@@ -13,8 +22,13 @@ interface CartProductInfoProps {
 }
 
 export function CartProductInfo({ cartProduct }: CartProductInfoProps) {
+  const [isDeleting, setIsDeleting] = useState(false)
+
   const { refetch } = useCartProducts()
   const updateProductQuantityMutation = useUpdateProductQuantity({
+    onSuccess: () => refetch(),
+  })
+  const deleteProductMutation = useDeleteProduct({
     onSuccess: () => refetch(),
   })
 
@@ -45,6 +59,13 @@ export function CartProductInfo({ cartProduct }: CartProductInfoProps) {
     [updateProductQuantityMutation, cartProduct.id]
   )
 
+  const handleDelete = useCallback(() => {
+    setIsDeleting(true)
+    deleteProductMutation.mutate({
+      data: { product_id: cartProduct.id },
+    })
+  }, [deleteProductMutation, cartProduct.id])
+
   const handleChangeQuantity = useCallback(
     (value: string | null) => {
       handleSubmit({ quantity: Number(value) })
@@ -72,9 +93,15 @@ export function CartProductInfo({ cartProduct }: CartProductInfoProps) {
                 name="quantity"
                 options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
                 onChange={handleChangeQuantity}
+                disabled={isDeleting}
               />
             </Stack>
           </Form>
+          <CloseButton
+            aria-label="Remove product"
+            onClick={handleDelete}
+            disabled={isDeleting}
+          />
         </Flex>
       </Stack>
     </Group>

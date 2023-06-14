@@ -20,6 +20,7 @@ import type {
   ApiMessageResponse,
   CartDomainAddProductRequest,
   CartDomainCartProductResponse,
+  CartDomainDeleteProductRequest,
   CartDomainUpdateProductQuantityRequest,
 } from '../../model'
 
@@ -31,6 +32,77 @@ type SecondParameter<T extends (...args: any) => any> = T extends (
   ? P
   : never
 
+/**
+ * @summary Delete cart product
+ */
+export const deleteCartProducts = (
+  cartDomainDeleteProductRequest: CartDomainDeleteProductRequest,
+  options?: SecondParameter<typeof customAxiosInstance>
+) => {
+  return customAxiosInstance<void>(
+    {
+      url: `/cart-products`,
+      method: 'delete',
+      headers: { 'Content-Type': 'application/json' },
+      data: cartDomainDeleteProductRequest,
+    },
+    options
+  )
+}
+
+export const getDeleteCartProductsMutationOptions = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteCartProducts>>,
+    TError,
+    { data: CartDomainDeleteProductRequest },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteCartProducts>>,
+  TError,
+  { data: CartDomainDeleteProductRequest },
+  TContext
+> => {
+  const { mutation: mutationOptions, request: requestOptions } = options ?? {}
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteCartProducts>>,
+    { data: CartDomainDeleteProductRequest }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return deleteCartProducts(data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type DeleteCartProductsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteCartProducts>>
+>
+export type DeleteCartProductsMutationBody = CartDomainDeleteProductRequest
+export type DeleteCartProductsMutationError = ErrorType<ApiErrorResponse>
+
+export const useDeleteCartProducts = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteCartProducts>>,
+    TError,
+    { data: CartDomainDeleteProductRequest },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}) => {
+  const mutationOptions = getDeleteCartProductsMutationOptions(options)
+
+  return useMutation(mutationOptions)
+}
 /**
  * @summary Get cart
  */

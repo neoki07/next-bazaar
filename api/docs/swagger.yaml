@@ -38,6 +38,13 @@ definitions:
       subtotal:
         type: string
     type: object
+  cart_domain.DeleteProductRequest:
+    properties:
+      product_id:
+        type: string
+    required:
+    - product_id
+    type: object
   cart_domain.UpdateProductQuantityRequest:
     properties:
       product_id:
@@ -126,6 +133,32 @@ info:
   version: 0.0.1
 paths:
   /cart-products:
+    delete:
+      parameters:
+      - description: Cart product object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/cart_domain.DeleteProductRequest'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Delete cart product
+      tags:
+      - Cart
     get:
       responses:
         "200":

@@ -89,3 +89,25 @@ func (s *CartService) UpdateProductQuantity(ctx context.Context, params UpdatePr
 		params.Quantity,
 	))
 }
+
+type DeleteProductParams struct {
+	UserID    uuid.UUID
+	ProductID uuid.UUID
+}
+
+func NewDeleteProductParams(
+	userID uuid.UUID,
+	productID uuid.UUID,
+) DeleteProductParams {
+	return DeleteProductParams{
+		UserID:    userID,
+		ProductID: productID,
+	}
+}
+
+func (s *CartService) DeleteProduct(ctx context.Context, params DeleteProductParams) error {
+	return s.repository.Delete(ctx, NewDeleteParams(
+		params.UserID,
+		params.ProductID,
+	))
+}

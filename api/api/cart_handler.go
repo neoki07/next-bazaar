@@ -111,3 +111,38 @@ func (h *cartHandler) updateProductQuantity(c *fiber.Ctx) error {
 	rsp := newMessageResponse("Cart product added successfully")
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
+
+// @Summary      Delete cart product
+// @Tags         Cart
+// @Param        body body cart_domain.DeleteProductRequest true "Cart product object"
+// @Success      204
+// @Failure      400 {object} errorResponse
+// @Failure      401 {object} errorResponse
+// @Failure      500 {object} errorResponse
+// @Router       /cart-products [delete]
+func (h *cartHandler) deleteProduct(c *fiber.Ctx) error {
+	session, err := getSession(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
+	}
+
+	req := new(cart_domain.DeleteProductRequest)
+	if err := c.BodyParser(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	validate := validation.NewValidator()
+	if err := validate.Struct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	err = h.service.DeleteProduct(c.Context(), cart_domain.NewDeleteProductParams(
+		session.UserID,
+		req.ProductID,
+	))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
+	}
+
+	return c.Status(fiber.StatusNoContent).JSON(nil)
+}

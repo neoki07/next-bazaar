@@ -58,11 +58,27 @@ func NewUpdateParams(
 	}
 }
 
+type DeleteParams struct {
+	UserID    uuid.UUID
+	ProductID uuid.UUID
+}
+
+func NewDeleteParams(
+	userID uuid.UUID,
+	productID uuid.UUID,
+) DeleteParams {
+	return DeleteParams{
+		UserID:    userID,
+		ProductID: productID,
+	}
+}
+
 type CartRepository interface {
 	FindManyByUserID(ctx context.Context, userID uuid.UUID) ([]CartProduct, error)
 	FindOneByUserIDAndProductID(ctx context.Context, params FindOneByUserIDAndProductIDParams) (CartProduct, error)
 	Create(ctx context.Context, params CreateParams) error
 	Update(ctx context.Context, params UpdateParams) error
+	Delete(ctx context.Context, params DeleteParams) error
 }
 
 func NewCartRepository(store db.Store) CartRepository {
