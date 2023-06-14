@@ -10,7 +10,12 @@ import {
   createStyles,
   rem,
 } from '@mantine/core'
-import { IconChevronDown, IconLogout, IconSettings } from '@tabler/icons-react'
+import {
+  IconChevronDown,
+  IconLogout,
+  IconSettings,
+  IconShoppingCart,
+} from '@tabler/icons-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
@@ -49,36 +54,44 @@ export function Header() {
         </Link>
 
         {status === 'authenticated' && (
-          <Menu
-            width={200}
-            position="bottom-end"
-            transitionProps={{ transition: 'pop-top-right' }}
-            withinPortal
-          >
-            <Menu.Target>
-              <UnstyledButton className={classes.user}>
-                <Group spacing={7}>
-                  <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
-                    {session?.user.name}
-                  </Text>
-                  <IconChevronDown size={rem(12)} stroke={1.5} />
-                </Group>
-              </UnstyledButton>
-            </Menu.Target>
-            <Menu.Dropdown>
-              <Menu.Item icon={<IconSettings size="0.9rem" stroke={1.5} />}>
-                Account settings
-              </Menu.Item>
+          <Group spacing="xl" align="center">
+            <Link
+              href="/cart"
+              style={{ display: 'flex', alignItems: 'center' }}
+            >
+              <IconShoppingCart size={24} stroke={1.5} />
+            </Link>
+            <Menu
+              width={200}
+              position="bottom-end"
+              transitionProps={{ transition: 'pop-top-right' }}
+              withinPortal
+            >
+              <Menu.Target>
+                <UnstyledButton className={classes.user}>
+                  <Group spacing={7}>
+                    <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
+                      {session?.user.name}
+                    </Text>
+                    <IconChevronDown size={rem(12)} stroke={1.5} />
+                  </Group>
+                </UnstyledButton>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item icon={<IconSettings size="0.9rem" stroke={1.5} />}>
+                  Account settings
+                </Menu.Item>
 
-              <Menu.Item
-                icon={<IconLogout size="0.9rem" stroke={1.5} />}
-                onClick={handleLogout}
-                disabled={isLogoutButtonClicked}
-              >
-                Logout
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
+                <Menu.Item
+                  icon={<IconLogout size="0.9rem" stroke={1.5} />}
+                  onClick={handleLogout}
+                  disabled={isLogoutButtonClicked}
+                >
+                  Logout
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </Group>
         )}
 
         {status === 'unauthenticated' && (
