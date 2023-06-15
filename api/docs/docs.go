@@ -178,6 +178,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/cart-products/count": {
+            "get": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Get cart products count",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cart_domain.CartProductsCountResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/products": {
             "get": {
                 "tags": [
@@ -475,6 +509,14 @@ const docTemplate = `{
                 },
                 "subtotal": {
                     "type": "string"
+                }
+            }
+        },
+        "cart_domain.CartProductsCountResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
                 }
             }
         },

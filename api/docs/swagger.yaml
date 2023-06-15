@@ -38,6 +38,11 @@ definitions:
       subtotal:
         type: string
     type: object
+  cart_domain.CartProductsCountResponse:
+    properties:
+      count:
+        type: integer
+    type: object
   cart_domain.DeleteProductRequest:
     properties:
       product_id:
@@ -236,6 +241,28 @@ paths:
           schema:
             $ref: '#/definitions/api.errorResponse'
       summary: Update cart product quantity
+      tags:
+      - Cart
+  /cart-products/count:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cart_domain.CartProductsCountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Get cart products count
       tags:
       - Cart
   /products:

@@ -13,6 +13,7 @@ import {
 import { useCallback, useEffect, useState } from 'react'
 import { z } from 'zod'
 import { useCartProducts } from '../hooks/useCartProducts'
+import { useCartProductsCount } from '../hooks/useCartProductsCount'
 import { useDeleteProduct } from '../hooks/useDeleteProduct'
 import { useUpdateProductQuantity } from '../hooks/useUpdateProductQuantity'
 import { CartProduct } from '../types'
@@ -24,12 +25,22 @@ interface CartProductInfoProps {
 export function CartProductInfo({ cartProduct }: CartProductInfoProps) {
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const { refetch } = useCartProducts()
+  const { refetch: refetchCartProducts } = useCartProducts()
+  const { refetch: refetchCartProductsCount } = useCartProductsCount({
+    enabled: false,
+  })
+
   const updateProductQuantityMutation = useUpdateProductQuantity({
-    onSuccess: () => refetch(),
+    onSuccess: () => {
+      refetchCartProducts()
+      refetchCartProductsCount()
+    },
   })
   const deleteProductMutation = useDeleteProduct({
-    onSuccess: () => refetch(),
+    onSuccess: () => {
+      refetchCartProducts()
+      refetchCartProductsCount()
+    },
   })
 
   const schema = z.object({

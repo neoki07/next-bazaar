@@ -1,6 +1,7 @@
 import { NumberSelect, useForm } from '@/components/Form'
 import { MainLayout } from '@/components/Layout'
 import { Price } from '@/components/Price'
+import { useCartProductsCount } from '@/features/cart'
 import { useAddToCart } from '@/features/cart/hooks/useAddToCart'
 import { useGetProduct } from '@/features/products'
 import { useSession } from '@/providers/session'
@@ -31,7 +32,12 @@ interface ProductAreaProps {
 export function ProductArea({ productId }: ProductAreaProps) {
   const { session } = useSession()
   const { data: product, isLoading } = useGetProduct(productId)
+  const { refetch: refetchCartProductsCount } = useCartProductsCount({
+    enabled: false,
+  })
+
   const addToCartMutation = useAddToCart({
+    onSuccess: () => refetchCartProductsCount(),
     onError: (error) => {
       if (error.response?.status === 401) {
         notifyUnauthorizedError()

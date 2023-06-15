@@ -1,8 +1,10 @@
 import { useAuth } from '@/features/auth'
+import { useCartProductsCount } from '@/features/cart'
 import { useSession } from '@/providers/session'
 import {
   Button,
   Group,
+  Indicator,
   Header as MantineHeader,
   Menu,
   Text,
@@ -18,7 +20,7 @@ import {
 } from '@tabler/icons-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 const useStyles = createStyles((theme) => ({
   user: {
@@ -46,6 +48,17 @@ export function Header() {
     logout()
   }, [logout])
 
+  const { data: cartProductsCount, refetch: refetchCartProductsCount } =
+    useCartProductsCount({
+      enabled: false,
+    })
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      refetchCartProductsCount()
+    }
+  }, [status, refetchCartProductsCount])
+
   return (
     <MantineHeader height={60} px="md">
       <Group position="apart" sx={{ height: '100%' }}>
@@ -59,7 +72,9 @@ export function Header() {
               href="/cart"
               style={{ display: 'flex', alignItems: 'center' }}
             >
-              <IconShoppingCart size={24} stroke={1.5} />
+              <Indicator label={cartProductsCount} size={18} color="gray">
+                <IconShoppingCart size={24} stroke={2} />
+              </Indicator>
             </Link>
             <Menu
               width={200}

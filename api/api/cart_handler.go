@@ -38,6 +38,33 @@ func (h *cartHandler) getCart(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
 
+// @Summary      Get cart products count
+// @Tags         Cart
+// @Success      200 {object} cart_domain.CartProductsCountResponse
+// @Failure      400 {object} errorResponse
+// @Failure      401 {object} errorResponse
+// @Failure      500 {object} errorResponse
+// @Router       /cart-products/count [get]
+func (h *cartHandler) getCartProductsCount(c *fiber.Ctx) error {
+	session, err := getSession(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
+	}
+
+	cartProducts, err := h.service.GetProductsByUserID(c.Context(), session.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
+	}
+
+	var cartProductsCount int32
+	for _, cartProduct := range cartProducts {
+		cartProductsCount += cartProduct.Quantity
+	}
+
+	rsp := cart_domain.NewCartProductsCountResponse(cartProductsCount)
+	return c.Status(fiber.StatusOK).JSON(rsp)
+}
+
 // @Summary      Add product to cart
 // @Tags         Cart
 // @Param        body body cart_domain.AddProductRequest true "Cart product object"

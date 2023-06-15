@@ -66,3 +66,13 @@ func NewCartResponse(products []CartProduct) CartResponse {
 	}
 	return rsp
 }
+
+type CartProductsCountResponse struct {
+	Count int32 `json:"count"`
+}
+
+func NewCartProductsCountResponse(count int32) CartProductsCountResponse {
+	return CartProductsCountResponse{
+		Count: count,
+	}
+}
