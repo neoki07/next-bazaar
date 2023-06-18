@@ -1,12 +1,21 @@
 import { NumberSelect, useForm } from '@/components/Form'
 import { MainLayout } from '@/components/Layout'
-import { Price } from '@/components/Price'
+import { Price, PriceSkeleton } from '@/components/Price'
 import { useCartProductsCount } from '@/features/cart'
 import { useAddToCart } from '@/features/cart/hooks/useAddToCart'
 import { useGetProduct } from '@/features/products'
 import { useSession } from '@/providers/session'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Container, Flex, Image, Stack, Text, rem } from '@mantine/core'
+import {
+  Button,
+  Container,
+  Flex,
+  Image,
+  Skeleton,
+  Stack,
+  Text,
+  rem,
+} from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { IconX } from '@tabler/icons-react'
 import { useRouter } from 'next/router'
@@ -69,7 +78,7 @@ export function ProductArea({ productId }: ProductAreaProps) {
     [session, product, addToCartMutation]
   )
 
-  const [Form, methods] = useForm<{
+  const [Form] = useForm<{
     amount: number
   }>({
     resolver: zodResolver(schema),
@@ -79,34 +88,53 @@ export function ProductArea({ productId }: ProductAreaProps) {
     onSubmit: handleSubmit,
   })
 
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
-
-  if (product === undefined) {
-    throw new Error('product is undefined')
-  }
-
   return (
     <Stack>
-      <Text size={28}>{product.name}</Text>
-      <Text sx={(theme) => ({ color: theme.colors.gray[7] })}>
-        {product.description}
-      </Text>
+      <Skeleton visible={isLoading} width="50%">
+        <Text size={28}>{isLoading ? 'dummy' : product?.name}</Text>
+      </Skeleton>
+
+      {isLoading ? (
+        <div>
+          <Skeleton height={12} my={12} />
+          <Skeleton height={12} my={12} />
+          <Skeleton height={12} my={12} width="50%" />
+        </div>
+      ) : (
+        <Text sx={(theme) => ({ color: theme.colors.gray[7] })}>
+          {product?.description}
+        </Text>
+      )}
+
       <Flex gap={rem(40)}>
-        <Image src={product.imageUrl} alt={product.name} />
+        {isLoading ? (
+          <Skeleton>
+            {/* TODO: improve the way height is decided */}
+            <svg viewBox="0 0 648 641.21" />
+          </Skeleton>
+        ) : (
+          <Image src={product?.imageUrl} alt={product?.name} />
+        )}
         <Form>
           <Stack w={rem(240)}>
-            <Price price={product.price} />
-            <NumberSelect
-              w={rem(80)}
-              label="Amount"
-              name="amount"
-              options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-            />
-            <Button type="submit" color="dark" fullWidth>
-              Add to Cart
-            </Button>
+            {isLoading || product === undefined ? (
+              <PriceSkeleton width="50%" />
+            ) : (
+              <Price price={product.price} />
+            )}
+            <Skeleton visible={isLoading} width="35%">
+              <NumberSelect
+                w={rem(80)}
+                label="Amount"
+                name="amount"
+                options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
+              />
+            </Skeleton>
+            <Skeleton visible={isLoading}>
+              <Button type="submit" color="dark" fullWidth>
+                Add to Cart
+              </Button>
+            </Skeleton>
           </Stack>
         </Form>
       </Flex>
