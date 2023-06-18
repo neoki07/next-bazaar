@@ -15,6 +15,7 @@ type CartProduct struct {
 	UserID    uuid.UUID `json:"user_id"`
 	ProductID uuid.UUID `json:"product_id"`
 	Quantity  int32     `json:"quantity"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type Category struct {

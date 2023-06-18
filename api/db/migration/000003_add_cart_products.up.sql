@@ -2,6 +2,7 @@ CREATE TABLE "cart_products" (
   "user_id" uuid NOT NULL,
   "product_id" uuid NOT NULL,
   "quantity" int NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
   PRIMARY KEY ("user_id", "product_id")
 );
 

@@ -14,9 +14,14 @@ SET
 WHERE user_id = $1 AND product_id = $2
 RETURNING *;
 
+-- name: DeleteCartProduct :exec
+DELETE FROM cart_products
+WHERE user_id = $1 AND product_id = $2;
+
 -- name: GetCartProductByUserIDAndProductID :one
 SELECT * FROM cart_products
-WHERE user_id = $1 AND product_id = $2;
+WHERE user_id = $1 AND product_id = $2
+ORDER BY created_at;
 
 -- name: GetCartProductsByUserID :many
 SELECT * FROM cart_products

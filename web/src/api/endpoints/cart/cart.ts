@@ -20,6 +20,8 @@ import type {
   ApiMessageResponse,
   CartDomainAddProductRequest,
   CartDomainCartProductResponse,
+  CartDomainCartProductsCountResponse,
+  CartDomainUpdateProductQuantityRequestBody,
 } from '../../model'
 
 // eslint-disable-next-line
@@ -29,6 +31,74 @@ type SecondParameter<T extends (...args: any) => any> = T extends (
 ) => any
   ? P
   : never
+
+/**
+ * @summary Get cart
+ */
+export const getCartProducts = (
+  options?: SecondParameter<typeof customAxiosInstance>,
+  signal?: AbortSignal
+) => {
+  return customAxiosInstance<CartDomainCartProductResponse[]>(
+    { url: `/cart-products`, method: 'get', signal },
+    options
+  )
+}
+
+export const getGetCartProductsQueryKey = () => [`/cart-products`] as const
+
+export const getGetCartProductsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCartProducts>>,
+  TError = ErrorType<ApiErrorResponse>
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getCartProducts>>,
+    TError,
+    TData
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}): UseQueryOptions<
+  Awaited<ReturnType<typeof getCartProducts>>,
+  TError,
+  TData
+> & { queryKey: QueryKey } => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetCartProductsQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getCartProducts>>> = ({
+    signal,
+  }) => getCartProducts(requestOptions, signal)
+
+  return { queryKey, queryFn, ...queryOptions }
+}
+
+export type GetCartProductsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCartProducts>>
+>
+export type GetCartProductsQueryError = ErrorType<ApiErrorResponse>
+
+export const useGetCartProducts = <
+  TData = Awaited<ReturnType<typeof getCartProducts>>,
+  TError = ErrorType<ApiErrorResponse>
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getCartProducts>>,
+    TError,
+    TData
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+  const queryOptions = getGetCartProductsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
 
 /**
  * @summary Add product to cart
@@ -102,72 +172,204 @@ export const usePostCartProducts = <
   return useMutation(mutationOptions)
 }
 /**
- * @summary Get cart
+ * @summary Delete cart product
  */
-export const getCartProductsUserId = (
-  userId: string,
-  options?: SecondParameter<typeof customAxiosInstance>,
-  signal?: AbortSignal
+export const deleteCartProductsProductId = (
+  productId: string,
+  options?: SecondParameter<typeof customAxiosInstance>
 ) => {
-  return customAxiosInstance<CartDomainCartProductResponse[]>(
-    { url: `/cart-products/${userId}`, method: 'get', signal },
+  return customAxiosInstance<void>(
+    { url: `/cart-products/${productId}`, method: 'delete' },
     options
   )
 }
 
-export const getGetCartProductsUserIdQueryKey = (userId: string) =>
-  [`/cart-products/${userId}`] as const
+export const getDeleteCartProductsProductIdMutationOptions = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteCartProductsProductId>>,
+    TError,
+    { productId: string },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteCartProductsProductId>>,
+  TError,
+  { productId: string },
+  TContext
+> => {
+  const { mutation: mutationOptions, request: requestOptions } = options ?? {}
 
-export const getGetCartProductsUserIdQueryOptions = <
-  TData = Awaited<ReturnType<typeof getCartProductsUserId>>,
-  TError = ErrorType<ApiErrorResponse>
->(
-  userId: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getCartProductsUserId>>,
-      TError,
-      TData
-    >
-    request?: SecondParameter<typeof customAxiosInstance>
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteCartProductsProductId>>,
+    { productId: string }
+  > = (props) => {
+    const { productId } = props ?? {}
+
+    return deleteCartProductsProductId(productId, requestOptions)
   }
-): UseQueryOptions<
-  Awaited<ReturnType<typeof getCartProductsUserId>>,
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type DeleteCartProductsProductIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteCartProductsProductId>>
+>
+
+export type DeleteCartProductsProductIdMutationError =
+  ErrorType<ApiErrorResponse>
+
+export const useDeleteCartProductsProductId = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteCartProductsProductId>>,
+    TError,
+    { productId: string },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}) => {
+  const mutationOptions = getDeleteCartProductsProductIdMutationOptions(options)
+
+  return useMutation(mutationOptions)
+}
+/**
+ * @summary Update cart product quantity
+ */
+export const putCartProductsProductId = (
+  productId: string,
+  cartDomainUpdateProductQuantityRequestBody: CartDomainUpdateProductQuantityRequestBody,
+  options?: SecondParameter<typeof customAxiosInstance>
+) => {
+  return customAxiosInstance<ApiMessageResponse>(
+    {
+      url: `/cart-products/${productId}`,
+      method: 'put',
+      headers: { 'Content-Type': 'application/json' },
+      data: cartDomainUpdateProductQuantityRequestBody,
+    },
+    options
+  )
+}
+
+export const getPutCartProductsProductIdMutationOptions = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putCartProductsProductId>>,
+    TError,
+    { productId: string; data: CartDomainUpdateProductQuantityRequestBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putCartProductsProductId>>,
+  TError,
+  { productId: string; data: CartDomainUpdateProductQuantityRequestBody },
+  TContext
+> => {
+  const { mutation: mutationOptions, request: requestOptions } = options ?? {}
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putCartProductsProductId>>,
+    { productId: string; data: CartDomainUpdateProductQuantityRequestBody }
+  > = (props) => {
+    const { productId, data } = props ?? {}
+
+    return putCartProductsProductId(productId, data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PutCartProductsProductIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putCartProductsProductId>>
+>
+export type PutCartProductsProductIdMutationBody =
+  CartDomainUpdateProductQuantityRequestBody
+export type PutCartProductsProductIdMutationError = ErrorType<ApiErrorResponse>
+
+export const usePutCartProductsProductId = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putCartProductsProductId>>,
+    TError,
+    { productId: string; data: CartDomainUpdateProductQuantityRequestBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}) => {
+  const mutationOptions = getPutCartProductsProductIdMutationOptions(options)
+
+  return useMutation(mutationOptions)
+}
+/**
+ * @summary Get cart products count
+ */
+export const getCartProductsCount = (
+  options?: SecondParameter<typeof customAxiosInstance>,
+  signal?: AbortSignal
+) => {
+  return customAxiosInstance<CartDomainCartProductsCountResponse>(
+    { url: `/cart-products/count`, method: 'get', signal },
+    options
+  )
+}
+
+export const getGetCartProductsCountQueryKey = () =>
+  [`/cart-products/count`] as const
+
+export const getGetCartProductsCountQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCartProductsCount>>,
+  TError = ErrorType<ApiErrorResponse>
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getCartProductsCount>>,
+    TError,
+    TData
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}): UseQueryOptions<
+  Awaited<ReturnType<typeof getCartProductsCount>>,
   TError,
   TData
 > & { queryKey: QueryKey } => {
   const { query: queryOptions, request: requestOptions } = options ?? {}
 
-  const queryKey =
-    queryOptions?.queryKey ?? getGetCartProductsUserIdQueryKey(userId)
+  const queryKey = queryOptions?.queryKey ?? getGetCartProductsCountQueryKey()
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getCartProductsUserId>>
-  > = ({ signal }) => getCartProductsUserId(userId, requestOptions, signal)
+    Awaited<ReturnType<typeof getCartProductsCount>>
+  > = ({ signal }) => getCartProductsCount(requestOptions, signal)
 
-  return { queryKey, queryFn, enabled: !!userId, ...queryOptions }
+  return { queryKey, queryFn, ...queryOptions }
 }
 
-export type GetCartProductsUserIdQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getCartProductsUserId>>
+export type GetCartProductsCountQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCartProductsCount>>
 >
-export type GetCartProductsUserIdQueryError = ErrorType<ApiErrorResponse>
+export type GetCartProductsCountQueryError = ErrorType<ApiErrorResponse>
 
-export const useGetCartProductsUserId = <
-  TData = Awaited<ReturnType<typeof getCartProductsUserId>>,
+export const useGetCartProductsCount = <
+  TData = Awaited<ReturnType<typeof getCartProductsCount>>,
   TError = ErrorType<ApiErrorResponse>
->(
-  userId: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getCartProductsUserId>>,
-      TError,
-      TData
-    >
-    request?: SecondParameter<typeof customAxiosInstance>
-  }
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
-  const queryOptions = getGetCartProductsUserIdQueryOptions(userId, options)
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getCartProductsCount>>,
+    TError,
+    TData
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+  const queryOptions = getGetCartProductsCountQueryOptions(options)
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey

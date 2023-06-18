@@ -14,6 +14,7 @@ type CartProduct struct {
 	Price       string
 	Quantity    int32
 	Subtotal    string
+	ImageUrl    sql.NullString
 }
 
 type GetProductsRequest struct {
@@ -25,6 +26,18 @@ type AddProductRequest struct {
 	Quantity  int32     `json:"quantity" validate:"required,min=1"`
 }
 
+type UpdateProductQuantityRequestParams struct {
+	ProductID uuid.UUID `params:"product_id"`
+}
+
+type UpdateProductQuantityRequestBody struct {
+	Quantity int32 `json:"quantity" validate:"required,min=1"`
+}
+
+type DeleteProductRequest struct {
+	ProductID uuid.UUID `params:"product_id"`
+}
+
 type CartProductResponse struct {
 	ID          uuid.UUID     `json:"id"`
 	Name        string        `json:"name"`
@@ -32,6 +45,7 @@ type CartProductResponse struct {
 	Price       string        `json:"price"`
 	Quantity    int32         `json:"quantity"`
 	Subtotal    string        `json:"subtotal"`
+	ImageUrl    db.NullString `json:"image_url" swaggertype:"string"`
 }
 
 func NewCartProductResponse(cartProduct CartProduct) CartProductResponse {
@@ -42,6 +56,7 @@ func NewCartProductResponse(cartProduct CartProduct) CartProductResponse {
 		Price:       cartProduct.Price,
 		Quantity:    cartProduct.Quantity,
 		Subtotal:    cartProduct.Subtotal,
+		ImageUrl:    db.NullString{NullString: cartProduct.ImageUrl},
 	}
 }
 
@@ -53,4 +68,14 @@ func NewCartResponse(products []CartProduct) CartResponse {
 		rsp = append(rsp, NewCartProductResponse(product))
 	}
 	return rsp
+}
+
+type CartProductsCountResponse struct {
+	Count int32 `json:"count"`
+}
+
+func NewCartProductsCountResponse(count int32) CartProductsCountResponse {
+	return CartProductsCountResponse{
+		Count: count,
+	}
 }

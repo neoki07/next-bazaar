@@ -22,7 +22,7 @@ type UseFormProps<TFieldValues extends FieldValues, TContext> = Omit<
 > & {
   defaultValues: TFieldValues | AsyncDefaultValues<TFieldValues>
   schema?: z.ZodType<TFieldValues>
-  onSubmit: SubmitHandler<TFieldValues>
+  onSubmit?: SubmitHandler<TFieldValues>
   onSubmitError?: SubmitErrorHandler<TFieldValues>
 }
 
@@ -53,7 +53,11 @@ export function useForm<
         <FormProvider {...methods}>
           <form
             id={id}
-            onSubmit={methods.handleSubmit(onSubmit, onSubmitError)}
+            onSubmit={
+              onSubmit
+                ? methods.handleSubmit(onSubmit, onSubmitError)
+                : undefined
+            }
           >
             {children}
           </form>

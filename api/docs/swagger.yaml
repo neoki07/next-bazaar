@@ -27,6 +27,8 @@ definitions:
         type: string
       id:
         type: string
+      image_url:
+        type: string
       name:
         type: string
       price:
@@ -35,6 +37,19 @@ definitions:
         type: integer
       subtotal:
         type: string
+    type: object
+  cart_domain.CartProductsCountResponse:
+    properties:
+      count:
+        type: integer
+    type: object
+  cart_domain.UpdateProductQuantityRequestBody:
+    properties:
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - quantity
     type: object
   product_domain.ListProductsResponse:
     properties:
@@ -162,6 +177,87 @@ paths:
           schema:
             $ref: '#/definitions/api.errorResponse'
       summary: Add product to cart
+      tags:
+      - Cart
+  /cart-products/{product_id}:
+    delete:
+      parameters:
+      - description: Product ID
+        in: path
+        name: product_id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Delete cart product
+      tags:
+      - Cart
+    put:
+      parameters:
+      - description: Product ID
+        in: path
+        name: product_id
+        required: true
+        type: string
+      - description: Cart product object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/cart_domain.UpdateProductQuantityRequestBody'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.messageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Update cart product quantity
+      tags:
+      - Cart
+  /cart-products/count:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cart_domain.CartProductsCountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Get cart products count
       tags:
       - Cart
   /products:

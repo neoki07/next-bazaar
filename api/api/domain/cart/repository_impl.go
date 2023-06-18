@@ -45,6 +45,7 @@ func (r *cartRepositoryImpl) FindOneByUserIDAndProductID(
 		Price:       product.Price,
 		Quantity:    cartProduct.Quantity,
 		Subtotal:    price.Mul(quantity).String(),
+		ImageUrl:    product.ImageUrl,
 	}, nil
 }
 
@@ -78,6 +79,7 @@ func (r *cartRepositoryImpl) FindManyByUserID(
 			Price:       product.Price,
 			Quantity:    cartProduct.Quantity,
 			Subtotal:    price.Mul(quantity).String(),
+			ImageUrl:    product.ImageUrl,
 		}
 	}
 
@@ -102,4 +104,11 @@ func (r *cartRepositoryImpl) Update(ctx context.Context, params UpdateParams) er
 	})
 
 	return err
+}
+
+func (r *cartRepositoryImpl) Delete(ctx context.Context, params DeleteParams) error {
+	return r.store.DeleteCartProduct(ctx, db.DeleteCartProductParams{
+		UserID:    params.UserID,
+		ProductID: params.ProductID,
+	})
 }
