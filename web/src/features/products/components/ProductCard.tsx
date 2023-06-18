@@ -18,7 +18,7 @@ export function ProductCard({ product, getProductLink }: ProductCardProps) {
       <Link href={productLink}>
         <Image src={product.imageUrl} alt={product.name} />
       </Link>
-      <div>
+      <Stack spacing={4}>
         <Text
           size="xs"
           sx={(theme) => ({
@@ -46,7 +46,7 @@ export function ProductCard({ product, getProductLink }: ProductCardProps) {
             {product.seller}
           </Text>
         </Group>
-      </div>
+      </Stack>
     </Stack>
   )
 }
