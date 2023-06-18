@@ -763,8 +763,6 @@ func TestUpdateProductQuantity(t *testing.T) {
 			request.Header.Set("Content-Type", "application/json")
 
 			tc.setupAuth(request)
-			fmt.Println("[url]")
-			fmt.Println(url)
 			response, err := server.app.Test(request, int(time.Second.Milliseconds()))
 			require.NoError(t, err)
 
@@ -917,8 +915,6 @@ func TestDeleteProduct(t *testing.T) {
 			request.Header.Set("Content-Type", "application/json")
 
 			tc.setupAuth(request)
-			fmt.Println("[url]")
-			fmt.Println(url)
 			response, err := server.app.Test(request, int(time.Second.Milliseconds()))
 			require.NoError(t, err)
 
