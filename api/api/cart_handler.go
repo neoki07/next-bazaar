@@ -1,6 +1,8 @@
 package api
 
 import (
+	"database/sql"
+
 	"github.com/gofiber/fiber/v2"
 	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
 	"github.com/ot07/next-bazaar/api/validation"
@@ -104,34 +106,43 @@ func (h *cartHandler) addProduct(c *fiber.Ctx) error {
 
 // @Summary      Update cart product quantity
 // @Tags         Cart
-// @Param        body body cart_domain.UpdateProductQuantityRequest true "Cart product object"
+// @Param        product_id path string true "Product ID"
+// @Param        body body cart_domain.UpdateProductQuantityRequestBody true "Cart product object"
 // @Success      200 {object} messageResponse
 // @Failure      400 {object} errorResponse
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
-// @Router       /cart-products [put]
+// @Router       /cart-products/{product_id} [put]
 func (h *cartHandler) updateProductQuantity(c *fiber.Ctx) error {
 	session, err := getSession(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
 	}
 
-	req := new(cart_domain.UpdateProductQuantityRequest)
-	if err := c.BodyParser(req); err != nil {
+	reqParams := new(cart_domain.UpdateProductQuantityRequestParams)
+	if err := c.ParamsParser(reqParams); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	reqBody := new(cart_domain.UpdateProductQuantityRequestBody)
+	if err := c.BodyParser(reqBody); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
 	validate := validation.NewValidator()
-	if err := validate.Struct(req); err != nil {
+	if err := validate.Struct(reqBody); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
 	err = h.service.UpdateProductQuantity(c.Context(), cart_domain.NewUpdateProductQuantityParams(
 		session.UserID,
-		req.ProductID,
-		req.Quantity,
+		reqParams.ProductID,
+		reqBody.Quantity,
 	))
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Status(fiber.StatusNotFound).JSON(newErrorResponse(err))
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
@@ -141,12 +152,12 @@ func (h *cartHandler) updateProductQuantity(c *fiber.Ctx) error {
 
 // @Summary      Delete cart product
 // @Tags         Cart
-// @Param        body body cart_domain.DeleteProductRequest true "Cart product object"
+// @Param        product_id path string true "Product ID"
 // @Success      204
 // @Failure      400 {object} errorResponse
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
-// @Router       /cart-products [delete]
+// @Router       /cart-products/{product_id} [delete]
 func (h *cartHandler) deleteProduct(c *fiber.Ctx) error {
 	session, err := getSession(c)
 	if err != nil {
@@ -154,12 +165,7 @@ func (h *cartHandler) deleteProduct(c *fiber.Ctx) error {
 	}
 
 	req := new(cart_domain.DeleteProductRequest)
-	if err := c.BodyParser(req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
-	}
-
-	validate := validation.NewValidator()
-	if err := validate.Struct(req); err != nil {
+	if err := c.ParamsParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
