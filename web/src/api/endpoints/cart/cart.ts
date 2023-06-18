@@ -21,8 +21,7 @@ import type {
   CartDomainAddProductRequest,
   CartDomainCartProductResponse,
   CartDomainCartProductsCountResponse,
-  CartDomainDeleteProductRequest,
-  CartDomainUpdateProductQuantityRequest,
+  CartDomainUpdateProductQuantityRequestBody,
 } from '../../model'
 
 // eslint-disable-next-line
@@ -33,77 +32,6 @@ type SecondParameter<T extends (...args: any) => any> = T extends (
   ? P
   : never
 
-/**
- * @summary Delete cart product
- */
-export const deleteCartProducts = (
-  cartDomainDeleteProductRequest: CartDomainDeleteProductRequest,
-  options?: SecondParameter<typeof customAxiosInstance>
-) => {
-  return customAxiosInstance<void>(
-    {
-      url: `/cart-products`,
-      method: 'delete',
-      headers: { 'Content-Type': 'application/json' },
-      data: cartDomainDeleteProductRequest,
-    },
-    options
-  )
-}
-
-export const getDeleteCartProductsMutationOptions = <
-  TError = ErrorType<ApiErrorResponse>,
-  TContext = unknown
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof deleteCartProducts>>,
-    TError,
-    { data: CartDomainDeleteProductRequest },
-    TContext
-  >
-  request?: SecondParameter<typeof customAxiosInstance>
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof deleteCartProducts>>,
-  TError,
-  { data: CartDomainDeleteProductRequest },
-  TContext
-> => {
-  const { mutation: mutationOptions, request: requestOptions } = options ?? {}
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof deleteCartProducts>>,
-    { data: CartDomainDeleteProductRequest }
-  > = (props) => {
-    const { data } = props ?? {}
-
-    return deleteCartProducts(data, requestOptions)
-  }
-
-  return { mutationFn, ...mutationOptions }
-}
-
-export type DeleteCartProductsMutationResult = NonNullable<
-  Awaited<ReturnType<typeof deleteCartProducts>>
->
-export type DeleteCartProductsMutationBody = CartDomainDeleteProductRequest
-export type DeleteCartProductsMutationError = ErrorType<ApiErrorResponse>
-
-export const useDeleteCartProducts = <
-  TError = ErrorType<ApiErrorResponse>,
-  TContext = unknown
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof deleteCartProducts>>,
-    TError,
-    { data: CartDomainDeleteProductRequest },
-    TContext
-  >
-  request?: SecondParameter<typeof customAxiosInstance>
-}) => {
-  const mutationOptions = getDeleteCartProductsMutationOptions(options)
-
-  return useMutation(mutationOptions)
-}
 /**
  * @summary Get cart
  */
@@ -244,73 +172,142 @@ export const usePostCartProducts = <
   return useMutation(mutationOptions)
 }
 /**
- * @summary Update cart product quantity
+ * @summary Delete cart product
  */
-export const putCartProducts = (
-  cartDomainUpdateProductQuantityRequest: CartDomainUpdateProductQuantityRequest,
+export const deleteCartProductsProductId = (
+  productId: string,
   options?: SecondParameter<typeof customAxiosInstance>
 ) => {
-  return customAxiosInstance<ApiMessageResponse>(
-    {
-      url: `/cart-products`,
-      method: 'put',
-      headers: { 'Content-Type': 'application/json' },
-      data: cartDomainUpdateProductQuantityRequest,
-    },
+  return customAxiosInstance<void>(
+    { url: `/cart-products/${productId}`, method: 'delete' },
     options
   )
 }
 
-export const getPutCartProductsMutationOptions = <
+export const getDeleteCartProductsProductIdMutationOptions = <
   TError = ErrorType<ApiErrorResponse>,
   TContext = unknown
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof putCartProducts>>,
+    Awaited<ReturnType<typeof deleteCartProductsProductId>>,
     TError,
-    { data: CartDomainUpdateProductQuantityRequest },
+    { productId: string },
     TContext
   >
   request?: SecondParameter<typeof customAxiosInstance>
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof putCartProducts>>,
+  Awaited<ReturnType<typeof deleteCartProductsProductId>>,
   TError,
-  { data: CartDomainUpdateProductQuantityRequest },
+  { productId: string },
   TContext
 > => {
   const { mutation: mutationOptions, request: requestOptions } = options ?? {}
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof putCartProducts>>,
-    { data: CartDomainUpdateProductQuantityRequest }
+    Awaited<ReturnType<typeof deleteCartProductsProductId>>,
+    { productId: string }
   > = (props) => {
-    const { data } = props ?? {}
+    const { productId } = props ?? {}
 
-    return putCartProducts(data, requestOptions)
+    return deleteCartProductsProductId(productId, requestOptions)
   }
 
   return { mutationFn, ...mutationOptions }
 }
 
-export type PutCartProductsMutationResult = NonNullable<
-  Awaited<ReturnType<typeof putCartProducts>>
+export type DeleteCartProductsProductIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteCartProductsProductId>>
 >
-export type PutCartProductsMutationBody = CartDomainUpdateProductQuantityRequest
-export type PutCartProductsMutationError = ErrorType<ApiErrorResponse>
 
-export const usePutCartProducts = <
+export type DeleteCartProductsProductIdMutationError =
+  ErrorType<ApiErrorResponse>
+
+export const useDeleteCartProductsProductId = <
   TError = ErrorType<ApiErrorResponse>,
   TContext = unknown
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof putCartProducts>>,
+    Awaited<ReturnType<typeof deleteCartProductsProductId>>,
     TError,
-    { data: CartDomainUpdateProductQuantityRequest },
+    { productId: string },
     TContext
   >
   request?: SecondParameter<typeof customAxiosInstance>
 }) => {
-  const mutationOptions = getPutCartProductsMutationOptions(options)
+  const mutationOptions = getDeleteCartProductsProductIdMutationOptions(options)
+
+  return useMutation(mutationOptions)
+}
+/**
+ * @summary Update cart product quantity
+ */
+export const putCartProductsProductId = (
+  productId: string,
+  cartDomainUpdateProductQuantityRequestBody: CartDomainUpdateProductQuantityRequestBody,
+  options?: SecondParameter<typeof customAxiosInstance>
+) => {
+  return customAxiosInstance<ApiMessageResponse>(
+    {
+      url: `/cart-products/${productId}`,
+      method: 'put',
+      headers: { 'Content-Type': 'application/json' },
+      data: cartDomainUpdateProductQuantityRequestBody,
+    },
+    options
+  )
+}
+
+export const getPutCartProductsProductIdMutationOptions = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putCartProductsProductId>>,
+    TError,
+    { productId: string; data: CartDomainUpdateProductQuantityRequestBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putCartProductsProductId>>,
+  TError,
+  { productId: string; data: CartDomainUpdateProductQuantityRequestBody },
+  TContext
+> => {
+  const { mutation: mutationOptions, request: requestOptions } = options ?? {}
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putCartProductsProductId>>,
+    { productId: string; data: CartDomainUpdateProductQuantityRequestBody }
+  > = (props) => {
+    const { productId, data } = props ?? {}
+
+    return putCartProductsProductId(productId, data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PutCartProductsProductIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putCartProductsProductId>>
+>
+export type PutCartProductsProductIdMutationBody =
+  CartDomainUpdateProductQuantityRequestBody
+export type PutCartProductsProductIdMutationError = ErrorType<ApiErrorResponse>
+
+export const usePutCartProductsProductId = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putCartProductsProductId>>,
+    TError,
+    { productId: string; data: CartDomainUpdateProductQuantityRequestBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}) => {
+  const mutationOptions = getPutCartProductsProductIdMutationOptions(options)
 
   return useMutation(mutationOptions)
 }

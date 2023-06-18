@@ -1,13 +1,13 @@
 import { ErrorType } from '@/api/custom-axios-instance'
-import { useDeleteCartProducts } from '@/api/endpoints/cart/cart'
-import { ApiErrorResponse, CartDomainDeleteProductRequest } from '@/api/model'
+import { useDeleteCartProductsProductId } from '@/api/endpoints/cart/cart'
+import { ApiErrorResponse } from '@/api/model'
 import { AxiosResponse } from 'axios'
 
 interface UseDeleteProductParams {
   onSuccess?: (
     data: AxiosResponse<void, any>,
     variables: {
-      data: CartDomainDeleteProductRequest
+      productId: string
     },
     context: unknown
   ) => unknown
@@ -15,7 +15,7 @@ interface UseDeleteProductParams {
 }
 
 export function useDeleteProduct(params?: UseDeleteProductParams) {
-  return useDeleteCartProducts({
+  return useDeleteCartProductsProductId({
     mutation: {
       onSuccess: params?.onSuccess,
       onError: params?.onError,

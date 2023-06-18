@@ -64,7 +64,8 @@ export function CartProductInfo({ cartProduct }: CartProductInfoProps) {
   const handleSubmit = useCallback(
     (data: z.infer<typeof schema>) => {
       updateProductQuantityMutation.mutate({
-        data: { product_id: cartProduct.id, quantity: data.quantity },
+        productId: cartProduct.id,
+        data: { quantity: data.quantity },
       })
     },
     [updateProductQuantityMutation, cartProduct.id]
@@ -73,7 +74,7 @@ export function CartProductInfo({ cartProduct }: CartProductInfoProps) {
   const handleDelete = useCallback(() => {
     setIsDeleting(true)
     deleteProductMutation.mutate({
-      data: { product_id: cartProduct.id },
+      productId: cartProduct.id,
     })
   }, [deleteProductMutation, cartProduct.id])
 

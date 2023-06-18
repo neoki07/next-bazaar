@@ -43,22 +43,12 @@ definitions:
       count:
         type: integer
     type: object
-  cart_domain.DeleteProductRequest:
+  cart_domain.UpdateProductQuantityRequestBody:
     properties:
-      product_id:
-        type: string
-    required:
-    - product_id
-    type: object
-  cart_domain.UpdateProductQuantityRequest:
-    properties:
-      product_id:
-        type: string
       quantity:
         minimum: 1
         type: integer
     required:
-    - product_id
     - quantity
     type: object
   product_domain.ListProductsResponse:
@@ -138,32 +128,6 @@ info:
   version: 0.0.1
 paths:
   /cart-products:
-    delete:
-      parameters:
-      - description: Cart product object
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/cart_domain.DeleteProductRequest'
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.errorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/api.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.errorResponse'
-      summary: Delete cart product
-      tags:
-      - Cart
     get:
       responses:
         "200":
@@ -215,14 +179,45 @@ paths:
       summary: Add product to cart
       tags:
       - Cart
+  /cart-products/{product_id}:
+    delete:
+      parameters:
+      - description: Product ID
+        in: path
+        name: product_id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Delete cart product
+      tags:
+      - Cart
     put:
       parameters:
+      - description: Product ID
+        in: path
+        name: product_id
+        required: true
+        type: string
       - description: Cart product object
         in: body
         name: body
         required: true
         schema:
-          $ref: '#/definitions/cart_domain.UpdateProductQuantityRequest'
+          $ref: '#/definitions/cart_domain.UpdateProductQuantityRequestBody'
       responses:
         "200":
           description: OK

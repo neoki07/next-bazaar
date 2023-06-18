@@ -51,49 +51,6 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
-                "tags": [
-                    "Cart"
-                ],
-                "summary": "Update cart product quantity",
-                "parameters": [
-                    {
-                        "description": "Cart product object",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/cart_domain.UpdateProductQuantityRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.messageResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.errorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/api.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.errorResponse"
-                        }
-                    }
-                }
-            },
             "post": {
                 "tags": [
                     "Cart"
@@ -136,26 +93,20 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
+            }
+        },
+        "/cart-products/count": {
+            "get": {
                 "tags": [
                     "Cart"
                 ],
-                "summary": "Delete cart product",
-                "parameters": [
-                    {
-                        "description": "Cart product object",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/cart_domain.DeleteProductRequest"
-                        }
-                    }
-                ],
+                "summary": "Get cart products count",
                 "responses": {
-                    "204": {
-                        "description": "No Content"
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cart_domain.CartProductsCountResponse"
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -178,18 +129,74 @@ const docTemplate = `{
                 }
             }
         },
-        "/cart-products/count": {
-            "get": {
+        "/cart-products/{product_id}": {
+            "put": {
                 "tags": [
                     "Cart"
                 ],
-                "summary": "Get cart products count",
+                "summary": "Update cart product quantity",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Cart product object",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cart_domain.UpdateProductQuantityRequestBody"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/cart_domain.CartProductsCountResponse"
+                            "$ref": "#/definitions/api.messageResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Delete cart product",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -520,27 +527,12 @@ const docTemplate = `{
                 }
             }
         },
-        "cart_domain.DeleteProductRequest": {
+        "cart_domain.UpdateProductQuantityRequestBody": {
             "type": "object",
             "required": [
-                "product_id"
-            ],
-            "properties": {
-                "product_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "cart_domain.UpdateProductQuantityRequest": {
-            "type": "object",
-            "required": [
-                "product_id",
                 "quantity"
             ],
             "properties": {
-                "product_id": {
-                    "type": "string"
-                },
                 "quantity": {
                     "type": "integer",
                     "minimum": 1

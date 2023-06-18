@@ -1,9 +1,9 @@
 import { ErrorType } from '@/api/custom-axios-instance'
-import { usePutCartProducts } from '@/api/endpoints/cart/cart'
+import { usePutCartProductsProductId } from '@/api/endpoints/cart/cart'
 import {
   ApiErrorResponse,
   ApiMessageResponse,
-  CartDomainUpdateProductQuantityRequest,
+  CartDomainUpdateProductQuantityRequestBody,
 } from '@/api/model'
 import { AxiosResponse } from 'axios'
 
@@ -11,7 +11,8 @@ interface UseUpdateProductQuantityParams {
   onSuccess?: (
     data: AxiosResponse<ApiMessageResponse, any>,
     variables: {
-      data: CartDomainUpdateProductQuantityRequest
+      productId: string
+      data: CartDomainUpdateProductQuantityRequestBody
     },
     context: unknown
   ) => unknown
@@ -21,7 +22,7 @@ interface UseUpdateProductQuantityParams {
 export function useUpdateProductQuantity(
   params?: UseUpdateProductQuantityParams
 ) {
-  return usePutCartProducts({
+  return usePutCartProductsProductId({
     mutation: {
       onSuccess: params?.onSuccess,
       onError: params?.onError,

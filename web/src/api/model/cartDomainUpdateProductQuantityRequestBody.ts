@@ -5,7 +5,6 @@
  * OpenAPI spec version: 0.0.1
  */
 
-export interface CartDomainUpdateProductQuantityRequest {
-  product_id: string
+export interface CartDomainUpdateProductQuantityRequestBody {
   quantity: number
 }
