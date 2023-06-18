@@ -2,6 +2,7 @@ import { useAuth } from '@/features/auth'
 import { useCartProductsCount } from '@/features/cart'
 import { useSession } from '@/providers/session'
 import {
+  ActionIcon,
   Button,
   Group,
   Indicator,
@@ -24,8 +25,25 @@ import { useCallback, useEffect, useState } from 'react'
 
 const useStyles = createStyles((theme) => ({
   user: {
+    padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
     borderRadius: theme.radius.sm,
-    transition: 'background-color 100ms ease',
+
+    '&:hover': {
+      backgroundColor: theme.colors.gray[1],
+    },
+  },
+
+  cartIndicator: {
+    fontSize: '0.7rem',
+    fontWeight: 700,
+  },
+
+  actionIcon: {
+    color: theme.colors.gray[7],
+
+    '&:hover': {
+      backgroundColor: theme.colors.gray[1],
+    },
   },
 }))
 
@@ -72,9 +90,18 @@ export function Header() {
               href="/cart"
               style={{ display: 'flex', alignItems: 'center' }}
             >
-              <Indicator label={cartProductsCount} size={18} color="gray">
-                <IconShoppingCart size={24} stroke={2} />
-              </Indicator>
+              <ActionIcon className={classes.actionIcon} size="lg">
+                <Indicator
+                  classNames={{
+                    indicator: classes.cartIndicator,
+                  }}
+                  label={cartProductsCount}
+                  size={22}
+                  withBorder
+                >
+                  <IconShoppingCart size="1.5rem" stroke={1.5} />
+                </Indicator>
+              </ActionIcon>
             </Link>
             <Menu
               width={200}
