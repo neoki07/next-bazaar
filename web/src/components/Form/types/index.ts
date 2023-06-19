@@ -5,6 +5,7 @@ import {
   CheckboxProps as MantineCheckboxProps,
   FileInputProps as MantineFileInputProps,
   MultiSelectProps as MantineMultiSelectProps,
+  NativeSelectProps as MantineNativeSelectProps,
   NumberInputProps as MantineNumberInputProps,
   PasswordInputProps as MantinePasswordInputProps,
   PinInputProps as MantinePinInputProps,
@@ -60,6 +61,18 @@ export type SelectProps = Controlled<
 
 export type NumberSelectProps = Controlled<
   Omit<MantineSelectProps, 'data'> & {
+    options: readonly number[]
+  }
+>
+
+export type NativeSelectProps = Controlled<
+  Omit<MantineNativeSelectProps, 'data'> & {
+    options: MantineNativeSelectProps['data']
+  }
+>
+
+export type NativeNumberSelectProps = Controlled<
+  Omit<MantineNativeSelectProps, 'data'> & {
     options: readonly number[]
   }
 >

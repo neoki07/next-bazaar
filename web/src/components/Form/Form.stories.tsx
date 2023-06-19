@@ -8,6 +8,8 @@ import { CheckboxGroup } from './components/CheckboxGroup'
 import { DateInput } from './components/DateInput'
 import { FileInput } from './components/FileInput'
 import { MultiSelect } from './components/MultiSelect'
+import { NativeNumberSelect } from './components/NativeNumberSelect'
+import { NativeSelect } from './components/NativeSelect'
 import { NumberInput } from './components/NumberInput'
 import { NumberSelect } from './components/NumberSelect'
 import { PasswordInput } from './components/PasswordInput'
@@ -43,7 +45,9 @@ function SimpleForms() {
         .min(1, { message: 'Required' })
         .email({ message: 'Wrong Format' }),
       position: z.string().min(1, { message: 'Required' }),
+      position2: z.string().min(1, { message: 'Required' }),
       amount: z.number({ required_error: 'Required' }),
+      amount2: z.number({ required_error: 'Required' }),
       drinks: z.string().array().min(1, { message: 'Required' }),
       browser: z.string().min(1, { message: 'Required' }),
       comments: z.string().min(1, { message: 'Required' }),
@@ -89,7 +93,9 @@ function SimpleForms() {
     password: string
     confirmPassword: string
     position: string
+    position2: string
     amount?: number
+    amount2: number
     drinks: Array<string>
     browser: string
     comments: string
@@ -107,7 +113,9 @@ function SimpleForms() {
       confirmPassword: '',
       email: '',
       position: '',
+      position2: 'firefox',
       amount: undefined,
+      amount2: 1,
       drinks: [],
       browser: '',
       comments: '',
@@ -156,9 +164,31 @@ function SimpleForms() {
           />
         </Grid.Col>
         <Grid.Col xs={12} sm={12} md={6} lg={6}>
+          <NativeSelect
+            label="Position 2"
+            name="position2"
+            options={[
+              { label: 'Firefox', value: 'firefox' },
+              { label: 'Edge', value: 'edge' },
+              { label: 'Chrome', value: 'chrome' },
+              { label: 'Opera', value: 'opera' },
+              { label: 'Safari', value: 'safari' },
+            ]}
+            withAsterisk
+          />
+        </Grid.Col>
+        <Grid.Col xs={12} sm={12} md={6} lg={6}>
           <NumberSelect
             label="Amount"
             name="amount"
+            options={[1, 2, 3, 4, 5]}
+            withAsterisk
+          />
+        </Grid.Col>
+        <Grid.Col xs={12} sm={12} md={6} lg={6}>
+          <NativeNumberSelect
+            label="Amount 2"
+            name="amount2"
             options={[1, 2, 3, 4, 5]}
             withAsterisk
           />
