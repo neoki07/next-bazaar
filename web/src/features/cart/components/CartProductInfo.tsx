@@ -1,4 +1,4 @@
-import { NumberSelect, useForm } from '@/components/Form'
+import { NativeNumberSelect, useForm } from '@/components/Form'
 import { Price } from '@/components/Price'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -10,7 +10,8 @@ import {
   Text,
   rem,
 } from '@mantine/core'
-import { useCallback, useEffect, useState } from 'react'
+import range from 'lodash/range'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { z } from 'zod'
 import { useCartProducts } from '../hooks/useCartProducts'
 import { useCartProductsCount } from '../hooks/useCartProductsCount'
@@ -79,7 +80,8 @@ export function CartProductInfo({ cartProduct }: CartProductInfoProps) {
   }, [deleteProductMutation, cartProduct.id])
 
   const handleChangeQuantity = useCallback(
-    (value: string | null) => {
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      const { value } = event.target
       handleSubmit({ quantity: Number(value) })
     },
     [handleSubmit]
@@ -99,11 +101,11 @@ export function CartProductInfo({ cartProduct }: CartProductInfoProps) {
             <Text fz="md">{cartProduct.name}</Text>
             <Stack spacing={0}>
               <Price price={cartProduct.price} />
-              <NumberSelect
+              <NativeNumberSelect
                 w={rem(80)}
                 label="Quantity"
                 name="quantity"
-                options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
+                options={range(1, Math.max(10, cartProduct.quantity) + 1)}
                 onChange={handleChangeQuantity}
                 disabled={isDeleting}
               />

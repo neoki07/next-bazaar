@@ -1,4 +1,5 @@
-import { NumberSelect, useForm } from '@/components/Form'
+import { useForm } from '@/components/Form'
+import { NativeNumberSelect } from '@/components/Form/components/NativeNumberSelect'
 import { MainLayout } from '@/components/Layout'
 import { Price, PriceSkeleton } from '@/components/Price'
 import { useCartProductsCount } from '@/features/cart'
@@ -18,6 +19,7 @@ import {
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { IconX } from '@tabler/icons-react'
+import range from 'lodash/range'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 import { z } from 'zod'
@@ -123,11 +125,11 @@ export function ProductArea({ productId }: ProductAreaProps) {
               <Price price={product.price} />
             )}
             <Skeleton visible={isLoading} width="35%">
-              <NumberSelect
+              <NativeNumberSelect
                 w={rem(80)}
                 label="Amount"
                 name="amount"
-                options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
+                options={range(1, 11)}
               />
             </Skeleton>
             <Skeleton visible={isLoading}>
