@@ -1,3 +1,5 @@
+export * from './components/ProductCard'
+export * from './components/ProductCardSkeleton'
 export * from './hooks/useGetProduct'
 export * from './hooks/useGetProducts'
 export * from './types'

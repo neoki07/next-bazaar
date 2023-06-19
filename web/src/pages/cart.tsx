@@ -3,7 +3,7 @@ import { CartProductList, useCartProducts } from '@/features/cart'
 import { Container, Group, Title, rem } from '@mantine/core'
 
 export default function CartPage() {
-  const { data: cartProducts } = useCartProducts()
+  const { data: cartProducts, isLoading } = useCartProducts()
 
   return (
     <MainLayout>
@@ -13,7 +13,10 @@ export default function CartPage() {
         </Title>
         <Group align="start" spacing={rem(48)}>
           <div style={{ flex: '1' }}>
-            {cartProducts && <CartProductList cartProducts={cartProducts} />}
+            <CartProductList
+              cartProducts={cartProducts}
+              isLoading={isLoading}
+            />
           </div>
         </Group>
       </Container>

@@ -1,14 +1,14 @@
-import { Select as MantineSelect } from '@mantine/core'
+import { NativeSelect as MantineNativeSelect } from '@mantine/core'
 import { useController } from 'react-hook-form'
-import { NumberSelectProps } from '../types'
+import { NativeNumberSelectProps } from '../types'
 import { ErrorMessage } from './ErrorMessage'
 
-export function NumberSelect({
+export function NativeNumberSelect({
   label,
   options,
   name,
   ...rest
-}: NumberSelectProps) {
+}: NativeNumberSelectProps) {
   const {
     field,
     fieldState: { error: fieldError },
@@ -22,19 +22,18 @@ export function NumberSelect({
   const { value, onChange, ...restField } = field
 
   return (
-    <MantineSelect
+    <MantineNativeSelect
       id={name}
       styles={{ rightSection: { pointerEvents: 'none' } }}
       label={label}
       value={value === undefined ? '' : value.toString()}
-      onChange={(value) =>
+      onChange={(event) => {
+        const { value } = event.target
         onChange(
           value === '' ? undefined : Number(value) ?? defaultValues?.[name]
         )
-      }
-      allowDeselect
+      }}
       error={error}
-      dropdownComponent="div"
       {...rest}
       data={options.map((option) => ({
         label: option.toString(),

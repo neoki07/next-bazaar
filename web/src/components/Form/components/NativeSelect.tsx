@@ -1,9 +1,14 @@
-import { Select as MantineSelect } from '@mantine/core'
+import { NativeSelect as MantineNativeSelect } from '@mantine/core'
 import { useController } from 'react-hook-form'
-import { SelectProps } from '../types'
+import { NativeSelectProps } from '../types'
 import { ErrorMessage } from './ErrorMessage'
 
-export function Select({ label, options, name, ...rest }: SelectProps) {
+export function NativeSelect({
+  label,
+  options,
+  name,
+  ...rest
+}: NativeSelectProps) {
   const {
     field,
     fieldState: { error: fieldError },
@@ -17,14 +22,12 @@ export function Select({ label, options, name, ...rest }: SelectProps) {
   const { onChange, ...restField } = field
 
   return (
-    <MantineSelect
+    <MantineNativeSelect
       id={name}
       styles={{ rightSection: { pointerEvents: 'none' } }}
       label={label}
       onChange={(value) => onChange(value ?? defaultValues?.[name])}
-      allowDeselect
       error={error}
-      dropdownComponent="div"
       {...rest}
       data={options}
       {...restField}

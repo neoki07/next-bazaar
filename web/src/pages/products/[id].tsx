@@ -1,17 +1,30 @@
-import { NumberSelect, useForm } from '@/components/Form'
+import { useForm } from '@/components/Form'
+import { NativeNumberSelect } from '@/components/Form/components/NativeNumberSelect'
+import { Image } from '@/components/Image'
 import { MainLayout } from '@/components/Layout'
-import { Price } from '@/components/Price'
+import { Price, PriceSkeleton } from '@/components/Price'
 import { useCartProductsCount } from '@/features/cart'
 import { useAddToCart } from '@/features/cart/hooks/useAddToCart'
 import { useGetProduct } from '@/features/products'
 import { useSession } from '@/providers/session'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Container, Flex, Image, Stack, Text, rem } from '@mantine/core'
+import {
+  Button,
+  Container,
+  Flex,
+  Skeleton,
+  Stack,
+  Text,
+  rem,
+} from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { IconX } from '@tabler/icons-react'
+import range from 'lodash/range'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 import { z } from 'zod'
+
+const IMAGE_SIZE = 648
 
 function notifyUnauthorizedError() {
   notifications.show({
@@ -69,7 +82,7 @@ export function ProductArea({ productId }: ProductAreaProps) {
     [session, product, addToCartMutation]
   )
 
-  const [Form, methods] = useForm<{
+  const [Form] = useForm<{
     amount: number
   }>({
     resolver: zodResolver(schema),
@@ -79,34 +92,58 @@ export function ProductArea({ productId }: ProductAreaProps) {
     onSubmit: handleSubmit,
   })
 
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
-
-  if (product === undefined) {
-    throw new Error('product is undefined')
-  }
-
   return (
     <Stack>
-      <Text size={28}>{product.name}</Text>
-      <Text sx={(theme) => ({ color: theme.colors.gray[7] })}>
-        {product.description}
-      </Text>
+      <Skeleton visible={isLoading} width="50%">
+        <Text size={28}>{isLoading ? 'dummy' : product?.name}</Text>
+      </Skeleton>
+
+      {isLoading ? (
+        <div>
+          <Skeleton height={12} my={12} />
+          <Skeleton height={12} my={12} />
+          <Skeleton height={12} my={12} width="50%" />
+        </div>
+      ) : (
+        <Text sx={(theme) => ({ color: theme.colors.gray[7] })}>
+          {product?.description}
+        </Text>
+      )}
+
       <Flex gap={rem(40)}>
-        <Image src={product.imageUrl} alt={product.name} />
+        {isLoading ||
+        product === undefined ||
+        product.imageUrl === undefined ? (
+          <Image isLoading alt="" width={IMAGE_SIZE} height={IMAGE_SIZE} />
+        ) : (
+          <Image
+            src={product.imageUrl}
+            alt={product.name}
+            width={IMAGE_SIZE}
+            height={IMAGE_SIZE}
+          />
+        )}
+
         <Form>
           <Stack w={rem(240)}>
-            <Price price={product.price} />
-            <NumberSelect
-              w={rem(80)}
-              label="Amount"
-              name="amount"
-              options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-            />
-            <Button type="submit" color="dark" fullWidth>
-              Add to Cart
-            </Button>
+            {isLoading || product === undefined ? (
+              <PriceSkeleton width="50%" />
+            ) : (
+              <Price price={product.price} />
+            )}
+            <Skeleton visible={isLoading} width="35%">
+              <NativeNumberSelect
+                w={rem(80)}
+                label="Amount"
+                name="amount"
+                options={range(1, 11)}
+              />
+            </Skeleton>
+            <Skeleton visible={isLoading}>
+              <Button type="submit" color="dark" fullWidth>
+                Add to Cart
+              </Button>
+            </Skeleton>
           </Stack>
         </Form>
       </Flex>
