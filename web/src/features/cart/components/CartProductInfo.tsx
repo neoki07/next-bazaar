@@ -1,15 +1,8 @@
 import { NativeNumberSelect, useForm } from '@/components/Form'
+import { Image } from '@/components/Image'
 import { Price } from '@/components/Price'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  CloseButton,
-  Flex,
-  Group,
-  Image,
-  Stack,
-  Text,
-  rem,
-} from '@mantine/core'
+import { CloseButton, Flex, Group, Stack, Text, rem } from '@mantine/core'
 import range from 'lodash/range'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { z } from 'zod'
@@ -21,9 +14,13 @@ import { CartProduct } from '../types'
 
 interface CartProductInfoProps {
   cartProduct: CartProduct
+  imageSize: number
 }
 
-export function CartProductInfo({ cartProduct }: CartProductInfoProps) {
+export function CartProductInfo({
+  cartProduct,
+  imageSize,
+}: CartProductInfoProps) {
   const [isDeleting, setIsDeleting] = useState(false)
 
   const { refetch: refetchCartProducts } = useCartProducts()
@@ -91,15 +88,17 @@ export function CartProductInfo({ cartProduct }: CartProductInfoProps) {
     <Group my="sm">
       <Stack spacing={4}>
         <Flex gap="xs">
-          <Image
-            src={cartProduct.imageUrl}
-            alt={cartProduct.name}
-            width={192}
-            height={192}
-          />
+          {cartProduct.imageUrl !== undefined && (
+            <Image
+              src={cartProduct.imageUrl}
+              alt={cartProduct.name}
+              width={imageSize}
+              height={imageSize}
+            />
+          )}
           <Form>
-            <Text fz="md">{cartProduct.name}</Text>
-            <Stack spacing={0}>
+            <Stack spacing="xs">
+              <Text fz="md">{cartProduct.name}</Text>
               <Price price={cartProduct.price} />
               <NativeNumberSelect
                 w={rem(80)}
