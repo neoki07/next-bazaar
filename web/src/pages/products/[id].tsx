@@ -1,5 +1,6 @@
 import { useForm } from '@/components/Form'
 import { NativeNumberSelect } from '@/components/Form/components/NativeNumberSelect'
+import { Image } from '@/components/Image'
 import { MainLayout } from '@/components/Layout'
 import { Price, PriceSkeleton } from '@/components/Price'
 import { useCartProductsCount } from '@/features/cart'
@@ -11,7 +12,6 @@ import {
   Button,
   Container,
   Flex,
-  Image,
   Skeleton,
   Stack,
   Text,
@@ -23,6 +23,8 @@ import range from 'lodash/range'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 import { z } from 'zod'
+
+const IMAGE_SIZE = 648
 
 function notifyUnauthorizedError() {
   notifications.show({
@@ -109,14 +111,19 @@ export function ProductArea({ productId }: ProductAreaProps) {
       )}
 
       <Flex gap={rem(40)}>
-        {isLoading ? (
-          <Skeleton>
-            {/* TODO: improve the way height is decided */}
-            <svg viewBox="0 0 648 641.21" />
-          </Skeleton>
+        {isLoading ||
+        product === undefined ||
+        product.imageUrl === undefined ? (
+          <Image isLoading alt="" width={IMAGE_SIZE} height={IMAGE_SIZE} />
         ) : (
-          <Image src={product?.imageUrl} alt={product?.name} />
+          <Image
+            src={product.imageUrl}
+            alt={product.name}
+            width={IMAGE_SIZE}
+            height={IMAGE_SIZE}
+          />
         )}
+
         <Form>
           <Stack w={rem(240)}>
             {isLoading || product === undefined ? (

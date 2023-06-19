@@ -9,6 +9,8 @@ import { Container, Grid } from '@mantine/core'
 import range from 'lodash/range'
 import { useCallback } from 'react'
 
+const IMAGE_SIZE = 260
+
 export default function Home() {
   const { data, isLoading } = useGetProducts(1, 10)
   const getProductLink = useCallback(
@@ -23,7 +25,7 @@ export default function Home() {
           {isLoading
             ? range(10).map((index) => (
                 <Grid.Col key={index} span={1}>
-                  <ProductCardSkeleton />
+                  <ProductCardSkeleton imageSize={IMAGE_SIZE} />
                 </Grid.Col>
               ))
             : data?.data.map((product) => (
@@ -31,6 +33,7 @@ export default function Home() {
                   <ProductCard
                     product={product}
                     getProductLink={getProductLink}
+                    imageSize={IMAGE_SIZE}
                   />
                 </Grid.Col>
               ))}

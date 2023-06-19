@@ -1,15 +1,15 @@
+import { Image } from '@/components/Image'
 import { PriceSkeleton } from '@/components/Price'
-import { Skeleton, Stack, Text, useMantineTheme } from '@mantine/core'
+import { Skeleton, Stack, Text } from '@mantine/core'
 
-export function ProductCardSkeleton() {
-  const theme = useMantineTheme()
+type ProductCardSkeletonProps = {
+  imageSize: number
+}
 
+export function ProductCardSkeleton({ imageSize }: ProductCardSkeletonProps) {
   return (
     <Stack spacing="xs">
-      <Skeleton visible>
-        {/* TODO: improve the way height is decided */}
-        <svg viewBox="0 0 260 253.19" />
-      </Skeleton>
+      <Image isLoading alt="" width={imageSize} height={imageSize} />
       <Stack spacing={4}>
         <Skeleton visible width="50%">
           <Text size="xs">dummy</Text>
