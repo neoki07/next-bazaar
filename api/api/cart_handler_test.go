@@ -138,7 +138,7 @@ func TestGetCart(t *testing.T) {
 
 			server := newTestServer(t, store)
 
-			url := "/api/v1/cart-products"
+			url := "/api/v1/cart"
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
@@ -316,7 +316,7 @@ func TestGetCartProductsCount(t *testing.T) {
 
 			server := newTestServer(t, store)
 
-			url := "/api/v1/cart-products/count"
+			url := "/api/v1/cart/count"
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
@@ -562,7 +562,7 @@ func TestAddProduct(t *testing.T) {
 
 			server := newTestServer(t, store)
 
-			url := "/api/v1/cart-products"
+			url := "/api/v1/cart/add-product"
 
 			body, err := json.Marshal(tc.createBody(t, productID))
 			require.NoError(t, err)
@@ -752,7 +752,7 @@ func TestUpdateProductQuantity(t *testing.T) {
 
 			server := newTestServer(t, store)
 
-			url := fmt.Sprintf("/api/v1/cart-products/%s", productID)
+			url := fmt.Sprintf("/api/v1/cart/%s", productID)
 
 			body, err := json.Marshal(tc.body)
 			require.NoError(t, err)
@@ -907,7 +907,7 @@ func TestDeleteProduct(t *testing.T) {
 
 			server := newTestServer(t, store)
 
-			url := fmt.Sprintf("/api/v1/cart-products/%s", productID)
+			url := fmt.Sprintf("/api/v1/cart/%s", productID)
 
 			request, err := http.NewRequest(http.MethodDelete, url, nil)
 			require.NoError(t, err)
