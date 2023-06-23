@@ -65,9 +65,11 @@ func (r *productRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (Pro
 
 func (r *productRepositoryImpl) FindMany(
 	ctx context.Context,
-	pageID int32,
-	pageSize int32,
+	params FindManyParams,
 ) ([]Product, error) {
+	pageSize := params.PageSize
+	pageID := params.PageID
+
 	arg := db.ListProductsParams{
 		Limit:  pageSize,
 		Offset: (pageID - 1) * pageSize,

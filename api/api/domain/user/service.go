@@ -36,23 +36,28 @@ func (s *UserService) GetUserByEmail(ctx context.Context, email string) (User, e
 	return user, err
 }
 
-type CreateUserParams struct {
+type CreateUserServiceParams struct {
 	Name           string
 	Email          string
 	HashedPassword string
 }
 
-func (s *UserService) CreateUser(ctx context.Context, params CreateUserParams) error {
-	arg := CreateParams(params)
+func (s *UserService) CreateUser(ctx context.Context, params CreateUserServiceParams) error {
+	arg := CreateRepositoryParams(params)
 
 	return s.repository.Create(ctx, arg)
 }
 
-func (s *UserService) CreateSession(ctx context.Context, userID uuid.UUID, duration time.Duration) (*token.Token, error) {
-	sessionToken := token.NewToken(duration)
+type CreateSessionServiceParams struct {
+	UserID   uuid.UUID
+	Duration time.Duration
+}
 
-	arg := CreateSessionParams{
-		UserID:       userID,
+func (s *UserService) CreateSession(ctx context.Context, params CreateSessionServiceParams) (*token.Token, error) {
+	sessionToken := token.NewToken(params.Duration)
+
+	arg := CreateSessionRepositoryParams{
+		UserID:       params.UserID,
 		SessionToken: sessionToken,
 	}
 

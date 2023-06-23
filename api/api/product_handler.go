@@ -63,7 +63,12 @@ func (h *productHandler) listProducts(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
-	products, err := h.service.GetProducts(c.Context(), req.PageID, req.PageSize)
+	arg := product_domain.GetProductsServiceParams{
+		PageID:   req.PageID,
+		PageSize: req.PageSize,
+	}
+
+	products, err := h.service.GetProducts(c.Context(), arg)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
