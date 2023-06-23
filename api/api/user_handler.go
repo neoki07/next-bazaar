@@ -46,7 +46,7 @@ func (h *userHandler) createUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	arg := user_domain.CreateUserParams{
+	arg := user_domain.CreateUserServiceParams{
 		Name:           req.Name,
 		Email:          req.Email,
 		HashedPassword: hashedPassword,
@@ -100,7 +100,12 @@ func (h *userHandler) loginUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
 	}
 
-	sessionToken, err := h.service.CreateSession(c.Context(), user.ID, h.config.SessionTokenDuration)
+	arg := user_domain.CreateSessionServiceParams{
+		UserID:   user.ID,
+		Duration: h.config.SessionTokenDuration,
+	}
+
+	sessionToken, err := h.service.CreateSession(c.Context(), arg)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusNotFound).JSON(newErrorResponse(err))

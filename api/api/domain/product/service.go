@@ -17,16 +17,18 @@ func NewProductService(repository ProductRepository) *ProductService {
 }
 
 func (s *ProductService) GetProduct(ctx context.Context, id uuid.UUID) (Product, error) {
-	product, err := s.repository.FindByID(ctx, id)
-	return product, err
+	return s.repository.FindByID(ctx, id)
 }
 
-func (s *ProductService) GetProducts(ctx context.Context, pageID int32, pageSize int32) ([]Product, error) {
-	products, err := s.repository.FindMany(ctx, pageID, pageSize)
-	return products, err
+type GetProductsServiceParams struct {
+	PageID   int32
+	PageSize int32
+}
+
+func (s *ProductService) GetProducts(ctx context.Context, params GetProductsServiceParams) ([]Product, error) {
+	return s.repository.FindMany(ctx, FindManyParams(params))
 }
 
 func (s *ProductService) CountAllProducts(ctx context.Context) (int64, error) {
-	count, err := s.repository.Count(ctx)
-	return count, err
+	return s.repository.Count(ctx)
 }

@@ -91,11 +91,11 @@ func (h *cartHandler) addProduct(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
-	err = h.service.AddProduct(c.Context(), cart_domain.NewAddProductParams(
-		session.UserID,
-		req.ProductID,
-		req.Quantity,
-	))
+	err = h.service.AddProduct(c.Context(), cart_domain.AddProductServiceParams{
+		UserID:    session.UserID,
+		ProductID: req.ProductID,
+		Quantity:  req.Quantity,
+	})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
@@ -134,11 +134,11 @@ func (h *cartHandler) updateProductQuantity(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
-	err = h.service.UpdateProductQuantity(c.Context(), cart_domain.NewUpdateProductQuantityParams(
-		session.UserID,
-		reqParams.ProductID,
-		reqBody.Quantity,
-	))
+	err = h.service.UpdateProductQuantity(c.Context(), cart_domain.UpdateProductQuantityServiceParams{
+		UserID:    session.UserID,
+		ProductID: reqParams.ProductID,
+		Quantity:  reqBody.Quantity,
+	})
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusNotFound).JSON(newErrorResponse(err))
@@ -169,10 +169,10 @@ func (h *cartHandler) deleteProduct(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
-	err = h.service.DeleteProduct(c.Context(), cart_domain.NewDeleteProductParams(
-		session.UserID,
-		req.ProductID,
-	))
+	err = h.service.DeleteProduct(c.Context(), cart_domain.DeleteProductServiceParams{
+		UserID:    session.UserID,
+		ProductID: req.ProductID,
+	})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}

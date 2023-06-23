@@ -14,7 +14,7 @@ type cartRepositoryImpl struct {
 
 func (r *cartRepositoryImpl) FindOneByUserIDAndProductID(
 	ctx context.Context,
-	params FindOneByUserIDAndProductIDParams,
+	params FindOneByUserIDAndProductIDRepositoryParams,
 ) (CartProduct, error) {
 	arg := db.GetCartProductByUserIDAndProductIDParams{
 		UserID:    params.UserID,
@@ -86,7 +86,7 @@ func (r *cartRepositoryImpl) FindManyByUserID(
 	return rsp, nil
 }
 
-func (r *cartRepositoryImpl) Create(ctx context.Context, params CreateParams) error {
+func (r *cartRepositoryImpl) Create(ctx context.Context, params CreateRepositoryParams) error {
 	_, err := r.store.CreateCartProduct(ctx, db.CreateCartProductParams{
 		UserID:    params.UserID,
 		ProductID: params.ProductID,
@@ -96,7 +96,7 @@ func (r *cartRepositoryImpl) Create(ctx context.Context, params CreateParams) er
 	return err
 }
 
-func (r *cartRepositoryImpl) Update(ctx context.Context, params UpdateParams) error {
+func (r *cartRepositoryImpl) Update(ctx context.Context, params UpdateRepositoryParams) error {
 	_, err := r.store.UpdateCartProduct(ctx, db.UpdateCartProductParams{
 		UserID:    params.UserID,
 		ProductID: params.ProductID,
@@ -106,7 +106,7 @@ func (r *cartRepositoryImpl) Update(ctx context.Context, params UpdateParams) er
 	return err
 }
 
-func (r *cartRepositoryImpl) Delete(ctx context.Context, params DeleteParams) error {
+func (r *cartRepositoryImpl) Delete(ctx context.Context, params DeleteRepositoryParams) error {
 	return r.store.DeleteCartProduct(ctx, db.DeleteCartProductParams{
 		UserID:    params.UserID,
 		ProductID: params.ProductID,

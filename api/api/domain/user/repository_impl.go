@@ -47,7 +47,7 @@ func (r *userRepositoryImpl) FindByEmail(ctx context.Context, email string) (Use
 	return rsp, nil
 }
 
-func (r *userRepositoryImpl) Create(ctx context.Context, params CreateParams) error {
+func (r *userRepositoryImpl) Create(ctx context.Context, params CreateRepositoryParams) error {
 	_, err := r.store.CreateUser(ctx, db.CreateUserParams{
 		Name:           params.Name,
 		Email:          params.Email,
@@ -57,7 +57,7 @@ func (r *userRepositoryImpl) Create(ctx context.Context, params CreateParams) er
 	return err
 }
 
-func (r *userRepositoryImpl) CreateSession(ctx context.Context, params CreateSessionParams) error {
+func (r *userRepositoryImpl) CreateSession(ctx context.Context, params CreateSessionRepositoryParams) error {
 	_, err := r.store.CreateSession(ctx, db.CreateSessionParams{
 		UserID:       params.UserID,
 		SessionToken: params.SessionToken.ID,
