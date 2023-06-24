@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/cart-products": {
+        "/cart": {
             "get": {
                 "tags": [
                     "Cart"
@@ -25,10 +25,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/cart_domain.CartProductResponse"
-                            }
+                            "$ref": "#/definitions/cart_domain.CartResponse"
                         }
                     },
                     "400": {
@@ -50,7 +47,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/cart/add-product": {
             "post": {
                 "tags": [
                     "Cart"
@@ -95,7 +94,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/cart-products/count": {
+        "/cart/count": {
             "get": {
                 "tags": [
                     "Cart"
@@ -129,7 +128,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/cart-products/{product_id}": {
+        "/cart/{product_id}": {
             "put": {
                 "tags": [
                     "Cart"
@@ -524,6 +523,17 @@ const docTemplate = `{
             "properties": {
                 "count": {
                     "type": "integer"
+                }
+            }
+        },
+        "cart_domain.CartResponse": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cart_domain.CartProductResponse"
+                    }
                 }
             }
         },

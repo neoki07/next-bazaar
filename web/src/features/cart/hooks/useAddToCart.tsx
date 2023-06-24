@@ -1,5 +1,5 @@
 import { ErrorType } from '@/api/custom-axios-instance'
-import { usePostCartProducts } from '@/api/endpoints/cart/cart'
+import { usePostCartAddProduct } from '@/api/endpoints/cart/cart'
 import {
   ApiErrorResponse,
   ApiMessageResponse,
@@ -19,7 +19,7 @@ interface UseAddToCartParams {
 }
 
 export function useAddToCart(params?: UseAddToCartParams) {
-  return usePostCartProducts({
+  return usePostCartAddProduct({
     mutation: {
       onSuccess: params?.onSuccess,
       onError: params?.onError,

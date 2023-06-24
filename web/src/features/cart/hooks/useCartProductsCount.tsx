@@ -1,4 +1,4 @@
-import { useGetCartProductsCount } from '@/api/endpoints/cart/cart'
+import { useGetCartCount } from '@/api/endpoints/cart/cart'
 import { CartDomainCartProductsCountResponse } from '@/api/model'
 import { UseQueryOptions } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
@@ -24,7 +24,7 @@ export function useCartProductsCount(
     number
   >
 ) {
-  return useGetCartProductsCount({
+  return useGetCartCount({
     query: { select: transform, ...options },
     request: { withCredentials: true },
   })

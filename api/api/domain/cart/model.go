@@ -60,14 +60,19 @@ func NewCartProductResponse(cartProduct CartProduct) CartProductResponse {
 	}
 }
 
-type CartResponse []CartProductResponse
+type CartResponse struct {
+	Products []CartProductResponse `json:"products"`
+}
 
 func NewCartResponse(products []CartProduct) CartResponse {
-	rsp := make(CartResponse, 0, len(products))
+	productsRsp := make([]CartProductResponse, 0, len(products))
 	for _, product := range products {
-		rsp = append(rsp, NewCartProductResponse(product))
+		productsRsp = append(productsRsp, NewCartProductResponse(product))
 	}
-	return rsp
+
+	return CartResponse{
+		Products: productsRsp,
+	}
 }
 
 type CartProductsCountResponse struct {

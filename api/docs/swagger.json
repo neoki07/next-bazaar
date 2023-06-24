@@ -7,7 +7,7 @@
     },
     "basePath": "/api/v1",
     "paths": {
-        "/cart-products": {
+        "/cart": {
             "get": {
                 "tags": [
                     "Cart"
@@ -17,10 +17,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/cart_domain.CartProductResponse"
-                            }
+                            "$ref": "#/definitions/cart_domain.CartResponse"
                         }
                     },
                     "400": {
@@ -42,7 +39,9 @@
                         }
                     }
                 }
-            },
+            }
+        },
+        "/cart/add-product": {
             "post": {
                 "tags": [
                     "Cart"
@@ -87,7 +86,7 @@
                 }
             }
         },
-        "/cart-products/count": {
+        "/cart/count": {
             "get": {
                 "tags": [
                     "Cart"
@@ -121,7 +120,7 @@
                 }
             }
         },
-        "/cart-products/{product_id}": {
+        "/cart/{product_id}": {
             "put": {
                 "tags": [
                     "Cart"
@@ -516,6 +515,17 @@
             "properties": {
                 "count": {
                     "type": "integer"
+                }
+            }
+        },
+        "cart_domain.CartResponse": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cart_domain.CartProductResponse"
+                    }
                 }
             }
         },

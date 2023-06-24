@@ -1,8 +1,11 @@
-import { CartDomainCartProductResponse } from '@/api/model'
+import {
+  CartDomainCartProductResponse,
+  CartDomainCartResponse,
+} from '@/api/model'
 import Decimal from 'decimal.js'
-import { CartProduct } from '../types'
+import { Cart, CartProduct } from '../types'
 
-export function transformCartProduct(
+function transformCartProduct(
   cartProduct: CartDomainCartProductResponse
 ): CartProduct {
   if (
@@ -25,5 +28,15 @@ export function transformCartProduct(
     quantity: cartProduct.quantity,
     subtotal: new Decimal(cartProduct.subtotal),
     imageUrl: cartProduct.image_url,
+  }
+}
+
+export function transformCart(cart: CartDomainCartResponse): Cart {
+  if (cart.products === undefined) {
+    throw new Error('required fields are undefined:' + JSON.stringify(cart))
+  }
+
+  return {
+    products: cart.products.map((product) => transformCartProduct(product)),
   }
 }

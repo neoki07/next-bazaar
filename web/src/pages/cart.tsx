@@ -1,9 +1,9 @@
 import { MainLayout } from '@/components/Layout'
-import { CartProductList, useCartProducts } from '@/features/cart'
+import { CartProductList, useCart } from '@/features/cart'
 import { Container, Group, Title, rem } from '@mantine/core'
 
 export default function CartPage() {
-  const { data: cartProducts, isLoading } = useCartProducts()
+  const { data: cart, isLoading } = useCart()
 
   return (
     <MainLayout>
@@ -14,7 +14,7 @@ export default function CartPage() {
         <Group align="start" spacing={rem(48)}>
           <div style={{ flex: '1' }}>
             <CartProductList
-              cartProducts={cartProducts}
+              cartProducts={cart?.products}
               isLoading={isLoading}
             />
           </div>
