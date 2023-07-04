@@ -21,7 +21,7 @@ export function ProductCard({
 
   return (
     <Stack spacing="xs">
-      {product.imageUrl !==undefined && (
+      {product.imageUrl !== undefined && (
         <Link href={productLink}>
           <Image
             src={product.imageUrl}
@@ -43,7 +43,7 @@ export function ProductCard({
         <Link href={productLink}>
           <Text>{product.name}</Text>
         </Link>
-        <Price price={product.price} />
+        <Price price={product.price} size="xl" weight="bold" />
         <Group spacing={rem(3)} mt={rem(1)}>
           <IconBuildingStore
             size={16}

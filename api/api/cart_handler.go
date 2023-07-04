@@ -24,7 +24,7 @@ func newCartHandler(s *cart_domain.CartService) *cartHandler {
 // @Failure      400 {object} errorResponse
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
-// @Router       /cart-products [get]
+// @Router       /cart [get]
 func (h *cartHandler) getCart(c *fiber.Ctx) error {
 	session, err := getSession(c)
 	if err != nil {
@@ -46,7 +46,7 @@ func (h *cartHandler) getCart(c *fiber.Ctx) error {
 // @Failure      400 {object} errorResponse
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
-// @Router       /cart-products/count [get]
+// @Router       /cart/count [get]
 func (h *cartHandler) getCartProductsCount(c *fiber.Ctx) error {
 	session, err := getSession(c)
 	if err != nil {
@@ -74,7 +74,7 @@ func (h *cartHandler) getCartProductsCount(c *fiber.Ctx) error {
 // @Failure      400 {object} errorResponse
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
-// @Router       /cart-products [post]
+// @Router       /cart/add-product [post]
 func (h *cartHandler) addProduct(c *fiber.Ctx) error {
 	session, err := getSession(c)
 	if err != nil {
@@ -112,7 +112,7 @@ func (h *cartHandler) addProduct(c *fiber.Ctx) error {
 // @Failure      400 {object} errorResponse
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
-// @Router       /cart-products/{product_id} [put]
+// @Router       /cart/{product_id} [put]
 func (h *cartHandler) updateProductQuantity(c *fiber.Ctx) error {
 	session, err := getSession(c)
 	if err != nil {
@@ -157,7 +157,7 @@ func (h *cartHandler) updateProductQuantity(c *fiber.Ctx) error {
 // @Failure      400 {object} errorResponse
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
-// @Router       /cart-products/{product_id} [delete]
+// @Router       /cart/{product_id} [delete]
 func (h *cartHandler) deleteProduct(c *fiber.Ctx) error {
 	session, err := getSession(c)
 	if err != nil {

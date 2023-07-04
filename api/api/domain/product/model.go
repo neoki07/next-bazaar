@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	db "github.com/ot07/next-bazaar/db/sqlc"
+	"github.com/shopspring/decimal"
 )
 
 type Product struct {
@@ -38,34 +39,46 @@ type ProductResponse struct {
 	ID            uuid.UUID     `json:"id"`
 	Name          string        `json:"name"`
 	Description   db.NullString `json:"description" swaggertype:"string"`
-	Price         string        `json:"price"`
+	Price         db.Decimal    `json:"price" swaggertype:"string"`
 	StockQuantity int32         `json:"stock_quantity"`
 	Category      string        `json:"category"`
 	Seller        string        `json:"seller"`
 	ImageUrl      db.NullString `json:"image_url" swaggertype:"string"`
 }
 
-func NewProductResponse(product Product) ProductResponse {
+func NewProductResponse(product Product) (ProductResponse, error) {
+	dec, err := decimal.NewFromString(product.Price)
+	if err != nil {
+		return ProductResponse{}, err
+	}
+
 	return ProductResponse{
 		ID:            product.ID,
 		Name:          product.Name,
 		Description:   db.NullString{NullString: product.Description},
-		Price:         product.Price,
+		Price:         db.Decimal{Decimal: dec},
 		StockQuantity: product.StockQuantity,
 		Category:      product.Category,
 		Seller:        product.Seller,
 		ImageUrl:      db.NullString{NullString: product.ImageUrl},
-	}
+	}, nil
 }
 
 type ProductsResponse []ProductResponse
 
-func NewProductsResponse(products []Product) ProductsResponse {
+func NewProductsResponse(products []Product) (ProductsResponse, error) {
 	rsp := make(ProductsResponse, 0, len(products))
+
 	for _, product := range products {
-		rsp = append(rsp, NewProductResponse(product))
+		item, err := NewProductResponse(product)
+		if err != nil {
+			return nil, err
+		}
+
+		rsp = append(rsp, item)
 	}
-	return rsp
+
+	return rsp, nil
 }
 
 type ListProductsResponseMeta struct {

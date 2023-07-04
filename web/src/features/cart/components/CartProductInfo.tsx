@@ -6,7 +6,7 @@ import { CloseButton, Flex, Group, Stack, Text, rem } from '@mantine/core'
 import range from 'lodash/range'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { z } from 'zod'
-import { useCartProducts } from '../hooks/useCartProducts'
+import { useCart } from '../hooks/useCart'
 import { useCartProductsCount } from '../hooks/useCartProductsCount'
 import { useDeleteProduct } from '../hooks/useDeleteProduct'
 import { useUpdateProductQuantity } from '../hooks/useUpdateProductQuantity'
@@ -23,20 +23,20 @@ export function CartProductInfo({
 }: CartProductInfoProps) {
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const { refetch: refetchCartProducts } = useCartProducts()
+  const { refetch: refetchCart } = useCart()
   const { refetch: refetchCartProductsCount } = useCartProductsCount({
     enabled: false,
   })
 
   const updateProductQuantityMutation = useUpdateProductQuantity({
     onSuccess: () => {
-      refetchCartProducts()
+      refetchCart()
       refetchCartProductsCount()
     },
   })
   const deleteProductMutation = useDeleteProduct({
     onSuccess: () => {
-      refetchCartProducts()
+      refetchCart()
       refetchCartProductsCount()
     },
   })
@@ -99,7 +99,7 @@ export function CartProductInfo({
           <Form>
             <Stack spacing="xs">
               <Text fz="md">{cartProduct.name}</Text>
-              <Price price={cartProduct.price} />
+              <Price price={cartProduct.price} size="xl" weight="bold" />
               <NativeNumberSelect
                 w={rem(80)}
                 label="Quantity"

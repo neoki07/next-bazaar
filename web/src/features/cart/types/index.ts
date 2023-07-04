@@ -21,3 +21,11 @@ export interface CartProduct {
   subtotal: Decimal
   imageUrl?: string
 }
+
+export interface Cart {
+  products: CartProduct[]
+  subtotal: Decimal
+  shipping: Decimal
+  tax: Decimal
+  total: Decimal
+}

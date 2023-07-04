@@ -86,11 +86,11 @@ func (server *Server) setupRouter() {
 	v1.Post("/users/logout", server.handlers.user.logoutUser)
 	v1.Get("/users/me", server.handlers.user.getLoggedInUser)
 
-	v1.Get("/cart-products", server.handlers.cart.getCart)
-	v1.Get("/cart-products/count", server.handlers.cart.getCartProductsCount)
-	v1.Post("/cart-products", server.handlers.cart.addProduct)
-	v1.Put("/cart-products/:product_id", server.handlers.cart.updateProductQuantity)
-	v1.Delete("/cart-products/:product_id", server.handlers.cart.deleteProduct)
+	v1.Get("/cart", server.handlers.cart.getCart)
+	v1.Get("/cart/count", server.handlers.cart.getCartProductsCount)
+	v1.Post("/cart/add-product", server.handlers.cart.addProduct)
+	v1.Put("/cart/:product_id", server.handlers.cart.updateProductQuantity)
+	v1.Delete("/cart/:product_id", server.handlers.cart.deleteProduct)
 }
 
 // Start runs the HTTP server on a specific address.

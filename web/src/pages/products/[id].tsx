@@ -127,9 +127,9 @@ export function ProductArea({ productId }: ProductAreaProps) {
         <Form>
           <Stack w={rem(240)}>
             {isLoading || product === undefined ? (
-              <PriceSkeleton width="50%" />
+              <PriceSkeleton width="50%" size="xl" weight="bold" />
             ) : (
-              <Price price={product.price} />
+              <Price price={product.price} size="xl" weight="bold" />
             )}
             <Skeleton visible={isLoading} width="35%">
               <NativeNumberSelect

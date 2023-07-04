@@ -41,7 +41,11 @@ func (h *productHandler) getProduct(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	rsp := product_domain.NewProductResponse(product)
+	rsp, err := product_domain.NewProductResponse(product)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
+	}
+
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
 
@@ -80,6 +84,11 @@ func (h *productHandler) listProducts(c *fiber.Ctx) error {
 
 	pageCount := int64(math.Ceil(float64(totalCount) / float64(req.PageSize)))
 
+	rspData, err := product_domain.NewProductsResponse(products)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
+	}
+
 	rsp := product_domain.ListProductsResponse{
 		Meta: product_domain.ListProductsResponseMeta{
 			PageID:     req.PageID,
@@ -87,7 +96,7 @@ func (h *productHandler) listProducts(c *fiber.Ctx) error {
 			PageCount:  pageCount,
 			TotalCount: totalCount,
 		},
-		Data: product_domain.NewProductsResponse(products),
+		Data: rspData,
 	}
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
