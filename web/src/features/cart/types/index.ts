@@ -24,4 +24,8 @@ export interface CartProduct {
 
 export interface Cart {
   products: CartProduct[]
+  subtotal: Decimal
+  shipping: Decimal
+  tax: Decimal
+  total: Decimal
 }

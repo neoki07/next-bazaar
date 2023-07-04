@@ -32,11 +32,21 @@ function transformCartProduct(
 }
 
 export function transformCart(cart: CartDomainCartResponse): Cart {
-  if (cart.products === undefined) {
+  if (
+    cart.products === undefined ||
+    cart.subtotal === undefined ||
+    cart.shipping === undefined ||
+    cart.tax === undefined ||
+    cart.total === undefined
+  ) {
     throw new Error('required fields are undefined:' + JSON.stringify(cart))
   }
 
   return {
     products: cart.products.map((product) => transformCartProduct(product)),
+    subtotal: new Decimal(cart.subtotal),
+    shipping: new Decimal(cart.shipping),
+    tax: new Decimal(cart.tax),
+    total: new Decimal(cart.total),
   }
 }

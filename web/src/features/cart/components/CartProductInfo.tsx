@@ -99,7 +99,7 @@ export function CartProductInfo({
           <Form>
             <Stack spacing="xs">
               <Text fz="md">{cartProduct.name}</Text>
-              <Price price={cartProduct.price} />
+              <Price price={cartProduct.price} size="xl" weight="bold" />
               <NativeNumberSelect
                 w={rem(80)}
                 label="Quantity"

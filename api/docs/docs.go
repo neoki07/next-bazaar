@@ -534,6 +534,18 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/cart_domain.CartProductResponse"
                     }
+                },
+                "shipping": {
+                    "type": "string"
+                },
+                "subtotal": {
+                    "type": "string"
+                },
+                "tax": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "string"
                 }
             }
         },

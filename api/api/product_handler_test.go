@@ -14,6 +14,7 @@ import (
 	product_domain "github.com/ot07/next-bazaar/api/domain/product"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/util"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/require"
 )
 
@@ -61,7 +62,7 @@ func TestGetProduct(t *testing.T) {
 				require.NotEmpty(t, gotProduct.ID)
 				require.Equal(t, "test-product", gotProduct.Name)
 				require.Equal(t, "test-description", gotProduct.Description.String)
-				require.Equal(t, "100.00", gotProduct.Price)
+				require.True(t, decimal.NewFromFloat(100.00).Equal(gotProduct.Price.Decimal))
 				require.Equal(t, int32(10), gotProduct.StockQuantity)
 				require.Equal(t, "test-category", gotProduct.Category)
 				require.Equal(t, "test-user", gotProduct.Seller)
@@ -210,7 +211,7 @@ func TestListProducts(t *testing.T) {
 					require.NotEmpty(t, gotResponse.Data[i].ID)
 					require.Equal(t, fmt.Sprintf("test-product-%d", i), gotResponse.Data[i].Name)
 					require.Equal(t, fmt.Sprintf("test-description-%d", i), gotResponse.Data[i].Description.String)
-					require.Equal(t, fmt.Sprintf("%d.00", (i+1)*10), gotResponse.Data[i].Price)
+					require.True(t, decimal.NewFromInt(int64((i+1)*10)).Equal(gotResponse.Data[i].Price.Decimal))
 					require.Equal(t, int32(i+1), gotResponse.Data[i].StockQuantity)
 					require.Equal(t, fmt.Sprintf("test-category-%d", categoryIndex), gotResponse.Data[i].Category)
 					require.Equal(t, fmt.Sprintf("test-user-%d", userIndex), gotResponse.Data[i].Seller)

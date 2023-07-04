@@ -8,4 +8,8 @@ import type { CartDomainCartProductResponse } from './cartDomainCartProductRespo
 
 export interface CartDomainCartResponse {
   products?: CartDomainCartProductResponse[]
+  shipping?: string
+  subtotal?: string
+  tax?: string
+  total?: string
 }

@@ -49,6 +49,14 @@ definitions:
         items:
           $ref: '#/definitions/cart_domain.CartProductResponse'
         type: array
+      shipping:
+        type: string
+      subtotal:
+        type: string
+      tax:
+        type: string
+      total:
+        type: string
     type: object
   cart_domain.UpdateProductQuantityRequestBody:
     properties:
