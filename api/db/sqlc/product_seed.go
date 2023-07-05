@@ -28,15 +28,12 @@ func CreateProductTestData(ctx context.Context, store *SQLStore, config util.Con
 	}
 
 	for i := 0; i < numProducts; i++ {
-		price, err := util.RandomPrice()
-		if err != nil {
-			return err
-		}
+		price := util.RandomPrice()
 
 		arg := CreateProductParams{
 			Name:          faker.Name(),
 			Description:   sql.NullString{String: faker.Paragraph(), Valid: true},
-			Price:         price,
+			Price:         price.String(),
 			StockQuantity: rand.Int31n(100),
 			CategoryID:    categories[rand.Intn(len(categories))].ID,
 			SellerID:      user.ID,

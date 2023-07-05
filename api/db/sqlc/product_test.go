@@ -13,8 +13,7 @@ import (
 )
 
 func createRandomProduct(t *testing.T, testQueries *Queries) Product {
-	price, err := util.RandomPrice()
-	require.NoError(t, err)
+	price := util.RandomPrice()
 
 	category := createRandomCategory(t, testQueries)
 	user := createRandomUser(t, testQueries)
@@ -22,7 +21,7 @@ func createRandomProduct(t *testing.T, testQueries *Queries) Product {
 	arg := CreateProductParams{
 		Name:          util.RandomName(),
 		Description:   sql.NullString{String: util.RandomName(), Valid: true},
-		Price:         price,
+		Price:         price.String(),
 		StockQuantity: rand.Int31n(100),
 		CategoryID:    category.ID,
 		SellerID:      user.ID,
