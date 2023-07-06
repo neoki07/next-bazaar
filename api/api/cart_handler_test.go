@@ -17,6 +17,7 @@ import (
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/token"
 	"github.com/ot07/next-bazaar/util"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/require"
 )
 
@@ -85,6 +86,21 @@ func TestGetCart(t *testing.T) {
 			createSeed: defaultCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
+
+				gotResponse := unmarshalCartResponse(t, response.Body)
+
+				require.Equal(t, 1, len(gotResponse.Products))
+
+				require.Equal(t, "test-product", gotResponse.Products[0].Name)
+				require.True(t, decimal.NewFromFloat(100.00).Equal(gotResponse.Products[0].Price.Decimal))
+				require.Equal(t, int32(5), gotResponse.Products[0].Quantity)
+				require.True(t, decimal.NewFromFloat(500.00).Equal(gotResponse.Products[0].Subtotal.Decimal))
+				require.Equal(t, "test-image-url", gotResponse.Products[0].ImageUrl.NullString.String)
+
+				require.True(t, decimal.NewFromFloat(500.00).Equal(gotResponse.Subtotal.Decimal))
+				require.True(t, decimal.NewFromFloat(5.00).Equal(gotResponse.Shipping.Decimal))
+				require.True(t, decimal.NewFromFloat(50.00).Equal(gotResponse.Tax.Decimal))
+				require.True(t, decimal.NewFromFloat(555.00).Equal(gotResponse.Total.Decimal))
 			},
 		},
 		{
@@ -923,6 +939,136 @@ func TestDeleteProduct(t *testing.T) {
 	}
 }
 
+func TestCartAPIScenario(t *testing.T) {
+	ctx := context.Background()
+
+	store, cleanupStore := buildTestDBStore(t)
+	defer cleanupStore()
+
+	server := newTestServer(t, store)
+
+	// Create user
+	name := "testuser"
+	email := "test@example.com"
+	password := "test-password"
+
+	hashedPassword, err := util.HashPassword(password)
+	require.NoError(t, err)
+
+	sessionToken := token.NewToken(time.Minute)
+
+	user := createTestUserSeed(t, ctx, store, name, email, hashedPassword, sessionToken)
+
+	// Create get cart function
+	getCart := func() *http.Response {
+		url := "/api/v1/cart"
+		request, err := http.NewRequest(http.MethodGet, url, nil)
+		require.NoError(t, err)
+
+		request.Header.Set("Content-Type", "application/json")
+
+		addSessionTokenInCookie(request, sessionToken.ID.String())
+		response, err := server.app.Test(request, int(time.Second.Milliseconds()))
+		require.NoError(t, err)
+
+		return response
+	}
+
+	// Create product
+	product := createProductSeed(t, ctx, store, user)
+
+	// Add product to cart
+	url := "/api/v1/cart/add-product"
+
+	body, err := json.Marshal(fiber.Map{
+		"product_id": product.ID,
+		"quantity":   5,
+	})
+	require.NoError(t, err)
+
+	request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+	require.NoError(t, err)
+
+	request.Header.Set("Content-Type", "application/json")
+
+	addSessionTokenInCookie(request, sessionToken.ID.String())
+	response, err := server.app.Test(request, int(time.Second.Milliseconds()))
+	require.NoError(t, err)
+
+	require.Equal(t, http.StatusOK, response.StatusCode)
+
+	// Get cart
+	response = getCart()
+
+	require.Equal(t, http.StatusOK, response.StatusCode)
+
+	gotResponse := unmarshalCartResponse(t, response.Body)
+
+	require.Equal(t, int32(5), gotResponse.Products[0].Quantity)
+
+	// Update product quantity
+	url = fmt.Sprintf("/api/v1/cart/%s", product.ID)
+
+	body, err = json.Marshal(fiber.Map{
+		"quantity": 10,
+	})
+	require.NoError(t, err)
+
+	request, err = http.NewRequest(http.MethodPut, url, bytes.NewReader(body))
+	require.NoError(t, err)
+
+	request.Header.Set("Content-Type", "application/json")
+
+	addSessionTokenInCookie(request, sessionToken.ID.String())
+	response, err = server.app.Test(request, int(time.Second.Milliseconds()))
+	require.NoError(t, err)
+
+	require.Equal(t, http.StatusOK, response.StatusCode)
+
+	// Get cart
+	response = getCart()
+
+	require.Equal(t, http.StatusOK, response.StatusCode)
+
+	gotResponse = unmarshalCartResponse(t, response.Body)
+
+	require.Equal(t, int32(10), gotResponse.Products[0].Quantity)
+
+	// Delete product
+	url = fmt.Sprintf("/api/v1/cart/%s", product.ID)
+
+	request, err = http.NewRequest(http.MethodDelete, url, nil)
+	require.NoError(t, err)
+
+	request.Header.Set("Content-Type", "application/json")
+
+	addSessionTokenInCookie(request, sessionToken.ID.String())
+	response, err = server.app.Test(request, int(time.Second.Milliseconds()))
+	require.NoError(t, err)
+
+	require.Equal(t, http.StatusNoContent, response.StatusCode)
+
+	// Get cart
+	response = getCart()
+
+	require.Equal(t, http.StatusOK, response.StatusCode)
+
+	gotResponse = unmarshalCartResponse(t, response.Body)
+
+	require.Equal(t, 0, len(gotResponse.Products))
+}
+
+func unmarshalCartResponse(t *testing.T, body io.ReadCloser) cart_domain.CartResponse {
+	data, err := io.ReadAll(body)
+	require.NoError(t, err)
+
+	var parsed cart_domain.CartResponse
+	err = json.Unmarshal(data, &parsed)
+	require.NoError(t, err)
+
+	return parsed
+}
+
 func unmarshalCartProductsCountResponse(t *testing.T, body io.ReadCloser) cart_domain.CartProductsCountResponse {
 	data, err := io.ReadAll(body)
 	require.NoError(t, err)
@@ -932,4 +1078,22 @@ func unmarshalCartProductsCountResponse(t *testing.T, body io.ReadCloser) cart_d
 	require.NoError(t, err)
 
 	return parsed
+}
+
+func createProductSeed(t *testing.T, ctx context.Context, store db.Store, user db.User) db.Product {
+	category, err := store.CreateCategory(ctx, "test-category")
+	require.NoError(t, err)
+
+	product, err := store.CreateProduct(ctx, db.CreateProductParams{
+		Name:          "test-product",
+		Description:   sql.NullString{String: "test-description", Valid: true},
+		Price:         "100.00",
+		StockQuantity: 10,
+		CategoryID:    category.ID,
+		SellerID:      user.ID,
+		ImageUrl:      sql.NullString{String: "test-image-url", Valid: true},
+	})
+	require.NoError(t, err)
+
+	return product
 }
