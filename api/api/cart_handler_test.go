@@ -14,6 +14,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang/mock/gomock"
 	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
+	"github.com/ot07/next-bazaar/api/test_util"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/token"
 	"github.com/ot07/next-bazaar/util"
@@ -948,16 +949,12 @@ func TestCartAPIScenario(t *testing.T) {
 	server := newTestServer(t, store)
 
 	// Create user
-	name := "testuser"
-	email := "test@example.com"
-	password := "test-password"
-
-	hashedPassword, err := util.HashPassword(password)
+	hashedPassword, err := util.HashPassword("test-password")
 	require.NoError(t, err)
 
 	sessionToken := token.NewToken(time.Minute)
 
-	user := createTestUserSeed(t, ctx, store, name, email, hashedPassword, sessionToken)
+	user := test_util.CreateUserTestData(t, ctx, store, "testuser", "test@example.com", hashedPassword, sessionToken)
 
 	// Create get cart function
 	getCart := func() *http.Response {
@@ -975,7 +972,18 @@ func TestCartAPIScenario(t *testing.T) {
 	}
 
 	// Create product
-	product := createProductSeed(t, ctx, store, user)
+	category := test_util.CreateCategoryTestData(t, ctx, store, "test-category")
+	product := test_util.CreateProductTestData(
+		t,
+		ctx,
+		store,
+		"test-product",
+		"test-description", decimal.NewFromFloat(100.00),
+		10,
+		category.ID,
+		user.ID,
+		"test-image-url",
+	)
 
 	// Add product to cart
 	url := "/api/v1/cart/add-product"
@@ -1078,22 +1086,4 @@ func unmarshalCartProductsCountResponse(t *testing.T, body io.ReadCloser) cart_d
 	require.NoError(t, err)
 
 	return parsed
-}
-
-func createProductSeed(t *testing.T, ctx context.Context, store db.Store, user db.User) db.Product {
-	category, err := store.CreateCategory(ctx, "test-category")
-	require.NoError(t, err)
-
-	product, err := store.CreateProduct(ctx, db.CreateProductParams{
-		Name:          "test-product",
-		Description:   sql.NullString{String: "test-description", Valid: true},
-		Price:         "100.00",
-		StockQuantity: 10,
-		CategoryID:    category.ID,
-		SellerID:      user.ID,
-		ImageUrl:      sql.NullString{String: "test-image-url", Valid: true},
-	})
-	require.NoError(t, err)
-
-	return product
 }
