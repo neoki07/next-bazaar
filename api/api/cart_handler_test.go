@@ -1,7 +1,6 @@
 package api
 
 import (
-	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -14,38 +13,26 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang/mock/gomock"
 	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
+	"github.com/ot07/next-bazaar/api/test_util"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/token"
 	"github.com/ot07/next-bazaar/util"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetCart(t *testing.T) {
-	validUserName := "testuser"
-	validUserEmail := "test@example.com"
-	validUserPassword := "test-password"
-
-	validUserHashedPassword, err := util.HashPassword(validUserPassword)
-	require.NoError(t, err)
-
-	validSessionToken := token.NewToken(time.Minute)
+	sessionToken := token.NewToken(time.Minute)
 
 	defaultCreateSeed := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
 
-		user, err := store.CreateUser(ctx, db.CreateUserParams{
-			Name:           validUserName,
-			Email:          validUserEmail,
-			HashedPassword: validUserHashedPassword,
-		})
-		require.NoError(t, err)
-
-		_, err = store.CreateSession(ctx, db.CreateSessionParams{
-			UserID:       user.ID,
-			SessionToken: validSessionToken.ID,
-			ExpiredAt:    validSessionToken.ExpiredAt,
-		})
-		require.NoError(t, err)
+		user := test_util.CreateUserTestData(t, ctx, store,
+			"testuser",
+			"test@example.com",
+			"test-password",
+			sessionToken,
+		)
 
 		category, err := store.CreateCategory(ctx, "test-category")
 		require.NoError(t, err)
@@ -79,18 +66,33 @@ func TestGetCart(t *testing.T) {
 		{
 			name: "OK",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
+
+				gotResponse := unmarshalCartResponse(t, response.Body)
+
+				require.Equal(t, 1, len(gotResponse.Products))
+
+				require.Equal(t, "test-product", gotResponse.Products[0].Name)
+				require.True(t, decimal.NewFromFloat(100.00).Equal(gotResponse.Products[0].Price.Decimal))
+				require.Equal(t, int32(5), gotResponse.Products[0].Quantity)
+				require.True(t, decimal.NewFromFloat(500.00).Equal(gotResponse.Products[0].Subtotal.Decimal))
+				require.Equal(t, "test-image-url", gotResponse.Products[0].ImageUrl.NullString.String)
+
+				require.True(t, decimal.NewFromFloat(500.00).Equal(gotResponse.Subtotal.Decimal))
+				require.True(t, decimal.NewFromFloat(5.00).Equal(gotResponse.Shipping.Decimal))
+				require.True(t, decimal.NewFromFloat(50.00).Equal(gotResponse.Tax.Decimal))
+				require.True(t, decimal.NewFromFloat(555.00).Equal(gotResponse.Total.Decimal))
 			},
 		},
 		{
 			name:       "NoAuthorization",
 			setupAuth:  func(request *http.Request) {},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -99,16 +101,16 @@ func TestGetCart(t *testing.T) {
 		{
 			name: "InternalError",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
+				mockStore, cleanup := test_util.NewMockStore(t)
 
-				buildValidSessionStubs(mockStore, db.Session{
+				test_util.BuildValidSessionStubs(mockStore, db.Session{
 					ID:           util.RandomUUID(),
 					UserID:       util.RandomUUID(),
-					SessionToken: validSessionToken.ID,
-					ExpiredAt:    validSessionToken.ExpiredAt,
+					SessionToken: sessionToken.ID,
+					ExpiredAt:    sessionToken.ExpiredAt,
 					CreatedAt:    time.Now(),
 				})
 
@@ -136,49 +138,31 @@ func TestGetCart(t *testing.T) {
 
 			tc.createSeed(t, store)
 
+			request := test_util.NewRequest(t, test_util.RequestParams{
+				Method:    http.MethodGet,
+				URL:       "/api/v1/cart",
+				SetupAuth: tc.setupAuth,
+			})
+
 			server := newTestServer(t, store)
-
-			url := "/api/v1/cart"
-			request, err := http.NewRequest(http.MethodGet, url, nil)
-			require.NoError(t, err)
-
-			request.Header.Set("Content-Type", "application/json")
-
-			tc.setupAuth(request)
-			response, err := server.app.Test(request, int(time.Second.Milliseconds()))
-			require.NoError(t, err)
-
+			response := test_util.SendRequest(t, server.app, request)
 			tc.checkResponse(t, response)
 		})
 	}
 }
 
 func TestGetCartProductsCount(t *testing.T) {
-	validUserName := "testuser"
-	validUserEmail := "test@example.com"
-	validUserPassword := "test-password"
-
-	validUserHashedPassword, err := util.HashPassword(validUserPassword)
-	require.NoError(t, err)
-
-	validSessionToken := token.NewToken(time.Minute)
+	sessionToken := token.NewToken(time.Minute)
 
 	defaultCreateSeed := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
 
-		user, err := store.CreateUser(ctx, db.CreateUserParams{
-			Name:           validUserName,
-			Email:          validUserEmail,
-			HashedPassword: validUserHashedPassword,
-		})
-		require.NoError(t, err)
-
-		_, err = store.CreateSession(ctx, db.CreateSessionParams{
-			UserID:       user.ID,
-			SessionToken: validSessionToken.ID,
-			ExpiredAt:    validSessionToken.ExpiredAt,
-		})
-		require.NoError(t, err)
+		user := test_util.CreateUserTestData(t, ctx, store,
+			"testuser",
+			"test@example.com",
+			"test-password",
+			sessionToken,
+		)
 
 		category, err := store.CreateCategory(ctx, "test-category")
 		require.NoError(t, err)
@@ -222,9 +206,9 @@ func TestGetCartProductsCount(t *testing.T) {
 		{
 			name: "OK",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
@@ -237,25 +221,18 @@ func TestGetCartProductsCount(t *testing.T) {
 		{
 			name: "Empty",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) {
 				ctx := context.Background()
 
-				user, err := store.CreateUser(ctx, db.CreateUserParams{
-					Name:           validUserName,
-					Email:          validUserEmail,
-					HashedPassword: validUserHashedPassword,
-				})
-				require.NoError(t, err)
-
-				_, err = store.CreateSession(ctx, db.CreateSessionParams{
-					UserID:       user.ID,
-					SessionToken: validSessionToken.ID,
-					ExpiredAt:    validSessionToken.ExpiredAt,
-				})
-				require.NoError(t, err)
+				_ = test_util.CreateUserTestData(t, ctx, store,
+					"testuser",
+					"test@example.com",
+					"test-password",
+					sessionToken,
+				)
 			},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
@@ -268,7 +245,7 @@ func TestGetCartProductsCount(t *testing.T) {
 		{
 			name:       "NoAuthorization",
 			setupAuth:  func(request *http.Request) {},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -277,16 +254,16 @@ func TestGetCartProductsCount(t *testing.T) {
 		{
 			name: "InternalError",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
+				mockStore, cleanup := test_util.NewMockStore(t)
 
-				buildValidSessionStubs(mockStore, db.Session{
+				test_util.BuildValidSessionStubs(mockStore, db.Session{
 					ID:           util.RandomUUID(),
 					UserID:       util.RandomUUID(),
-					SessionToken: validSessionToken.ID,
-					ExpiredAt:    validSessionToken.ExpiredAt,
+					SessionToken: sessionToken.ID,
+					ExpiredAt:    sessionToken.ExpiredAt,
 					CreatedAt:    time.Now(),
 				})
 
@@ -314,49 +291,31 @@ func TestGetCartProductsCount(t *testing.T) {
 
 			tc.createSeed(t, store)
 
+			request := test_util.NewRequest(t, test_util.RequestParams{
+				Method:    http.MethodGet,
+				URL:       "/api/v1/cart/count",
+				SetupAuth: tc.setupAuth,
+			})
+
 			server := newTestServer(t, store)
-
-			url := "/api/v1/cart/count"
-			request, err := http.NewRequest(http.MethodGet, url, nil)
-			require.NoError(t, err)
-
-			request.Header.Set("Content-Type", "application/json")
-
-			tc.setupAuth(request)
-			response, err := server.app.Test(request, int(time.Second.Milliseconds()))
-			require.NoError(t, err)
-
+			response := test_util.SendRequest(t, server.app, request)
 			tc.checkResponse(t, response)
 		})
 	}
 }
 
 func TestAddProduct(t *testing.T) {
-	validUserName := "testuser"
-	validUserEmail := "test@example.com"
-	validUserPassword := "test-password"
-
-	validUserHashedPassword, err := util.HashPassword(validUserPassword)
-	require.NoError(t, err)
-
-	validSessionToken := token.NewToken(time.Minute)
+	sessionToken := token.NewToken(time.Minute)
 
 	defaultCreateSeed := func(t *testing.T, store db.Store) (productID string) {
 		ctx := context.Background()
 
-		user, err := store.CreateUser(ctx, db.CreateUserParams{
-			Name:           validUserName,
-			Email:          validUserEmail,
-			HashedPassword: validUserHashedPassword,
-		})
-		require.NoError(t, err)
-
-		_, err = store.CreateSession(ctx, db.CreateSessionParams{
-			UserID:       user.ID,
-			SessionToken: validSessionToken.ID,
-			ExpiredAt:    validSessionToken.ExpiredAt,
-		})
-		require.NoError(t, err)
+		user := test_util.CreateUserTestData(t, ctx, store,
+			"testuser",
+			"test@example.com",
+			"test-password",
+			sessionToken,
+		)
 
 		category, err := store.CreateCategory(ctx, "test-category")
 		require.NoError(t, err)
@@ -393,9 +352,9 @@ func TestAddProduct(t *testing.T) {
 		{
 			name: "OK",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
 			createBody: defaultCreateBody,
 			checkResponse: func(t *testing.T, response *http.Response) {
@@ -405,25 +364,18 @@ func TestAddProduct(t *testing.T) {
 		{
 			name: "AddExistingProduct",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) (productID string) {
 				ctx := context.Background()
 
-				user, err := store.CreateUser(ctx, db.CreateUserParams{
-					Name:           validUserName,
-					Email:          validUserEmail,
-					HashedPassword: validUserHashedPassword,
-				})
-				require.NoError(t, err)
-
-				_, err = store.CreateSession(ctx, db.CreateSessionParams{
-					UserID:       user.ID,
-					SessionToken: validSessionToken.ID,
-					ExpiredAt:    validSessionToken.ExpiredAt,
-				})
-				require.NoError(t, err)
+				user := test_util.CreateUserTestData(t, ctx, store,
+					"testuser",
+					"test@example.com",
+					"test-password",
+					sessionToken,
+				)
 
 				category, err := store.CreateCategory(ctx, "test-category")
 				require.NoError(t, err)
@@ -456,7 +408,7 @@ func TestAddProduct(t *testing.T) {
 		{
 			name:       "NoAuthorization",
 			setupAuth:  func(request *http.Request) {},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
 			createBody: func(t *testing.T, productID string) fiber.Map {
 				return fiber.Map{
@@ -471,9 +423,9 @@ func TestAddProduct(t *testing.T) {
 		{
 			name: "ProductIDNotFound",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
 			createBody: func(t *testing.T, productID string) fiber.Map {
 				return fiber.Map{
@@ -487,9 +439,9 @@ func TestAddProduct(t *testing.T) {
 		{
 			name: "QuantityNotFound",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
 			createBody: func(t *testing.T, productID string) fiber.Map {
 				return fiber.Map{
@@ -503,9 +455,9 @@ func TestAddProduct(t *testing.T) {
 		{
 			name: "QuantityIsZero",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
 			createBody: func(t *testing.T, productID string) fiber.Map {
 				return fiber.Map{
@@ -520,16 +472,16 @@ func TestAddProduct(t *testing.T) {
 		{
 			name: "InternalError",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
+				mockStore, cleanup := test_util.NewMockStore(t)
 
-				buildValidSessionStubs(mockStore, db.Session{
+				test_util.BuildValidSessionStubs(mockStore, db.Session{
 					ID:           util.RandomUUID(),
 					UserID:       util.RandomUUID(),
-					SessionToken: validSessionToken.ID,
-					ExpiredAt:    validSessionToken.ExpiredAt,
+					SessionToken: sessionToken.ID,
+					ExpiredAt:    sessionToken.ExpiredAt,
 					CreatedAt:    time.Now(),
 				})
 
@@ -560,53 +512,32 @@ func TestAddProduct(t *testing.T) {
 
 			productID := tc.createSeed(t, store)
 
+			request := test_util.NewRequest(t, test_util.RequestParams{
+				Method:    http.MethodPost,
+				URL:       "/api/v1/cart/add-product",
+				Body:      tc.createBody(t, productID),
+				SetupAuth: tc.setupAuth,
+			})
+
 			server := newTestServer(t, store)
-
-			url := "/api/v1/cart/add-product"
-
-			body, err := json.Marshal(tc.createBody(t, productID))
-			require.NoError(t, err)
-
-			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
-			require.NoError(t, err)
-
-			request.Header.Set("Content-Type", "application/json")
-
-			tc.setupAuth(request)
-			response, err := server.app.Test(request, int(time.Second.Milliseconds()))
-			require.NoError(t, err)
-
+			response := test_util.SendRequest(t, server.app, request)
 			tc.checkResponse(t, response)
 		})
 	}
 }
 
 func TestUpdateProductQuantity(t *testing.T) {
-	validUserName := "testuser"
-	validUserEmail := "test@example.com"
-	validUserPassword := "test-password"
-
-	validUserHashedPassword, err := util.HashPassword(validUserPassword)
-	require.NoError(t, err)
-
-	validSessionToken := token.NewToken(time.Minute)
+	sessionToken := token.NewToken(time.Minute)
 
 	defaultCreateSeed := func(t *testing.T, store db.Store) (productID string) {
 		ctx := context.Background()
 
-		user, err := store.CreateUser(ctx, db.CreateUserParams{
-			Name:           validUserName,
-			Email:          validUserEmail,
-			HashedPassword: validUserHashedPassword,
-		})
-		require.NoError(t, err)
-
-		_, err = store.CreateSession(ctx, db.CreateSessionParams{
-			UserID:       user.ID,
-			SessionToken: validSessionToken.ID,
-			ExpiredAt:    validSessionToken.ExpiredAt,
-		})
-		require.NoError(t, err)
+		user := test_util.CreateUserTestData(t, ctx, store,
+			"testuser",
+			"test@example.com",
+			"test-password",
+			sessionToken,
+		)
 
 		category, err := store.CreateCategory(ctx, "test-category")
 		require.NoError(t, err)
@@ -648,9 +579,9 @@ func TestUpdateProductQuantity(t *testing.T) {
 			name: "OK",
 			body: defaultBody,
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
@@ -660,7 +591,7 @@ func TestUpdateProductQuantity(t *testing.T) {
 			name:       "NoAuthorization",
 			body:       defaultBody,
 			setupAuth:  func(request *http.Request) {},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -670,9 +601,9 @@ func TestUpdateProductQuantity(t *testing.T) {
 			name: "ProductNotFound",
 			body: defaultBody,
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) (productID string) {
 				_ = defaultCreateSeed(t, store)
 				return util.RandomUUID().String()
@@ -685,9 +616,9 @@ func TestUpdateProductQuantity(t *testing.T) {
 			name: "QuantityNotFound",
 			body: fiber.Map{},
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -699,9 +630,9 @@ func TestUpdateProductQuantity(t *testing.T) {
 				"quantity": 0,
 			},
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -711,16 +642,16 @@ func TestUpdateProductQuantity(t *testing.T) {
 			name: "InternalError",
 			body: defaultBody,
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
+				mockStore, cleanup := test_util.NewMockStore(t)
 
-				buildValidSessionStubs(mockStore, db.Session{
+				test_util.BuildValidSessionStubs(mockStore, db.Session{
 					ID:           util.RandomUUID(),
 					UserID:       util.RandomUUID(),
-					SessionToken: validSessionToken.ID,
-					ExpiredAt:    validSessionToken.ExpiredAt,
+					SessionToken: sessionToken.ID,
+					ExpiredAt:    sessionToken.ExpiredAt,
 					CreatedAt:    time.Now(),
 				})
 
@@ -750,53 +681,32 @@ func TestUpdateProductQuantity(t *testing.T) {
 
 			productID := tc.createSeed(t, store)
 
+			request := test_util.NewRequest(t, test_util.RequestParams{
+				Method:    http.MethodPut,
+				URL:       fmt.Sprintf("/api/v1/cart/%s", productID),
+				Body:      tc.body,
+				SetupAuth: tc.setupAuth,
+			})
+
 			server := newTestServer(t, store)
-
-			url := fmt.Sprintf("/api/v1/cart/%s", productID)
-
-			body, err := json.Marshal(tc.body)
-			require.NoError(t, err)
-
-			request, err := http.NewRequest(http.MethodPut, url, bytes.NewReader(body))
-			require.NoError(t, err)
-
-			request.Header.Set("Content-Type", "application/json")
-
-			tc.setupAuth(request)
-			response, err := server.app.Test(request, int(time.Second.Milliseconds()))
-			require.NoError(t, err)
-
+			response := test_util.SendRequest(t, server.app, request)
 			tc.checkResponse(t, response)
 		})
 	}
 }
 
 func TestDeleteProduct(t *testing.T) {
-	validUserName := "testuser"
-	validUserEmail := "test@example.com"
-	validUserPassword := "test-password"
-
-	validUserHashedPassword, err := util.HashPassword(validUserPassword)
-	require.NoError(t, err)
-
-	validSessionToken := token.NewToken(time.Minute)
+	sessionToken := token.NewToken(time.Minute)
 
 	defaultCreateSeed := func(t *testing.T, store db.Store) (productID string) {
 		ctx := context.Background()
 
-		user, err := store.CreateUser(ctx, db.CreateUserParams{
-			Name:           validUserName,
-			Email:          validUserEmail,
-			HashedPassword: validUserHashedPassword,
-		})
-		require.NoError(t, err)
-
-		_, err = store.CreateSession(ctx, db.CreateSessionParams{
-			UserID:       user.ID,
-			SessionToken: validSessionToken.ID,
-			ExpiredAt:    validSessionToken.ExpiredAt,
-		})
-		require.NoError(t, err)
+		user := test_util.CreateUserTestData(t, ctx, store,
+			"testuser",
+			"test@example.com",
+			"test-password",
+			sessionToken,
+		)
 
 		category, err := store.CreateCategory(ctx, "test-category")
 		require.NoError(t, err)
@@ -832,9 +742,9 @@ func TestDeleteProduct(t *testing.T) {
 		{
 			name: "OK",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusNoContent, response.StatusCode)
@@ -843,7 +753,7 @@ func TestDeleteProduct(t *testing.T) {
 		{
 			name:       "NoAuthorization",
 			setupAuth:  func(request *http.Request) {},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -852,9 +762,9 @@ func TestDeleteProduct(t *testing.T) {
 		{
 			name: "ProductNotFound",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) (productID string) {
 				_ = defaultCreateSeed(t, store)
 				return util.RandomUUID().String()
@@ -866,16 +776,16 @@ func TestDeleteProduct(t *testing.T) {
 		{
 			name: "InternalError",
 			setupAuth: func(request *http.Request) {
-				addSessionTokenInCookie(request, validSessionToken.ID.String())
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
+				mockStore, cleanup := test_util.NewMockStore(t)
 
-				buildValidSessionStubs(mockStore, db.Session{
+				test_util.BuildValidSessionStubs(mockStore, db.Session{
 					ID:           util.RandomUUID(),
 					UserID:       util.RandomUUID(),
-					SessionToken: validSessionToken.ID,
-					ExpiredAt:    validSessionToken.ExpiredAt,
+					SessionToken: sessionToken.ID,
+					ExpiredAt:    sessionToken.ExpiredAt,
 					CreatedAt:    time.Now(),
 				})
 
@@ -905,22 +815,137 @@ func TestDeleteProduct(t *testing.T) {
 
 			productID := tc.createSeed(t, store)
 
+			request := test_util.NewRequest(t, test_util.RequestParams{
+				Method:    http.MethodDelete,
+				URL:       fmt.Sprintf("/api/v1/cart/%s", productID),
+				SetupAuth: tc.setupAuth,
+			})
+
 			server := newTestServer(t, store)
-
-			url := fmt.Sprintf("/api/v1/cart/%s", productID)
-
-			request, err := http.NewRequest(http.MethodDelete, url, nil)
-			require.NoError(t, err)
-
-			request.Header.Set("Content-Type", "application/json")
-
-			tc.setupAuth(request)
-			response, err := server.app.Test(request, int(time.Second.Milliseconds()))
-			require.NoError(t, err)
-
+			response := test_util.SendRequest(t, server.app, request)
 			tc.checkResponse(t, response)
 		})
 	}
+}
+
+func TestCartAPIScenario(t *testing.T) {
+	ctx := context.Background()
+
+	store, cleanupStore := test_util.BuildTestDBStore(t)
+	defer cleanupStore()
+
+	server := newTestServer(t, store)
+
+	// Create user
+	sessionToken := token.NewToken(time.Minute)
+	user := test_util.CreateUserTestData(t, ctx, store,
+		"testuser",
+		"test@example.com",
+		"test-password",
+		sessionToken,
+	)
+
+	// Create get cart function
+	getCart := func() *http.Response {
+		request := test_util.NewRequest(t, test_util.RequestParams{
+			Method: http.MethodGet,
+			URL:    "/api/v1/cart",
+			SetupAuth: func(request *http.Request) {
+				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
+			},
+		})
+		response := test_util.SendRequest(t, server.app, request)
+		require.Equal(t, http.StatusOK, response.StatusCode)
+
+		return response
+	}
+
+	// Create product
+	category, err := store.CreateCategory(ctx, "test-category")
+	require.NoError(t, err)
+
+	product, err := store.CreateProduct(ctx, db.CreateProductParams{
+		Name:          "test-product",
+		Description:   sql.NullString{String: "test-description", Valid: true},
+		Price:         "100.00",
+		StockQuantity: 10,
+		CategoryID:    category.ID,
+		SellerID:      user.ID,
+		ImageUrl:      sql.NullString{String: "test-image-url", Valid: true},
+	})
+	require.NoError(t, err)
+
+	// Add product to cart
+	request := test_util.NewRequest(t, test_util.RequestParams{
+		Method: http.MethodPost,
+		URL:    "/api/v1/cart/add-product",
+		Body: fiber.Map{
+			"product_id": product.ID,
+			"quantity":   5,
+		},
+		SetupAuth: func(request *http.Request) {
+			test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
+		},
+	})
+	response := test_util.SendRequest(t, server.app, request)
+	require.Equal(t, http.StatusOK, response.StatusCode)
+
+	// Get cart
+	response = getCart()
+	require.Equal(t, http.StatusOK, response.StatusCode)
+
+	gotResponse := unmarshalCartResponse(t, response.Body)
+	require.Equal(t, int32(5), gotResponse.Products[0].Quantity)
+
+	// Update product quantity
+	request = test_util.NewRequest(t, test_util.RequestParams{
+		Method: http.MethodPut,
+		URL:    fmt.Sprintf("/api/v1/cart/%s", product.ID),
+		Body: fiber.Map{
+			"quantity": 10,
+		},
+		SetupAuth: func(request *http.Request) {
+			test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
+		},
+	})
+	response = test_util.SendRequest(t, server.app, request)
+	require.Equal(t, http.StatusOK, response.StatusCode)
+
+	// Get cart
+	response = getCart()
+	require.Equal(t, http.StatusOK, response.StatusCode)
+
+	gotResponse = unmarshalCartResponse(t, response.Body)
+	require.Equal(t, int32(10), gotResponse.Products[0].Quantity)
+
+	// Delete product
+	request = test_util.NewRequest(t, test_util.RequestParams{
+		Method: http.MethodDelete,
+		URL:    fmt.Sprintf("/api/v1/cart/%s", product.ID),
+		SetupAuth: func(request *http.Request) {
+			test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionToken.ID.String(), request)
+		},
+	})
+	response = test_util.SendRequest(t, server.app, request)
+	require.Equal(t, http.StatusNoContent, response.StatusCode)
+
+	// Get cart
+	response = getCart()
+	require.Equal(t, http.StatusOK, response.StatusCode)
+
+	gotResponse = unmarshalCartResponse(t, response.Body)
+	require.Equal(t, 0, len(gotResponse.Products))
+}
+
+func unmarshalCartResponse(t *testing.T, body io.ReadCloser) cart_domain.CartResponse {
+	data, err := io.ReadAll(body)
+	require.NoError(t, err)
+
+	var parsed cart_domain.CartResponse
+	err = json.Unmarshal(data, &parsed)
+	require.NoError(t, err)
+
+	return parsed
 }
 
 func unmarshalCartProductsCountResponse(t *testing.T, body io.ReadCloser) cart_domain.CartProductsCountResponse {

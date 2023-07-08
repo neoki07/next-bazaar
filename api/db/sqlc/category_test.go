@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
+	"github.com/ot07/next-bazaar/test_util"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/stretchr/testify/require"
 )
@@ -29,8 +29,7 @@ func createRandomCategory(t *testing.T, testQueries *Queries) Category {
 func TestCreateCategory(t *testing.T) {
 	t.Parallel()
 
-	db, err := sql.Open(testDBDriverName, uuid.New().String())
-	require.NoError(t, err)
+	db := test_util.OpenTestDB(t)
 	defer db.Close()
 
 	testQueries := New(db)
@@ -41,8 +40,7 @@ func TestCreateCategory(t *testing.T) {
 func TestGetCategory(t *testing.T) {
 	t.Parallel()
 
-	db, err := sql.Open(testDBDriverName, uuid.New().String())
-	require.NoError(t, err)
+	db := test_util.OpenTestDB(t)
 	defer db.Close()
 
 	testQueries := New(db)
@@ -60,8 +58,7 @@ func TestGetCategory(t *testing.T) {
 func TestListCategories(t *testing.T) {
 	t.Parallel()
 
-	db, err := sql.Open(testDBDriverName, uuid.New().String())
-	require.NoError(t, err)
+	db := test_util.OpenTestDB(t)
 	defer db.Close()
 
 	testQueries := New(db)
@@ -84,14 +81,13 @@ func TestListCategories(t *testing.T) {
 func TestDeleteCategory(t *testing.T) {
 	t.Parallel()
 
-	db, err := sql.Open(testDBDriverName, uuid.New().String())
-	require.NoError(t, err)
+	db := test_util.OpenTestDB(t)
 	defer db.Close()
 
 	testQueries := New(db)
 
 	category1 := createRandomCategory(t, testQueries)
-	err = testQueries.DeleteCategory(context.Background(), category1.ID)
+	err := testQueries.DeleteCategory(context.Background(), category1.ID)
 	require.NoError(t, err)
 
 	category2, err := testQueries.GetCategory(context.Background(), category1.ID)

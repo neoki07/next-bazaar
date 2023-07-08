@@ -2,11 +2,10 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
+	"github.com/ot07/next-bazaar/test_util"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/stretchr/testify/require"
 )
@@ -39,8 +38,7 @@ func createRandomUser(t *testing.T, testQueries *Queries) User {
 func TestCreateUser(t *testing.T) {
 	t.Parallel()
 
-	db, err := sql.Open(testDBDriverName, uuid.New().String())
-	require.NoError(t, err)
+	db := test_util.OpenTestDB(t)
 	defer db.Close()
 
 	testQueries := New(db)
@@ -51,8 +49,7 @@ func TestCreateUser(t *testing.T) {
 func TestGetUser(t *testing.T) {
 	t.Parallel()
 
-	db, err := sql.Open(testDBDriverName, uuid.New().String())
-	require.NoError(t, err)
+	db := test_util.OpenTestDB(t)
 	defer db.Close()
 
 	testQueries := New(db)
@@ -73,8 +70,7 @@ func TestGetUser(t *testing.T) {
 func TestGetUserByEmail(t *testing.T) {
 	t.Parallel()
 
-	db, err := sql.Open(testDBDriverName, uuid.New().String())
-	require.NoError(t, err)
+	db := test_util.OpenTestDB(t)
 	defer db.Close()
 
 	testQueries := New(db)

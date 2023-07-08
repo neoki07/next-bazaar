@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
+	"github.com/ot07/next-bazaar/test_util"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/stretchr/testify/require"
 )
@@ -37,8 +37,7 @@ func createRandomSession(t *testing.T, testQueries *Queries) Session {
 func TestCreateSession(t *testing.T) {
 	t.Parallel()
 
-	db, err := sql.Open(testDBDriverName, uuid.New().String())
-	require.NoError(t, err)
+	db := test_util.OpenTestDB(t)
 	defer db.Close()
 
 	testQueries := New(db)
@@ -49,8 +48,7 @@ func TestCreateSession(t *testing.T) {
 func TestGetSession(t *testing.T) {
 	t.Parallel()
 
-	db, err := sql.Open(testDBDriverName, uuid.New().String())
-	require.NoError(t, err)
+	db := test_util.OpenTestDB(t)
 	defer db.Close()
 
 	testQueries := New(db)
@@ -70,14 +68,13 @@ func TestGetSession(t *testing.T) {
 func TestDeleteSession(t *testing.T) {
 	t.Parallel()
 
-	db, err := sql.Open(testDBDriverName, uuid.New().String())
-	require.NoError(t, err)
+	db := test_util.OpenTestDB(t)
 	defer db.Close()
 
 	testQueries := New(db)
 
 	session1 := createRandomSession(t, testQueries)
-	err = testQueries.DeleteSession(context.Background(), session1.ID)
+	err := testQueries.DeleteSession(context.Background(), session1.ID)
 	require.NoError(t, err)
 
 	session2, err := testQueries.GetSession(context.Background(), session1.ID)

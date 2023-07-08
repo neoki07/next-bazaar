@@ -10,9 +10,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
+
 	"github.com/golang/mock/gomock"
 	product_domain "github.com/ot07/next-bazaar/api/domain/product"
+	"github.com/ot07/next-bazaar/api/test_util"
 	db "github.com/ot07/next-bazaar/db/sqlc"
+	"github.com/ot07/next-bazaar/token"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/require"
@@ -27,16 +31,16 @@ func TestGetProduct(t *testing.T) {
 	}{
 		{
 			name:       "OK",
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) (productID string) {
 				ctx := context.Background()
 
-				createdUser, err := store.CreateUser(ctx, db.CreateUserParams{
-					Name:           "test-user",
-					Email:          "test@example.com",
-					HashedPassword: "test-password",
-				})
-				require.NoError(t, err)
+				user := test_util.CreateUserTestData(t, ctx, store,
+					"testuser",
+					"test@example.com",
+					"test-password",
+					token.NewToken(time.Minute),
+				)
 
 				createdCategory, err := store.CreateCategory(ctx, "test-category")
 				require.NoError(t, err)
@@ -47,7 +51,7 @@ func TestGetProduct(t *testing.T) {
 					Price:         "100.00",
 					StockQuantity: 10,
 					CategoryID:    createdCategory.ID,
-					SellerID:      createdUser.ID,
+					SellerID:      user.ID,
 					ImageUrl:      sql.NullString{String: "test-image-url", Valid: true},
 				})
 				require.NoError(t, err)
@@ -65,13 +69,13 @@ func TestGetProduct(t *testing.T) {
 				require.True(t, decimal.NewFromFloat(100.00).Equal(gotProduct.Price.Decimal))
 				require.Equal(t, int32(10), gotProduct.StockQuantity)
 				require.Equal(t, "test-category", gotProduct.Category)
-				require.Equal(t, "test-user", gotProduct.Seller)
+				require.Equal(t, "testuser", gotProduct.Seller)
 				require.Equal(t, "test-image-url", gotProduct.ImageUrl.String)
 			},
 		},
 		{
 			name:       "NotFound",
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) (productID string) {
 				return util.RandomUUID().String()
 			},
@@ -81,7 +85,7 @@ func TestGetProduct(t *testing.T) {
 		},
 		{
 			name:       "InvalidID",
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) (productID string) {
 				return "InvalidID"
 			},
@@ -92,7 +96,7 @@ func TestGetProduct(t *testing.T) {
 		{
 			name: "InternalError",
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
+				mockStore, cleanup := test_util.NewMockStore(t)
 
 				mockStore.EXPECT().
 					GetProduct(gomock.Any(), gomock.Any()).
@@ -120,17 +124,13 @@ func TestGetProduct(t *testing.T) {
 
 			productID := tc.createSeed(t, store)
 
+			request := test_util.NewRequest(t, test_util.RequestParams{
+				Method: http.MethodGet,
+				URL:    fmt.Sprintf("/api/v1/products/%s", productID),
+			})
+
 			server := newTestServer(t, store)
-
-			url := fmt.Sprintf("/api/v1/products/%s", productID)
-			request, err := http.NewRequest(http.MethodGet, url, nil)
-			require.NoError(t, err)
-
-			request.Header.Set("Content-Type", "application/json")
-
-			response, err := server.app.Test(request, int(time.Second.Milliseconds()))
-			require.NoError(t, err)
-
+			response := test_util.SendRequest(t, server.app, request)
 			tc.checkResponse(t, response)
 		})
 	}
@@ -157,20 +157,20 @@ func TestListProducts(t *testing.T) {
 				pageID:   1,
 				pageSize: pageSize,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) {
 				var err error
 
 				ctx := context.Background()
 
-				createdUsers := make([]db.User, 2)
-				for i := range createdUsers {
-					createdUsers[i], err = store.CreateUser(ctx, db.CreateUserParams{
-						Name:           fmt.Sprintf("test-user-%d", i),
-						Email:          fmt.Sprintf("test-%d@example.com", i),
-						HashedPassword: "test-password",
-					})
-					require.NoError(t, err)
+				users := make([]db.User, 2)
+				for i := range users {
+					users[i] = test_util.CreateUserTestData(t, ctx, store,
+						fmt.Sprintf("testuser-%d", i),
+						fmt.Sprintf("test-%d@example.com", i),
+						"test-password",
+						token.NewToken(time.Minute),
+					)
 				}
 
 				createdCategories := make([]db.Category, 3)
@@ -186,7 +186,7 @@ func TestListProducts(t *testing.T) {
 						Price:         fmt.Sprintf("%d.00", (i+1)*10),
 						StockQuantity: int32(i + 1),
 						CategoryID:    createdCategories[i%3].ID,
-						SellerID:      createdUsers[i%2].ID,
+						SellerID:      users[i%2].ID,
 						ImageUrl:      sql.NullString{String: fmt.Sprintf("test-image-url-%d", i), Valid: true},
 					})
 					require.NoError(t, err)
@@ -214,7 +214,7 @@ func TestListProducts(t *testing.T) {
 					require.True(t, decimal.NewFromInt(int64((i+1)*10)).Equal(gotResponse.Data[i].Price.Decimal))
 					require.Equal(t, int32(i+1), gotResponse.Data[i].StockQuantity)
 					require.Equal(t, fmt.Sprintf("test-category-%d", categoryIndex), gotResponse.Data[i].Category)
-					require.Equal(t, fmt.Sprintf("test-user-%d", userIndex), gotResponse.Data[i].Seller)
+					require.Equal(t, fmt.Sprintf("testuser-%d", userIndex), gotResponse.Data[i].Seller)
 					require.Equal(t, fmt.Sprintf("test-image-url-%d", i), gotResponse.Data[i].ImageUrl.String)
 				}
 			},
@@ -224,7 +224,7 @@ func TestListProducts(t *testing.T) {
 			query: Query{
 				pageSize: pageSize,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -236,7 +236,7 @@ func TestListProducts(t *testing.T) {
 				pageID:   0,
 				pageSize: pageSize,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -247,7 +247,7 @@ func TestListProducts(t *testing.T) {
 			query: Query{
 				pageID: 1,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -259,7 +259,7 @@ func TestListProducts(t *testing.T) {
 				pageID:   1,
 				pageSize: 0,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -271,7 +271,7 @@ func TestListProducts(t *testing.T) {
 				pageID:   1,
 				pageSize: 101,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -284,7 +284,7 @@ func TestListProducts(t *testing.T) {
 				pageSize: 1,
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
+				mockStore, cleanup := test_util.NewMockStore(t)
 
 				mockStore.EXPECT().
 					ListProducts(gomock.Any(), gomock.Any()).
@@ -310,22 +310,17 @@ func TestListProducts(t *testing.T) {
 
 			tc.createSeed(t, store)
 
+			request := test_util.NewRequest(t, test_util.RequestParams{
+				Method: http.MethodGet,
+				URL:    "/api/v1/products",
+				Query: fiber.Map{
+					"page_id":   fmt.Sprintf("%d", tc.query.pageID),
+					"page_size": fmt.Sprintf("%d", tc.query.pageSize),
+				},
+			})
+
 			server := newTestServer(t, store)
-
-			url := "/api/v1/products"
-			request, err := http.NewRequest(http.MethodGet, url, nil)
-			require.NoError(t, err)
-
-			request.Header.Set("Content-Type", "application/json")
-
-			q := request.URL.Query()
-			q.Add("page_id", fmt.Sprintf("%d", tc.query.pageID))
-			q.Add("page_size", fmt.Sprintf("%d", tc.query.pageSize))
-			request.URL.RawQuery = q.Encode()
-
-			response, err := server.app.Test(request, int(time.Second.Milliseconds()))
-			require.NoError(t, err)
-
+			response := test_util.SendRequest(t, server.app, request)
 			tc.checkResponse(t, response)
 		})
 
