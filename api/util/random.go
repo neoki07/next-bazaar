@@ -3,12 +3,11 @@ package util
 import (
 	"fmt"
 	"math/rand"
-	"reflect"
 	"strings"
 	"time"
 
-	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz"
@@ -50,22 +49,11 @@ func RandomUUID() uuid.UUID {
 	return uuid.New()
 }
 
-func RandomMoney() (string, error) {
-	amountWithCurrency, err := faker.GetPrice().AmountWithCurrency(reflect.Value{})
-	if err != nil {
-		return "", err
-	}
-
-	amountWithCurrencyStr, ok := amountWithCurrency.(string)
-	if !ok {
-		return "", fmt.Errorf("cannot convert price to string")
-	}
-
-	return strings.Split(amountWithCurrencyStr, " ")[1], nil
-}
-
-func RandomPrice() (string, error) {
-	return RandomMoney()
+func RandomPrice() decimal.Decimal {
+	min := 1.00
+	max := 100.00
+	randomFloat := min + rand.Float64()*(max-min)
+	return decimal.NewFromFloat(randomFloat).Round(2)
 }
 
 func RandomImageUrl() string {
