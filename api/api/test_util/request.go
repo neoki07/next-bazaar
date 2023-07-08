@@ -3,6 +3,7 @@ package test_util
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"testing"
 
@@ -14,6 +15,7 @@ import (
 type RequestParams struct {
 	Method    string
 	URL       string
+	Query     fiber.Map
 	Body      fiber.Map
 	SetupAuth func(request *http.Request)
 }
@@ -22,11 +24,24 @@ func NewRequest(
 	t *testing.T,
 	params RequestParams,
 ) *http.Request {
-	body, err := json.Marshal(params.Body)
+	var bodyReader io.Reader
+
+	if params.Body != nil {
+		body, err := json.Marshal(params.Body)
+		require.NoError(t, err)
+		bodyReader = bytes.NewReader(body)
+	}
+
+	request, err := http.NewRequest(params.Method, params.URL, bodyReader)
 	require.NoError(t, err)
 
-	request, err := http.NewRequest(params.Method, params.URL, bytes.NewReader(body))
-	require.NoError(t, err)
+	if params.Query != nil {
+		query := request.URL.Query()
+		for key, value := range params.Query {
+			query.Add(key, value.(string))
+		}
+		request.URL.RawQuery = query.Encode()
+	}
 
 	request.Header.Set("Content-Type", "application/json")
 

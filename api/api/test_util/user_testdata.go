@@ -3,7 +3,6 @@ package test_util
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/ot07/next-bazaar/util"
 
@@ -19,7 +18,8 @@ func CreateUserTestData(
 	name string,
 	email string,
 	password string,
-) (db.User, *token.Token) {
+	sessionToken *token.Token,
+) db.User {
 	hashedPassword, err := util.HashPassword(password)
 	require.NoError(t, err)
 
@@ -30,8 +30,6 @@ func CreateUserTestData(
 	})
 	require.NoError(t, err)
 
-	sessionToken := token.NewToken(time.Minute)
-
 	_, err = store.CreateSession(ctx, db.CreateSessionParams{
 		UserID:       user.ID,
 		SessionToken: sessionToken.ID,
@@ -39,5 +37,5 @@ func CreateUserTestData(
 	})
 	require.NoError(t, err)
 
-	return user, sessionToken
+	return user
 }
