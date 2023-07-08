@@ -9,6 +9,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang/mock/gomock"
+	"github.com/ot07/next-bazaar/api/test_util"
 	mockdb "github.com/ot07/next-bazaar/db/mock"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/token"
@@ -91,7 +92,7 @@ func TestAuthMiddleware(t *testing.T) {
 			setupAuth: func(request *http.Request) {
 				addSessionTokenInCookie(request, validSessionToken.ID.String())
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: createValidSessionSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
@@ -101,7 +102,7 @@ func TestAuthMiddleware(t *testing.T) {
 			name: "NoAuthorization",
 			setupAuth: func(request *http.Request) {
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: createValidSessionSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -112,7 +113,7 @@ func TestAuthMiddleware(t *testing.T) {
 			setupAuth: func(request *http.Request) {
 				addSessionTokenInCookie(request, "invalid")
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: createValidSessionSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -123,7 +124,7 @@ func TestAuthMiddleware(t *testing.T) {
 			setupAuth: func(request *http.Request) {
 				addSessionTokenInCookie(request, expiredSessionToken.ID.String())
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: createExpiredSessionSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -135,7 +136,7 @@ func TestAuthMiddleware(t *testing.T) {
 				addSessionTokenInCookie(request, validSessionToken.ID.String())
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
+				mockStore, cleanup := test_util.NewMockStore(t)
 
 				mockStore.EXPECT().
 					GetSession(gomock.Any(), gomock.Any()).

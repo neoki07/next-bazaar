@@ -13,6 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang/mock/gomock"
 	user_domain "github.com/ot07/next-bazaar/api/domain/user"
+	"github.com/ot07/next-bazaar/api/test_util"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/token"
 	"github.com/ot07/next-bazaar/util"
@@ -40,7 +41,7 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name:       "OK",
 			body:       defaultBody,
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
 			},
@@ -50,7 +51,7 @@ func TestCreateUserAPI(t *testing.T) {
 			name: "InternalError",
 			body: defaultBody,
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
+				mockStore, cleanup := test_util.NewMockStore(t)
 
 				mockStore.EXPECT().
 					CreateUser(gomock.Any(), gomock.Any()).
@@ -67,7 +68,7 @@ func TestCreateUserAPI(t *testing.T) {
 			name: "DuplicateEmail",
 			body: defaultBody,
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				store, cleanup = newTestDBStore(t)
+				store, cleanup = test_util.NewTestDBStore(t)
 
 				_, err := store.CreateUser(context.Background(), db.CreateUserParams{
 					Name:           "testuser0",
@@ -90,7 +91,7 @@ func TestCreateUserAPI(t *testing.T) {
 				"email":    validEmail,
 				"password": validPassword,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
@@ -103,7 +104,7 @@ func TestCreateUserAPI(t *testing.T) {
 				"email":    validEmail,
 				"password": validPassword,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
@@ -116,7 +117,7 @@ func TestCreateUserAPI(t *testing.T) {
 				"email":    validEmail,
 				"password": validPassword,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
@@ -129,7 +130,7 @@ func TestCreateUserAPI(t *testing.T) {
 				"email":    "invalid-email",
 				"password": validPassword,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
@@ -142,7 +143,7 @@ func TestCreateUserAPI(t *testing.T) {
 				"email":    validEmail,
 				"password": "1234567",
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
@@ -214,7 +215,7 @@ func TestLoginUserAPI(t *testing.T) {
 		{
 			name:       "OK",
 			body:       defaultBody,
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
@@ -226,7 +227,7 @@ func TestLoginUserAPI(t *testing.T) {
 				"email":    "invalid-email",
 				"password": validPassword,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -238,7 +239,7 @@ func TestLoginUserAPI(t *testing.T) {
 				"email":    validEmail,
 				"password": "1234567",
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -247,7 +248,7 @@ func TestLoginUserAPI(t *testing.T) {
 		{
 			name:       "NoExistsUser",
 			body:       defaultBody,
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -257,7 +258,7 @@ func TestLoginUserAPI(t *testing.T) {
 			name: "GetUserInternalError",
 			body: defaultBody,
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
+				mockStore, cleanup := test_util.NewMockStore(t)
 
 				mockStore.EXPECT().
 					GetUserByEmail(gomock.Any(), gomock.Any()).
@@ -274,7 +275,7 @@ func TestLoginUserAPI(t *testing.T) {
 			name: "CreateSessionInternalError",
 			body: defaultBody,
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
+				mockStore, cleanup := test_util.NewMockStore(t)
 
 				user := db.User{
 					ID:             util.RandomUUID(),
@@ -303,7 +304,7 @@ func TestLoginUserAPI(t *testing.T) {
 				"email":    validEmail,
 				"password": "12345678",
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -379,7 +380,7 @@ func TestLogoutUserAPI(t *testing.T) {
 			setupAuth: func(request *http.Request) {
 				addSessionTokenInCookie(request, validSessionToken.ID.String())
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
@@ -388,7 +389,7 @@ func TestLogoutUserAPI(t *testing.T) {
 		{
 			name:       "NoAuthorization",
 			setupAuth:  func(request *http.Request) {},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -399,7 +400,7 @@ func TestLogoutUserAPI(t *testing.T) {
 			setupAuth: func(request *http.Request) {
 				addSessionTokenInCookie(request, util.RandomUUID().String())
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -411,7 +412,7 @@ func TestLogoutUserAPI(t *testing.T) {
 				addSessionTokenInCookie(request, validSessionToken.ID.String())
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
+				mockStore, cleanup := test_util.NewMockStore(t)
 
 				buildValidSessionStubs(mockStore, db.Session{
 					ID:           util.RandomUUID(),
@@ -500,7 +501,7 @@ func TestGetLoggedInUserAPI(t *testing.T) {
 			setupAuth: func(request *http.Request) {
 				addSessionTokenInCookie(request, validSessionToken.ID.String())
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
@@ -514,7 +515,7 @@ func TestGetLoggedInUserAPI(t *testing.T) {
 		{
 			name:       "NoAuthorization",
 			setupAuth:  func(request *http.Request) {},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -525,7 +526,7 @@ func TestGetLoggedInUserAPI(t *testing.T) {
 			setupAuth: func(request *http.Request) {
 				addSessionTokenInCookie(request, util.RandomUUID().String())
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: createSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
@@ -537,7 +538,7 @@ func TestGetLoggedInUserAPI(t *testing.T) {
 				addSessionTokenInCookie(request, validSessionToken.ID.String())
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
+				mockStore, cleanup := test_util.NewMockStore(t)
 
 				session := db.Session{
 					ID:           util.RandomUUID(),

@@ -12,6 +12,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	product_domain "github.com/ot07/next-bazaar/api/domain/product"
+	"github.com/ot07/next-bazaar/api/test_util"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/shopspring/decimal"
@@ -27,7 +28,7 @@ func TestGetProduct(t *testing.T) {
 	}{
 		{
 			name:       "OK",
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) (productID string) {
 				ctx := context.Background()
 
@@ -71,7 +72,7 @@ func TestGetProduct(t *testing.T) {
 		},
 		{
 			name:       "NotFound",
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) (productID string) {
 				return util.RandomUUID().String()
 			},
@@ -81,7 +82,7 @@ func TestGetProduct(t *testing.T) {
 		},
 		{
 			name:       "InvalidID",
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) (productID string) {
 				return "InvalidID"
 			},
@@ -92,7 +93,7 @@ func TestGetProduct(t *testing.T) {
 		{
 			name: "InternalError",
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
+				mockStore, cleanup := test_util.NewMockStore(t)
 
 				mockStore.EXPECT().
 					GetProduct(gomock.Any(), gomock.Any()).
@@ -157,7 +158,7 @@ func TestListProducts(t *testing.T) {
 				pageID:   1,
 				pageSize: pageSize,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) {
 				var err error
 
@@ -224,7 +225,7 @@ func TestListProducts(t *testing.T) {
 			query: Query{
 				pageSize: pageSize,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -236,7 +237,7 @@ func TestListProducts(t *testing.T) {
 				pageID:   0,
 				pageSize: pageSize,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -247,7 +248,7 @@ func TestListProducts(t *testing.T) {
 			query: Query{
 				pageID: 1,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -259,7 +260,7 @@ func TestListProducts(t *testing.T) {
 				pageID:   1,
 				pageSize: 0,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -271,7 +272,7 @@ func TestListProducts(t *testing.T) {
 				pageID:   1,
 				pageSize: 101,
 			},
-			buildStore: buildTestDBStore,
+			buildStore: test_util.BuildTestDBStore,
 			createSeed: func(t *testing.T, store db.Store) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -284,7 +285,7 @@ func TestListProducts(t *testing.T) {
 				pageSize: 1,
 			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
-				mockStore, cleanup := newMockStore(t)
+				mockStore, cleanup := test_util.NewMockStore(t)
 
 				mockStore.EXPECT().
 					ListProducts(gomock.Any(), gomock.Any()).

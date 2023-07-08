@@ -3,6 +3,9 @@ package test_util
 import (
 	"context"
 	"testing"
+	"time"
+
+	"github.com/ot07/next-bazaar/util"
 
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/token"
@@ -15,15 +18,19 @@ func CreateUserTestData(
 	store db.Store,
 	name string,
 	email string,
-	hashedPassword string,
-	sessionToken *token.Token,
-) db.User {
+	password string,
+) (db.User, *token.Token) {
+	hashedPassword, err := util.HashPassword(password)
+	require.NoError(t, err)
+
 	user, err := store.CreateUser(ctx, db.CreateUserParams{
 		Name:           name,
 		Email:          email,
 		HashedPassword: hashedPassword,
 	})
 	require.NoError(t, err)
+
+	sessionToken := token.NewToken(time.Minute)
 
 	_, err = store.CreateSession(ctx, db.CreateSessionParams{
 		UserID:       user.ID,
@@ -32,5 +39,5 @@ func CreateUserTestData(
 	})
 	require.NoError(t, err)
 
-	return user
+	return user, sessionToken
 }
