@@ -49,13 +49,10 @@ func RandomUUID() uuid.UUID {
 	return uuid.New()
 }
 
+// RandomPrice generates a random price
 func RandomPrice() decimal.Decimal {
 	min := 1.00
 	max := 100.00
 	randomFloat := min + rand.Float64()*(max-min)
 	return decimal.NewFromFloat(randomFloat).Round(2)
-}
-
-func RandomImageUrl() string {
-	return fmt.Sprintf("https://picsum.photos/id/%d/300/300/", rand.Intn(1085))
 }
