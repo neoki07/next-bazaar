@@ -25,7 +25,7 @@ func createRandomProduct(t *testing.T, testQueries *Queries) Product {
 		StockQuantity: rand.Int31n(100),
 		CategoryID:    category.ID,
 		SellerID:      user.ID,
-		ImageUrl:      sql.NullString{String: util.RandomImageUrl(), Valid: true},
+		ImageUrl:      sql.NullString{String: "test-image-url", Valid: true},
 	}
 
 	product, err := testQueries.CreateProduct(context.Background(), arg)
