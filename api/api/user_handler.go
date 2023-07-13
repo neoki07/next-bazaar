@@ -67,7 +67,6 @@ func (h *userHandler) register(c *fiber.Ctx) error {
 // @Success      200 {object} messageResponse
 // @Failure      400 {object} errorResponse
 // @Failure      401 {object} errorResponse
-// @Failure      404 {object} errorResponse
 // @Failure      500 {object} errorResponse
 // @Router       /users/login [post]
 func (h *userHandler) login(c *fiber.Ctx) error {
@@ -138,7 +137,7 @@ func (h *userHandler) logout(c *fiber.Ctx) error {
 // @Success      200 {object} user_domain.UserResponse
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
-// @Router       /users/getCurrentUser [get]
+// @Router       /users/me [get]
 func (h *userHandler) getCurrentUser(c *fiber.Ctx) error {
 	session, err := getSession(c)
 	if err != nil {
