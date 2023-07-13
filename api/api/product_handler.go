@@ -77,7 +77,7 @@ func (h *productHandler) listProducts(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
 
-	totalCount, err := h.service.CountAllProducts(c.Context())
+	totalCount, err := h.service.CountProducts(c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}

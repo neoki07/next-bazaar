@@ -19,18 +19,15 @@ type handlers struct {
 
 func newHandlers(config util.Config, store db.Store) handlers {
 	/* User */
-	userRepository := user_domain.NewUserRepository(store)
-	userService := user_domain.NewUserService(userRepository)
+	userService := user_domain.NewUserService(store)
 	userHandler := newUserHandler(userService, config)
 
 	/* Product */
-	productRepository := product_domain.NewProductRepository(store)
-	productService := product_domain.NewProductService(productRepository)
+	productService := product_domain.NewProductService(store)
 	productHandler := newProductHandler(productService)
 
 	/* Cart */
-	cartRepository := cart_domain.NewCartRepository(store)
-	cartService := cart_domain.NewCartService(cartRepository)
+	cartService := cart_domain.NewCartService(store)
 	cartHandler := newCartHandler(cartService)
 
 	return handlers{

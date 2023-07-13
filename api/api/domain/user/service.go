@@ -5,35 +5,54 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/token"
 )
 
 type UserService struct {
-	repository UserRepository
+	store db.Store
 }
 
-func NewUserService(repository UserRepository) *UserService {
+func NewUserService(store db.Store) *UserService {
 	return &UserService{
-		repository: repository,
+		store: store,
 	}
 }
 
 func (s *UserService) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
-	user, err := s.repository.FindByID(ctx, id)
+	user, err := s.store.GetUser(ctx, id)
 	if err != nil {
 		return User{}, err
 	}
 
-	return user, err
+	rsp := User{
+		ID:                user.ID,
+		Name:              user.Name,
+		Email:             user.Email,
+		HashedPassword:    user.HashedPassword,
+		PasswordChangedAt: user.PasswordChangedAt,
+		CreatedAt:         user.CreatedAt,
+	}
+
+	return rsp, err
 }
 
 func (s *UserService) GetUserByEmail(ctx context.Context, email string) (User, error) {
-	user, err := s.repository.FindByEmail(ctx, email)
+	user, err := s.store.GetUserByEmail(ctx, email)
 	if err != nil {
 		return User{}, err
 	}
 
-	return user, err
+	rsp := User{
+		ID:                user.ID,
+		Name:              user.Name,
+		Email:             user.Email,
+		HashedPassword:    user.HashedPassword,
+		PasswordChangedAt: user.PasswordChangedAt,
+		CreatedAt:         user.CreatedAt,
+	}
+
+	return rsp, err
 }
 
 type CreateUserServiceParams struct {
@@ -43,9 +62,13 @@ type CreateUserServiceParams struct {
 }
 
 func (s *UserService) CreateUser(ctx context.Context, params CreateUserServiceParams) error {
-	arg := CreateRepositoryParams(params)
+	_, err := s.store.CreateUser(ctx, db.CreateUserParams{
+		Name:           params.Name,
+		Email:          params.Email,
+		HashedPassword: params.HashedPassword,
+	})
 
-	return s.repository.Create(ctx, arg)
+	return err
 }
 
 type CreateSessionServiceParams struct {
@@ -56,12 +79,11 @@ type CreateSessionServiceParams struct {
 func (s *UserService) CreateSession(ctx context.Context, params CreateSessionServiceParams) (*token.Token, error) {
 	sessionToken := token.NewToken(params.Duration)
 
-	arg := CreateSessionRepositoryParams{
+	_, err := s.store.CreateSession(ctx, db.CreateSessionParams{
 		UserID:       params.UserID,
-		SessionToken: sessionToken,
-	}
-
-	err := s.repository.CreateSession(ctx, arg)
+		SessionToken: sessionToken.ID,
+		ExpiredAt:    sessionToken.ExpiredAt,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -70,5 +92,5 @@ func (s *UserService) CreateSession(ctx context.Context, params CreateSessionSer
 }
 
 func (s *UserService) DeleteSession(ctx context.Context, sessionTokenID uuid.UUID) error {
-	return s.repository.DeleteSession(ctx, sessionTokenID)
+	return s.store.DeleteSession(ctx, sessionTokenID)
 }
