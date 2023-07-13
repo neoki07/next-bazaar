@@ -2,7 +2,7 @@ import { Image } from '@/components/Image'
 import { PriceSkeleton } from '@/components/Price'
 import { Skeleton, Stack, Text } from '@mantine/core'
 
-type ProductCardSkeletonProps = {
+interface ProductCardSkeletonProps {
   imageSize: number
 }
 

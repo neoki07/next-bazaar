@@ -5,7 +5,7 @@ import { Group, Stack, Text, rem, useMantineTheme } from '@mantine/core'
 import { IconBuildingStore } from '@tabler/icons-react'
 import Link from 'next/link'
 
-type ProductCardProps = {
+interface ProductCardProps {
   product: Product
   getProductLink: (product: Product) => string
   imageSize: number

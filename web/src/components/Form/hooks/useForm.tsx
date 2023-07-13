@@ -16,19 +16,17 @@ type AsyncDefaultValues<TFieldValues> = (
   payload?: unknown
 ) => Promise<TFieldValues>
 
-type UseFormProps<TFieldValues extends FieldValues, TContext> = Omit<
-  UseHookFormProps<TFieldValues, TContext>,
-  'defaultValues'
-> & {
+interface UseFormProps<TFieldValues extends FieldValues, TContext>
+  extends Omit<UseHookFormProps<TFieldValues, TContext>, 'defaultValues'> {
   defaultValues: TFieldValues | AsyncDefaultValues<TFieldValues>
   schema?: z.ZodType<TFieldValues>
   onSubmit?: SubmitHandler<TFieldValues>
   onSubmitError?: SubmitErrorHandler<TFieldValues>
 }
 
-type FormProps = {
+interface FormProps extends Omit<BoxProps, 'children'> {
   children?: ReactNode
-} & Omit<BoxProps, 'children'>
+}
 
 export function useForm<
   TFieldValues extends FieldValues = FieldValues,

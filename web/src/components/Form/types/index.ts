@@ -36,54 +36,60 @@ export type Orientation =
   | { orientation?: 'horizontal'; orientationProps?: GroupProps }
   | { orientation?: 'vertical'; orientationProps?: StackProps }
 
-export type TextInputProps = Controlled<MantineTextInputProps>
+export interface TextInputProps extends Controlled<MantineTextInputProps> {}
 
-export type PasswordInputProps = Controlled<MantinePasswordInputProps>
+export interface PasswordInputProps
+  extends Controlled<MantinePasswordInputProps> {}
 
-export type TextareaProps = Controlled<MantineTextareaProps>
+export interface TextareaProps extends Controlled<MantineTextareaProps> {}
 
-export type NumberInputProps = Controlled<MantineNumberInputProps>
+export interface NumberInputProps extends Controlled<MantineNumberInputProps> {}
 
-export type DateInputProps = Controlled<MantineDateInputProps>
+export interface DateInputProps extends Controlled<MantineDateInputProps> {}
 
-export type PinInputProps = Controlled<MantinePinInputProps> &
-  InputWrapperBaseProps
+export interface PinInputProps
+  extends Controlled<MantinePinInputProps>,
+    Omit<InputWrapperBaseProps, 'error' | 'label'> {}
 
-export type FileInputProps<T extends boolean> = Controlled<
-  MantineFileInputProps<T>
->
+export interface FileInputProps<T extends boolean>
+  extends Controlled<MantineFileInputProps<T>> {}
 
-export type SelectProps = Controlled<
-  Omit<MantineSelectProps, 'data'> & {
-    options: MantineSelectProps['data']
-  }
->
+export interface SelectProps
+  extends Controlled<
+    Omit<MantineSelectProps, 'data'> & {
+      options: MantineSelectProps['data']
+    }
+  > {}
 
-export type NumberSelectProps = Controlled<
-  Omit<MantineSelectProps, 'data'> & {
-    options: readonly number[]
-  }
->
+export interface NumberSelectProps
+  extends Controlled<
+    Omit<MantineSelectProps, 'data'> & {
+      options: readonly number[]
+    }
+  > {}
 
-export type NativeSelectProps = Controlled<
-  Omit<MantineNativeSelectProps, 'data'> & {
-    options: MantineNativeSelectProps['data']
-  }
->
+export interface NativeSelectProps
+  extends Controlled<
+    Omit<MantineNativeSelectProps, 'data'> & {
+      options: MantineNativeSelectProps['data']
+    }
+  > {}
 
-export type NativeNumberSelectProps = Controlled<
-  Omit<MantineNativeSelectProps, 'data'> & {
-    options: readonly number[]
-  }
->
+export interface NativeNumberSelectProps
+  extends Controlled<
+    Omit<MantineNativeSelectProps, 'data'> & {
+      options: readonly number[]
+    }
+  > {}
 
-export type MultiSelectProps = Controlled<
-  Omit<MantineMultiSelectProps, 'data'> & {
-    options: MantineMultiSelectProps['data']
-  }
->
+export interface MultiSelectProps
+  extends Controlled<
+    Omit<MantineMultiSelectProps, 'data'> & {
+      options: MantineMultiSelectProps['data']
+    }
+  > {}
 
-export type CheckboxProps = Controlled<MantineCheckboxProps>
+export interface CheckboxProps extends Controlled<MantineCheckboxProps> {}
 
 export type CheckboxGroupProps = Controlled<
   Omit<MantineCheckboxGroupProps, 'children'> &
