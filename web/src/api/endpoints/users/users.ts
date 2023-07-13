@@ -18,8 +18,8 @@ import { customAxiosInstance } from '../../custom-axios-instance'
 import type {
   ApiErrorResponse,
   ApiMessageResponse,
-  UserDomainCreateUserRequest,
-  UserDomainLoginUserRequest,
+  UserDomainLoginRequest,
+  UserDomainRegisterRequest,
   UserDomainUserResponse,
 } from '../../model'
 
@@ -32,81 +32,10 @@ type SecondParameter<T extends (...args: any) => any> = T extends (
   : never
 
 /**
- * @summary Create user
- */
-export const postUsers = (
-  userDomainCreateUserRequest: UserDomainCreateUserRequest,
-  options?: SecondParameter<typeof customAxiosInstance>
-) => {
-  return customAxiosInstance<ApiMessageResponse>(
-    {
-      url: `/users`,
-      method: 'post',
-      headers: { 'Content-Type': 'application/json' },
-      data: userDomainCreateUserRequest,
-    },
-    options
-  )
-}
-
-export const getPostUsersMutationOptions = <
-  TError = ErrorType<ApiErrorResponse>,
-  TContext = unknown
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postUsers>>,
-    TError,
-    { data: UserDomainCreateUserRequest },
-    TContext
-  >
-  request?: SecondParameter<typeof customAxiosInstance>
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof postUsers>>,
-  TError,
-  { data: UserDomainCreateUserRequest },
-  TContext
-> => {
-  const { mutation: mutationOptions, request: requestOptions } = options ?? {}
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof postUsers>>,
-    { data: UserDomainCreateUserRequest }
-  > = (props) => {
-    const { data } = props ?? {}
-
-    return postUsers(data, requestOptions)
-  }
-
-  return { mutationFn, ...mutationOptions }
-}
-
-export type PostUsersMutationResult = NonNullable<
-  Awaited<ReturnType<typeof postUsers>>
->
-export type PostUsersMutationBody = UserDomainCreateUserRequest
-export type PostUsersMutationError = ErrorType<ApiErrorResponse>
-
-export const usePostUsers = <
-  TError = ErrorType<ApiErrorResponse>,
-  TContext = unknown
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postUsers>>,
-    TError,
-    { data: UserDomainCreateUserRequest },
-    TContext
-  >
-  request?: SecondParameter<typeof customAxiosInstance>
-}) => {
-  const mutationOptions = getPostUsersMutationOptions(options)
-
-  return useMutation(mutationOptions)
-}
-/**
- * @summary Login user
+ * @summary Login
  */
 export const postUsersLogin = (
-  userDomainLoginUserRequest: UserDomainLoginUserRequest,
+  userDomainLoginRequest: UserDomainLoginRequest,
   options?: SecondParameter<typeof customAxiosInstance>
 ) => {
   return customAxiosInstance<ApiMessageResponse>(
@@ -114,7 +43,7 @@ export const postUsersLogin = (
       url: `/users/login`,
       method: 'post',
       headers: { 'Content-Type': 'application/json' },
-      data: userDomainLoginUserRequest,
+      data: userDomainLoginRequest,
     },
     options
   )
@@ -127,21 +56,21 @@ export const getPostUsersLoginMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsersLogin>>,
     TError,
-    { data: UserDomainLoginUserRequest },
+    { data: UserDomainLoginRequest },
     TContext
   >
   request?: SecondParameter<typeof customAxiosInstance>
 }): UseMutationOptions<
   Awaited<ReturnType<typeof postUsersLogin>>,
   TError,
-  { data: UserDomainLoginUserRequest },
+  { data: UserDomainLoginRequest },
   TContext
 > => {
   const { mutation: mutationOptions, request: requestOptions } = options ?? {}
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postUsersLogin>>,
-    { data: UserDomainLoginUserRequest }
+    { data: UserDomainLoginRequest }
   > = (props) => {
     const { data } = props ?? {}
 
@@ -154,7 +83,7 @@ export const getPostUsersLoginMutationOptions = <
 export type PostUsersLoginMutationResult = NonNullable<
   Awaited<ReturnType<typeof postUsersLogin>>
 >
-export type PostUsersLoginMutationBody = UserDomainLoginUserRequest
+export type PostUsersLoginMutationBody = UserDomainLoginRequest
 export type PostUsersLoginMutationError = ErrorType<ApiErrorResponse>
 
 export const usePostUsersLogin = <
@@ -164,7 +93,7 @@ export const usePostUsersLogin = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsersLogin>>,
     TError,
-    { data: UserDomainLoginUserRequest },
+    { data: UserDomainLoginRequest },
     TContext
   >
   request?: SecondParameter<typeof customAxiosInstance>
@@ -174,7 +103,7 @@ export const usePostUsersLogin = <
   return useMutation(mutationOptions)
 }
 /**
- * @summary Logout user
+ * @summary Logout
  */
 export const postUsersLogout = (
   options?: SecondParameter<typeof customAxiosInstance>
@@ -239,7 +168,7 @@ export const usePostUsersLogout = <
   return useMutation(mutationOptions)
 }
 /**
- * @summary Get logged in user
+ * @summary Get current user
  */
 export const getUsersMe = (
   options?: SecondParameter<typeof customAxiosInstance>,
@@ -294,4 +223,76 @@ export const useGetUsersMe = <
   query.queryKey = queryOptions.queryKey
 
   return query
+}
+
+/**
+ * @summary Register user
+ */
+export const postUsersRegister = (
+  userDomainRegisterRequest: UserDomainRegisterRequest,
+  options?: SecondParameter<typeof customAxiosInstance>
+) => {
+  return customAxiosInstance<ApiMessageResponse>(
+    {
+      url: `/users/register`,
+      method: 'post',
+      headers: { 'Content-Type': 'application/json' },
+      data: userDomainRegisterRequest,
+    },
+    options
+  )
+}
+
+export const getPostUsersRegisterMutationOptions = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postUsersRegister>>,
+    TError,
+    { data: UserDomainRegisterRequest },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postUsersRegister>>,
+  TError,
+  { data: UserDomainRegisterRequest },
+  TContext
+> => {
+  const { mutation: mutationOptions, request: requestOptions } = options ?? {}
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postUsersRegister>>,
+    { data: UserDomainRegisterRequest }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return postUsersRegister(data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostUsersRegisterMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postUsersRegister>>
+>
+export type PostUsersRegisterMutationBody = UserDomainRegisterRequest
+export type PostUsersRegisterMutationError = ErrorType<ApiErrorResponse>
+
+export const usePostUsersRegister = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postUsersRegister>>,
+    TError,
+    { data: UserDomainRegisterRequest },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}) => {
+  const mutationOptions = getPostUsersRegisterMutationOptions(options)
+
+  return useMutation(mutationOptions)
 }

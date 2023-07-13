@@ -1,4 +1,4 @@
-import { getUsersMe } from '@/api/endpoints/users/users'
+import { getCurrentUser } from '@/features/auth'
 import { Session, SessionProvider, SessionStatus } from '@/providers/session'
 import { MantineProvider } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
@@ -24,7 +24,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const [sessionStatus, setSessionStatus] = useState<SessionStatus>('loading')
 
   useEffect(() => {
-    getUsersMe({ withCredentials: true })
+    getCurrentUser()
       .then(({ data: { name, email } }) => {
         if (name !== undefined && email !== undefined) {
           setSession({ user: { name, email } })
