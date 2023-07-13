@@ -2,7 +2,7 @@ import { Skeleton } from '@mantine/core'
 import { ImageProps } from 'next/image'
 import React from 'react'
 
-type ImageSkeletonProps = Pick<ImageProps, 'width' | 'height'> & {
+interface ImageSkeletonProps extends Pick<ImageProps, 'width' | 'height'> {
   style?: React.CSSProperties
 }
 

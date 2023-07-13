@@ -2,19 +2,19 @@ import NextImage, { ImageProps as NativeImageProps } from 'next/image'
 import { useCallback, useState } from 'react'
 import { ImageSkeleton } from './ImageSkeleton'
 
-type ImageProps = Omit<NativeImageProps, 'src' | 'alt'> &
-  (
-    | {
-        src?: string
-        alt?: string
-        isLoading: true
-      }
-    | {
-        src: string
-        alt: string
-        isLoading?: false
-      }
-  )
+interface LoadingImageProps extends Omit<NativeImageProps, 'src' | 'alt'> {
+  src?: string
+  alt?: string
+  isLoading: true
+}
+
+interface NonLoadingImageProps extends Omit<NativeImageProps, 'src' | 'alt'> {
+  src: string
+  alt: string
+  isLoading?: false
+}
+
+type ImageProps = LoadingImageProps | NonLoadingImageProps
 
 export function Image({
   src,
