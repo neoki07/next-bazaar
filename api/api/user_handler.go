@@ -41,18 +41,11 @@ func (h *userHandler) createUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
-	hashedPassword, err := util.HashPassword(req.Password)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
-	}
-
-	arg := user_domain.CreateUserServiceParams{
-		Name:           req.Name,
-		Email:          req.Email,
-		HashedPassword: hashedPassword,
-	}
-
-	err = h.service.CreateUser(c.Context(), arg)
+	err := h.service.Register(c.Context(), user_domain.RegisterServiceParams{
+		Name:     req.Name,
+		Email:    req.Email,
+		Password: req.Password,
+	})
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -87,25 +80,10 @@ func (h *userHandler) loginUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
 
-	user, err := h.service.GetUserByEmail(c.Context(), req.Email)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
-		}
-		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
-	}
-
-	err = util.CheckPassword(req.Password, user.HashedPassword)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
-	}
-
-	arg := user_domain.CreateSessionServiceParams{
-		UserID:   user.ID,
-		Duration: h.config.SessionTokenDuration,
-	}
-
-	sessionToken, err := h.service.CreateSession(c.Context(), arg)
+	sessionToken, err := h.service.Login(c.Context(), user_domain.LoginServiceParams{
+		Email:    req.Email,
+		Password: req.Password,
+	})
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusNotFound).JSON(newErrorResponse(err))
@@ -139,7 +117,7 @@ func (h *userHandler) logoutUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
 	}
 
-	err = h.service.DeleteSession(c.Context(), session.SessionToken)
+	err = h.service.Logout(c.Context(), session.SessionToken)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
