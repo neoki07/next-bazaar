@@ -105,7 +105,18 @@ definitions:
       stock_quantity:
         type: integer
     type: object
-  user_domain.CreateUserRequest:
+  user_domain.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  user_domain.RegisterRequest:
     properties:
       email:
         type: string
@@ -117,17 +128,6 @@ definitions:
     required:
     - email
     - name
-    - password
-    type: object
-  user_domain.LoginUserRequest:
-    properties:
-      email:
-        type: string
-      password:
-        minLength: 8
-        type: string
-    required:
-    - email
     - password
     type: object
   user_domain.UserResponse:
@@ -332,35 +332,6 @@ paths:
       summary: Get product
       tags:
       - Products
-  /users:
-    post:
-      parameters:
-      - description: User object
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/user_domain.CreateUserRequest'
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.messageResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.errorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/api.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.errorResponse'
-      summary: Create user
-      tags:
-      - Users
   /users/login:
     post:
       parameters:
@@ -369,7 +340,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/user_domain.LoginUserRequest'
+          $ref: '#/definitions/user_domain.LoginRequest'
       responses:
         "200":
           description: OK
@@ -383,15 +354,11 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/api.errorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/api.errorResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/api.errorResponse'
-      summary: Login user
+      summary: Login
       tags:
       - Users
   /users/logout:
@@ -409,7 +376,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/api.errorResponse'
-      summary: Logout user
+      summary: Logout
       tags:
       - Users
   /users/me:
@@ -427,7 +394,36 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/api.errorResponse'
-      summary: Get logged in user
+      summary: Get current user
+      tags:
+      - Users
+  /users/register:
+    post:
+      parameters:
+      - description: User object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user_domain.RegisterRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.messageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Register user
       tags:
       - Users
 swagger: "2.0"

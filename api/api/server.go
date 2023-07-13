@@ -72,16 +72,16 @@ func (server *Server) setupRouter() {
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
 
-	v1.Post("/users", server.handlers.user.createUser)
-	v1.Post("/users/login", server.handlers.user.loginUser)
+	v1.Post("/users/register", server.handlers.user.register)
+	v1.Post("/users/login", server.handlers.user.login)
 
 	v1.Get("/products", server.handlers.product.listProducts)
 	v1.Get("/products/:id", server.handlers.product.getProduct)
 
 	v1.Use(authMiddleware(server))
 
-	v1.Post("/users/logout", server.handlers.user.logoutUser)
-	v1.Get("/users/me", server.handlers.user.getLoggedInUser)
+	v1.Post("/users/logout", server.handlers.user.logout)
+	v1.Get("/users/me", server.handlers.user.getCurrentUser)
 
 	v1.Get("/cart", server.handlers.cart.getCart)
 	v1.Get("/cart/count", server.handlers.cart.getCartProductsCount)

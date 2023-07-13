@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/token"
+	"github.com/ot07/next-bazaar/util"
 )
 
 type UserService struct {
@@ -91,6 +92,54 @@ func (s *UserService) CreateSession(ctx context.Context, params CreateSessionSer
 	return sessionToken, nil
 }
 
-func (s *UserService) DeleteSession(ctx context.Context, sessionTokenID uuid.UUID) error {
+type RegisterServiceParams struct {
+	Name     string
+	Email    string
+	Password string
+}
+
+func (s *UserService) Register(ctx context.Context, params RegisterServiceParams) error {
+	hashedPassword, err := util.HashPassword(params.Password)
+	if err != nil {
+		return err
+	}
+
+	return s.CreateUser(ctx, CreateUserServiceParams{
+		Name:           params.Name,
+		Email:          params.Email,
+		HashedPassword: hashedPassword,
+	})
+}
+
+type LoginServiceParams struct {
+	Email    string
+	Password string
+}
+
+func (s *UserService) Login(ctx context.Context, params LoginServiceParams) (*token.Token, error) {
+	user, err := s.GetUserByEmail(ctx, params.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	err = util.CheckPassword(params.Password, user.HashedPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	arg := CreateSessionServiceParams{
+		UserID:   user.ID,
+		Duration: time.Hour * 24 * 7,
+	}
+
+	sessionToken, err := s.CreateSession(ctx, arg)
+	if err != nil {
+		return nil, err
+	}
+
+	return sessionToken, nil
+}
+
+func (s *UserService) Logout(ctx context.Context, sessionTokenID uuid.UUID) error {
 	return s.store.DeleteSession(ctx, sessionTokenID)
 }

@@ -1,7 +1,7 @@
 import {
-  usePostUsers,
   usePostUsersLogin,
   usePostUsersLogout,
+  usePostUsersRegister,
 } from '@/api/endpoints/users/users'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
@@ -60,7 +60,7 @@ export function useAuth(props?: UseAuthProps): UseAuthResult {
     },
   })
 
-  const registerMutation = usePostUsers({
+  const registerMutation = usePostUsersRegister({
     mutation: {
       onError: () => {
         props?.onRegisterError?.()

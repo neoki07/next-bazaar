@@ -5,7 +5,7 @@
  * OpenAPI spec version: 0.0.1
  */
 
-export interface UserDomainLoginUserRequest {
+export interface UserDomainLoginRequest {
   email: string
   password: string
 }

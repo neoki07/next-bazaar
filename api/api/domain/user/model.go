@@ -23,13 +23,13 @@ type Session struct {
 	CreatedAt    time.Time
 }
 
-type CreateUserRequest struct {
+type RegisterRequest struct {
 	Name     string `json:"name" validate:"required,without_space,without_punct,without_symbol"`
 	Email    string `json:"email" validate:"required,email" swaggertype:"string"`
 	Password string `json:"password" validate:"required,min=8"`
 }
 
-type LoginUserRequest struct {
+type LoginRequest struct {
 	Email    string `json:"email" validate:"required,email" swaggertype:"string"`
 	Password string `json:"password" validate:"required,min=8"`
 }

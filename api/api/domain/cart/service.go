@@ -20,8 +20,6 @@ func NewCartService(store db.Store) *CartService {
 }
 
 func (s *CartService) GetProductsByUserID(ctx context.Context, userID uuid.UUID) ([]CartProduct, error) {
-	// return s.repository.FindManyByUserID(ctx, userID)
-
 	cartProducts, err := s.store.GetCartProductsByUserID(ctx, userID)
 	if err != nil {
 		return nil, err
