@@ -8,6 +8,7 @@ import (
 	user_domain "github.com/ot07/next-bazaar/api/domain/user"
 	"github.com/ot07/next-bazaar/api/validation"
 	"github.com/ot07/next-bazaar/util"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type userHandler struct {
@@ -85,8 +86,8 @@ func (h *userHandler) login(c *fiber.Ctx) error {
 		Password: req.Password,
 	})
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(newErrorResponse(err))
+		if err == sql.ErrNoRows || err == bcrypt.ErrMismatchedHashAndPassword {
+			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
 		}
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}
