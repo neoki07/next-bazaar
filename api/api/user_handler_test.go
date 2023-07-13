@@ -19,7 +19,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateUserAPI(t *testing.T) {
+func TestRegisterAPI(t *testing.T) {
 	validName := "testuser"
 	validEmail := "test@example.com"
 	validPassword := "test-password"
@@ -163,7 +163,7 @@ func TestCreateUserAPI(t *testing.T) {
 
 			request := test_util.NewRequest(t, test_util.RequestParams{
 				Method: http.MethodPost,
-				URL:    "/api/v1/users",
+				URL:    "/api/v1/users/register",
 				Body:   tc.body,
 			})
 
@@ -174,7 +174,7 @@ func TestCreateUserAPI(t *testing.T) {
 	}
 }
 
-func TestLoginUserAPI(t *testing.T) {
+func TestLoginAPI(t *testing.T) {
 	validName := "testuser"
 	validEmail := "test@example.com"
 	validPassword := "test-password"
@@ -328,7 +328,7 @@ func TestLoginUserAPI(t *testing.T) {
 	}
 }
 
-func TestLogoutUserAPI(t *testing.T) {
+func TestLogoutAPI(t *testing.T) {
 	sessionToken := token.NewToken(time.Minute)
 
 	createSeed := func(t *testing.T, store db.Store) {
@@ -431,7 +431,7 @@ func TestLogoutUserAPI(t *testing.T) {
 	}
 }
 
-func TestGetLoggedInUserAPI(t *testing.T) {
+func TestGetCurrentUserAPI(t *testing.T) {
 	sessionToken := token.NewToken(time.Minute)
 
 	createSeed := func(t *testing.T, store db.Store) {

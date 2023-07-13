@@ -22,16 +22,16 @@ func newUserHandler(s *user_domain.UserService, config util.Config) *userHandler
 	}
 }
 
-// @Summary      Create user
+// @Summary      Register user
 // @Tags         Users
-// @Param        body body user_domain.CreateUserRequest true "User object"
+// @Param        body body user_domain.RegisterRequest true "User object"
 // @Success      200 {object} messageResponse
 // @Failure      400 {object} errorResponse
 // @Failure      403 {object} errorResponse
 // @Failure      500 {object} errorResponse
-// @Router       /users [post]
-func (h *userHandler) createUser(c *fiber.Ctx) error {
-	req := new(user_domain.CreateUserRequest)
+// @Router       /users/register [post]
+func (h *userHandler) register(c *fiber.Ctx) error {
+	req := new(user_domain.RegisterRequest)
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
@@ -60,17 +60,17 @@ func (h *userHandler) createUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
 
-// @Summary      Login user
+// @Summary      Login
 // @Tags         Users
-// @Param        body body user_domain.LoginUserRequest true "User object"
+// @Param        body body user_domain.LoginRequest true "User object"
 // @Success      200 {object} messageResponse
 // @Failure      400 {object} errorResponse
 // @Failure      401 {object} errorResponse
 // @Failure      404 {object} errorResponse
 // @Failure      500 {object} errorResponse
 // @Router       /users/login [post]
-func (h *userHandler) loginUser(c *fiber.Ctx) error {
-	req := new(user_domain.LoginUserRequest)
+func (h *userHandler) login(c *fiber.Ctx) error {
+	req := new(user_domain.LoginRequest)
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
 	}
@@ -105,13 +105,13 @@ func (h *userHandler) loginUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
 
-// @Summary      Logout user
+// @Summary      Logout
 // @Tags         Users
 // @Success      200 {object} messageResponse
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
 // @Router       /users/logout [post]
-func (h *userHandler) logoutUser(c *fiber.Ctx) error {
+func (h *userHandler) logout(c *fiber.Ctx) error {
 	session, err := getSession(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
@@ -132,13 +132,13 @@ func (h *userHandler) logoutUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
 
-// @Summary      Get logged in user
+// @Summary      Get current user
 // @Tags         Users
 // @Success      200 {object} user_domain.UserResponse
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
-// @Router       /users/me [get]
-func (h *userHandler) getLoggedInUser(c *fiber.Ctx) error {
+// @Router       /users/getCurrentUser [get]
+func (h *userHandler) getCurrentUser(c *fiber.Ctx) error {
 	session, err := getSession(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
