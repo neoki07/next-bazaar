@@ -2,7 +2,7 @@ import Decimal from 'decimal.js'
 import { transformProduct } from './transform'
 
 describe('transformProduct', () => {
-  test('should transform the product correctly', () => {
+  it('transforms the product correctly', () => {
     const product = {
       id: '1',
       name: 'test-product',
@@ -28,7 +28,7 @@ describe('transformProduct', () => {
     expect(transformProduct(product)).toEqual(expectedProduct)
   })
 
-  test('should transform the product correctly if optional fields are undefined', () => {
+  it('transforms the product correctly if optional fields are undefined', () => {
     const product = {
       id: '1',
       name: 'test-product',
@@ -50,7 +50,7 @@ describe('transformProduct', () => {
     expect(transformProduct(product)).toEqual(expectedProduct)
   })
 
-  test('should throw an error if id are undefined', () => {
+  it('throws an error if id are undefined', () => {
     const product = {
       name: 'test-product',
       price: '10.00',
@@ -64,7 +64,7 @@ describe('transformProduct', () => {
     )
   })
 
-  test('should throw an error if name are undefined', () => {
+  it('throws an error if name are undefined', () => {
     const product = {
       id: '1',
       price: '10.00',
@@ -78,7 +78,7 @@ describe('transformProduct', () => {
     )
   })
 
-  test('should throw an error if price are undefined', () => {
+  it('throws an error if price are undefined', () => {
     const product = {
       id: '1',
       name: 'test-product',
@@ -92,7 +92,7 @@ describe('transformProduct', () => {
     )
   })
 
-  test('should throw an error if stock_quantity are undefined', () => {
+  it('throws an error if stock_quantity are undefined', () => {
     const product = {
       id: '1',
       name: 'test-product',
@@ -106,7 +106,7 @@ describe('transformProduct', () => {
     )
   })
 
-  test('should throw an error if category are undefined', () => {
+  it('throws an error if category are undefined', () => {
     const product = {
       id: '1',
       name: 'test-product',
@@ -120,7 +120,7 @@ describe('transformProduct', () => {
     )
   })
 
-  test('should throw an error if seller are undefined', () => {
+  it('throws an error if seller are undefined', () => {
     const product = {
       id: '1',
       name: 'test-product',
