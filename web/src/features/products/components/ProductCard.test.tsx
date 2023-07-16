@@ -27,4 +27,52 @@ describe('ProductCard', () => {
 
     expect(getByText('test-product')).toBeInTheDocument()
   })
+  test('should render category name', () => {
+    const { getByText } = render(
+      <ProductCard
+        product={product}
+        getProductLink={getProductLink}
+        imageSize={imageSize}
+      />
+    )
+
+    expect(getByText('test-category')).toBeInTheDocument()
+  })
+  test('should render price', () => {
+    const { getByText } = render(
+      <ProductCard
+        product={product}
+        getProductLink={getProductLink}
+        imageSize={imageSize}
+      />
+    )
+
+    expect(getByText('$10.00')).toBeInTheDocument()
+  })
+  test('should render seller name', () => {
+    const { getByText } = render(
+      <ProductCard
+        product={product}
+        getProductLink={getProductLink}
+        imageSize={imageSize}
+      />
+    )
+
+    expect(getByText('testuser')).toBeInTheDocument()
+  })
+  test('should render product image', () => {
+    const { getByRole } = render(
+      <ProductCard
+        product={product}
+        getProductLink={getProductLink}
+        imageSize={imageSize}
+      />
+    )
+
+    const imageElement = getByRole('img', { name: 'test-product' })
+    expect(imageElement).toBeInTheDocument()
+    expect(imageElement.getAttribute('src')).toContain(
+      `/_next/image?url=${encodeURIComponent('https://example.com/image.png')}`
+    )
+  })
 })
