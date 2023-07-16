@@ -8,7 +8,7 @@ interface ProductCardSkeletonProps {
 
 export function ProductCardSkeleton({ imageSize }: ProductCardSkeletonProps) {
   return (
-    <Stack spacing="xs">
+    <Stack spacing="xs" w={imageSize}>
       <Image isLoading alt="" width={imageSize} height={imageSize} />
       <Stack spacing={4}>
         <Skeleton visible width="50%">

@@ -20,7 +20,7 @@ export function ProductCard({
   const productLink = getProductLink(product)
 
   return (
-    <Stack spacing="xs">
+    <Stack spacing="xs" w={imageSize}>
       {product.imageUrl !== undefined && (
         <Link href={productLink}>
           <Image
