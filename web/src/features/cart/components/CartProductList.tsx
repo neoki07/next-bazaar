@@ -1,11 +1,28 @@
-import { Divider, Text } from '@mantine/core'
+import { Text, createStyles } from '@mantine/core'
 import { range } from 'lodash'
-import { Fragment } from 'react'
 import { CartProduct } from '../types'
 import { CartProductInfo } from './CartProductInfo'
 import { CartProductInfoSkeleton } from './CartProductInfoSkeleton'
 
 const IMAGE_SIZE = 192
+
+const useStyles = createStyles((theme) => ({
+  list: {
+    paddingLeft: 0,
+    marginTop: 0,
+    marginBottom: 0,
+  },
+
+  listItem: {
+    paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.md,
+    borderTop: `1px solid ${theme.colors.gray[3]}`,
+
+    '&:last-child': {
+      borderBottom: `1px solid ${theme.colors.gray[3]}`,
+    },
+  },
+}))
 
 interface CartProductListProps {
   cartProducts?: CartProduct[]
@@ -16,30 +33,31 @@ export function CartProductList({
   cartProducts,
   isLoading,
 }: CartProductListProps) {
+  const { classes } = useStyles()
+
   return (
     <>
       {isLoading || cartProducts === undefined ? (
-        <>
-          <Divider mb="xl" />
+        <ul className={classes.list}>
           {range(3).map((index) => (
-            <Fragment key={index}>
-              {index !== 0 && <Divider my="xl" />}
-              <CartProductInfoSkeleton imageSize={IMAGE_SIZE} />
-            </Fragment>
+            <CartProductInfoSkeleton
+              key={index}
+              className={classes.listItem}
+              imageSize={IMAGE_SIZE}
+            />
           ))}
-          <Divider mt="xl" />
-        </>
+        </ul>
       ) : cartProducts.length > 0 ? (
-        <>
-          <Divider mb="xl" />
-          {cartProducts.map((product, index) => (
-            <Fragment key={product.id}>
-              {index !== 0 && <Divider my="xl" />}
-              <CartProductInfo cartProduct={product} imageSize={IMAGE_SIZE} />
-            </Fragment>
+        <ul className={classes.list}>
+          {cartProducts.map((product) => (
+            <CartProductInfo
+              key={product.id}
+              className={classes.listItem}
+              cartProduct={product}
+              imageSize={IMAGE_SIZE}
+            />
           ))}
-          <Divider mt="xl" />
-        </>
+        </ul>
       ) : (
         <Text>No products</Text>
       )}

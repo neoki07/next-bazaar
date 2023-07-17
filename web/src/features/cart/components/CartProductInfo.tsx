@@ -2,7 +2,15 @@ import { NativeNumberSelect, useForm } from '@/components/Form'
 import { Image } from '@/components/Image'
 import { Price } from '@/components/Price'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CloseButton, Flex, Group, Stack, Text, rem } from '@mantine/core'
+import {
+  CloseButton,
+  Flex,
+  Stack,
+  Text,
+  clsx,
+  createStyles,
+  rem,
+} from '@mantine/core'
 import range from 'lodash/range'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { z } from 'zod'
@@ -12,15 +20,25 @@ import { useDeleteProduct } from '../hooks/useDeleteProduct'
 import { useUpdateProductQuantity } from '../hooks/useUpdateProductQuantity'
 import { CartProduct } from '../types'
 
+const useStyles = createStyles(() => ({
+  root: {
+    listStyle: 'none',
+  },
+}))
+
 interface CartProductInfoProps {
+  className?: string
   cartProduct: CartProduct
   imageSize: number
 }
 
 export function CartProductInfo({
+  className,
   cartProduct,
   imageSize,
 }: CartProductInfoProps) {
+  const { classes } = useStyles()
+
   const [isDeleting, setIsDeleting] = useState(false)
 
   const { refetch: refetchCart } = useCart()
@@ -85,7 +103,7 @@ export function CartProductInfo({
   )
 
   return (
-    <Group my="sm">
+    <li className={clsx(classes.root, className)}>
       <Stack spacing={4}>
         <Flex gap="xs">
           {cartProduct.imageUrl !== undefined && (
@@ -117,6 +135,6 @@ export function CartProductInfo({
           />
         </Flex>
       </Stack>
-    </Group>
+    </li>
   )
 }

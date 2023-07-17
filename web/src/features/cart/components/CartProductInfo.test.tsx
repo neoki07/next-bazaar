@@ -26,9 +26,10 @@ describe('CartProductInfo', () => {
     expect(screen.getByText('Product')).toBeInTheDocument()
     expect(screen.getByText('$10.00')).toBeInTheDocument()
     expect(screen.getByLabelText('Quantity')).toHaveValue()
-    const imageElement = screen.getByRole('img', { name: 'Product' })
-    expect(imageElement).toBeInTheDocument()
-    expect(imageElement.getAttribute('src')).toContain(
+
+    const image = screen.getByRole('img', { name: 'Product' })
+    expect(image).toBeInTheDocument()
+    expect(image.getAttribute('src')).toContain(
       `/_next/image?url=${encodeURIComponent('https://example.com/image.png')}`
     )
   })
