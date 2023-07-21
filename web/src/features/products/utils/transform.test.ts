@@ -1,4 +1,5 @@
 import Decimal from 'decimal.js'
+import { Product } from '../types'
 import { transformProduct } from './transform'
 
 describe('transformProduct', () => {
@@ -14,7 +15,7 @@ describe('transformProduct', () => {
       image_url: 'https://example.com/image.png',
     }
 
-    const expectedProduct = {
+    const expectedProduct: Product = {
       id: '1',
       name: 'Product',
       description: 'Description',
@@ -38,7 +39,7 @@ describe('transformProduct', () => {
       seller: 'Seller',
     }
 
-    const expectedProduct = {
+    const expectedProduct: Product = {
       id: '1',
       name: 'Product',
       price: new Decimal('10.00'),
@@ -50,7 +51,7 @@ describe('transformProduct', () => {
     expect(transformProduct(product)).toEqual(expectedProduct)
   })
 
-  it('throws an error if id are undefined', () => {
+  it('throws an error if id is undefined', () => {
     const product = {
       name: 'Product',
       price: '10.00',
@@ -64,7 +65,7 @@ describe('transformProduct', () => {
     )
   })
 
-  it('throws an error if name are undefined', () => {
+  it('throws an error if name is undefined', () => {
     const product = {
       id: '1',
       price: '10.00',
@@ -78,7 +79,7 @@ describe('transformProduct', () => {
     )
   })
 
-  it('throws an error if price are undefined', () => {
+  it('throws an error if price is undefined', () => {
     const product = {
       id: '1',
       name: 'Product',
@@ -92,7 +93,7 @@ describe('transformProduct', () => {
     )
   })
 
-  it('throws an error if stock_quantity are undefined', () => {
+  it('throws an error if stock_quantity is undefined', () => {
     const product = {
       id: '1',
       name: 'Product',
@@ -106,7 +107,7 @@ describe('transformProduct', () => {
     )
   })
 
-  it('throws an error if category are undefined', () => {
+  it('throws an error if category is undefined', () => {
     const product = {
       id: '1',
       name: 'Product',
@@ -120,7 +121,7 @@ describe('transformProduct', () => {
     )
   })
 
-  it('throws an error if seller are undefined', () => {
+  it('throws an error if seller is undefined', () => {
     const product = {
       id: '1',
       name: 'Product',
