@@ -1,9 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Decimal from 'decimal.js'
 import { CartProductInfo } from './CartProductInfo'
 
-const queryClient = new QueryClient()
+const IMAGE_SIZE = 200
 
 const meta: Meta<typeof CartProductInfo> = {
   title: 'Features/Cart/CartProductInfo',
@@ -24,15 +23,8 @@ export const Default: Story = {
       price: new Decimal(10.0),
       quantity: 5,
       subtotal: new Decimal(50.0),
-      imageUrl: 'https://via.placeholder.com/300',
+      imageUrl: 'https://via.placeholder.com/200',
     },
-    imageSize: 300,
+    imageSize: IMAGE_SIZE,
   },
-  decorators: [
-    (Story) => (
-      <QueryClientProvider client={queryClient}>
-        <Story />
-      </QueryClientProvider>
-    ),
-  ],
 }

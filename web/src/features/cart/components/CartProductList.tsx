@@ -4,8 +4,6 @@ import { CartProduct } from '../types'
 import { CartProductInfo } from './CartProductInfo'
 import { CartProductInfoSkeleton } from './CartProductInfoSkeleton'
 
-const IMAGE_SIZE = 192
-
 const useStyles = createStyles((theme) => ({
   list: {
     paddingLeft: 0,
@@ -26,12 +24,18 @@ const useStyles = createStyles((theme) => ({
 
 interface CartProductListProps {
   cartProducts?: CartProduct[]
+  imageSize: number
   isLoading?: boolean
+  onChangeQuantity?: (id: string, quantity: number) => void
+  onDelete?: (id: string) => void
 }
 
 export function CartProductList({
   cartProducts,
+  imageSize,
   isLoading,
+  onChangeQuantity,
+  onDelete,
 }: CartProductListProps) {
   const { classes } = useStyles()
 
@@ -43,7 +47,7 @@ export function CartProductList({
             <CartProductInfoSkeleton
               key={index}
               className={classes.listItem}
-              imageSize={IMAGE_SIZE}
+              imageSize={imageSize}
             />
           ))}
         </ul>
@@ -54,7 +58,9 @@ export function CartProductList({
               key={product.id}
               className={classes.listItem}
               cartProduct={product}
-              imageSize={IMAGE_SIZE}
+              imageSize={imageSize}
+              onChangeQuantity={onChangeQuantity}
+              onDelete={onDelete}
             />
           ))}
         </ul>

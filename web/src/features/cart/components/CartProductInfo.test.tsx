@@ -1,9 +1,11 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import Decimal from 'decimal.js'
 import { CartProductInfo } from './CartProductInfo'
 
-const queryClient = new QueryClient()
+const IMAGE_SIZE = 200
+
+const user = userEvent.setup()
 
 const cartProduct = {
   id: '1',
@@ -17,15 +19,11 @@ const cartProduct = {
 
 describe('CartProductInfo', () => {
   it('renders product information', () => {
-    render(
-      <QueryClientProvider client={queryClient}>
-        <CartProductInfo cartProduct={cartProduct} imageSize={100} />
-      </QueryClientProvider>
-    )
+    render(<CartProductInfo cartProduct={cartProduct} imageSize={IMAGE_SIZE} />)
 
     expect(screen.getByText('Product')).toBeInTheDocument()
     expect(screen.getByText('$10.00')).toBeInTheDocument()
-    expect(screen.getByLabelText('Quantity')).toHaveValue()
+    expect(screen.getByLabelText('Quantity')).toHaveValue('5')
 
     const image = screen.getByRole('img', { name: 'Product' })
     expect(image).toBeInTheDocument()
@@ -34,6 +32,51 @@ describe('CartProductInfo', () => {
     )
   })
 
-  // TODO: updates product quantity
-  // TODO: deletes product
+  it('renders quantity select', () => {
+    render(<CartProductInfo cartProduct={cartProduct} imageSize={IMAGE_SIZE} />)
+
+    const quantitySelect = screen.getByLabelText('Quantity')
+    expect(quantitySelect).toBeInTheDocument()
+    expect(quantitySelect).toHaveValue('5')
+  })
+
+  it('calls onChangeQuantity when quantity changes', async () => {
+    const onChangeQuantity = jest.fn()
+    render(
+      <CartProductInfo
+        cartProduct={cartProduct}
+        imageSize={IMAGE_SIZE}
+        onChangeQuantity={onChangeQuantity}
+      />
+    )
+
+    await user.selectOptions(screen.getByLabelText('Quantity'), '3')
+
+    expect(onChangeQuantity).toHaveBeenCalledTimes(1)
+    expect(onChangeQuantity).toHaveBeenCalledWith('1', 3)
+  })
+
+  it('renders delete button', () => {
+    render(<CartProductInfo cartProduct={cartProduct} imageSize={IMAGE_SIZE} />)
+
+    expect(
+      screen.getByRole('button', { name: 'Remove product' })
+    ).toBeInTheDocument()
+  })
+
+  it('calls onDelete when delete button is clicked', async () => {
+    const onDelete = jest.fn()
+    render(
+      <CartProductInfo
+        cartProduct={cartProduct}
+        imageSize={IMAGE_SIZE}
+        onDelete={onDelete}
+      />
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Remove product' }))
+
+    expect(onDelete).toHaveBeenCalledTimes(1)
+    expect(onDelete).toHaveBeenCalledWith('1')
+  })
 })

@@ -1,8 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { CartProductInfoSkeleton } from './CartProductInfoSkeleton'
 
-const queryClient = new QueryClient()
+const IMAGE_SIZE = 200
 
 const meta: Meta<typeof CartProductInfoSkeleton> = {
   title: 'Features/Cart/CartProductInfoSkeleton',
@@ -16,13 +15,6 @@ type Story = StoryObj<typeof CartProductInfoSkeleton>
 
 export const Default: Story = {
   args: {
-    imageSize: 300,
+    imageSize: IMAGE_SIZE,
   },
-  decorators: [
-    (Story) => (
-      <QueryClientProvider client={queryClient}>
-        <Story />
-      </QueryClientProvider>
-    ),
-  ],
 }
