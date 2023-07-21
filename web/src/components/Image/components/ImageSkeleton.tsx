@@ -8,7 +8,7 @@ interface ImageSkeletonProps extends Pick<ImageProps, 'width' | 'height'> {
 
 export function ImageSkeleton({ width, height }: ImageSkeletonProps) {
   return (
-    <Skeleton style={{ width, height }}>
+    <Skeleton style={{ width, height }} aria-label="Image loading skeleton">
       <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} />
     </Skeleton>
   )
