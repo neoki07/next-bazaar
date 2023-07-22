@@ -7,8 +7,8 @@ import { rest } from 'msw'
 import { Product } from '../types'
 import { useGetProduct } from './useGetProduct'
 
-const queryCLient = new QueryClient()
-const queryWrapper = createQueryWrapper(queryCLient)
+const queryClient = new QueryClient()
+const queryWrapper = createQueryWrapper(queryClient)
 
 const handlers = [
   rest.get('*/products/:id', (_req, res, ctx) => {
