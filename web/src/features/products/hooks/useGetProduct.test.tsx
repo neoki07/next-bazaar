@@ -1,51 +1,39 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { setupMockServer } from '@/test-utils/mock-server'
+import { createQueryWrapper } from '@/test-utils/wrappers'
+import { QueryClient } from '@tanstack/react-query'
 import { renderHook, waitFor } from '@testing-library/react'
 import Decimal from 'decimal.js'
 import { rest } from 'msw'
-import { setupServer } from 'msw/node'
-import { ReactNode } from 'react'
 import { Product } from '../types'
 import { useGetProduct } from './useGetProduct'
 
-function setupGetProductsMockServer() {
-  const server = setupServer(
-    rest.get('*/products/:id', (_req, res, ctx) => {
-      return res(
-        ctx.delay(0),
-        ctx.status(200, 'Mocked status'),
-        ctx.json({
-          id: '1',
-          name: 'Product 1',
-          description: 'Description 1',
-          price: 10.0,
-          stock_quantity: 10,
-          category: 'Category 1',
-          seller: 'Seller 1',
-          image_url: 'https://example.com/image.png',
-        })
-      )
-    })
-  )
-
-  beforeAll(() => server.listen())
-  afterEach(() => server.resetHandlers())
-  afterAll(() => server.close())
-
-  return server
-}
-
 const queryCLient = new QueryClient()
+const queryWrapper = createQueryWrapper(queryCLient)
 
-const wrapper = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider client={queryCLient}>{children}</QueryClientProvider>
-)
+const handlers = [
+  rest.get('*/products/:id', (_req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json({
+        id: '1',
+        name: 'Product 1',
+        description: 'Description 1',
+        price: 10.0,
+        stock_quantity: 10,
+        category: 'Category 1',
+        seller: 'Seller 1',
+        image_url: 'https://example.com/image.png',
+      })
+    )
+  }),
+]
 
 describe('useGetProduct', () => {
-  const server = setupGetProductsMockServer()
+  setupMockServer(...handlers)
 
   it('returns product correctly', async () => {
     const { result } = renderHook(() => useGetProduct('1'), {
-      wrapper,
+      wrapper: queryWrapper,
     })
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
