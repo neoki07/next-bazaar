@@ -11,7 +11,7 @@ function transform(
   } = response
 
   if (count === undefined) {
-    throw new Error('cart products count is undefined')
+    throw new Error('required field `count` is undefined')
   }
 
   return count

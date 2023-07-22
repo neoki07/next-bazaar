@@ -6,10 +6,6 @@ import { transformCart } from '../utils/transform'
 
 function transform(response: AxiosResponse<CartDomainCartResponse>): Cart {
   const { data } = response
-  if (data === undefined) {
-    throw new Error('required fields are undefined:' + JSON.stringify(data))
-  }
-
   return transformCart(data)
 }
 
