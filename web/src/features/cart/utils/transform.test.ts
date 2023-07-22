@@ -118,7 +118,7 @@ describe('transformCart', () => {
     }
 
     expect(() => transformCart(cart)).toThrowError(
-      'required fields are undefined'
+      'required field `id` is undefined'
     )
   })
 
@@ -139,7 +139,7 @@ describe('transformCart', () => {
     }
 
     expect(() => transformCart(cart)).toThrowError(
-      'required fields are undefined'
+      'required field `name` is undefined'
     )
   })
 
@@ -160,7 +160,7 @@ describe('transformCart', () => {
     }
 
     expect(() => transformCart(cart)).toThrowError(
-      'required fields are undefined'
+      'required field `price` is undefined'
     )
   })
 
@@ -181,7 +181,7 @@ describe('transformCart', () => {
     }
 
     expect(() => transformCart(cart)).toThrowError(
-      'required fields are undefined'
+      'required field `quantity` is undefined'
     )
   })
 
@@ -202,7 +202,7 @@ describe('transformCart', () => {
     }
 
     expect(() => transformCart(cart)).toThrowError(
-      'required fields are undefined'
+      'required field `subtotal` is undefined'
     )
   })
 
@@ -223,7 +223,7 @@ describe('transformCart', () => {
     }
 
     expect(() => transformCart(cart)).toThrowError(
-      'required fields are undefined'
+      'required field `subtotal` is undefined'
     )
   })
 
@@ -244,7 +244,7 @@ describe('transformCart', () => {
     }
 
     expect(() => transformCart(cart)).toThrowError(
-      'required fields are undefined'
+      'required field `shipping` is undefined'
     )
   })
 
@@ -265,7 +265,7 @@ describe('transformCart', () => {
     }
 
     expect(() => transformCart(cart)).toThrowError(
-      'required fields are undefined'
+      'required field `tax` is undefined'
     )
   })
 
@@ -286,7 +286,7 @@ describe('transformCart', () => {
     }
 
     expect(() => transformCart(cart)).toThrowError(
-      'required fields are undefined'
+      'required field `total` is undefined'
     )
   })
 })

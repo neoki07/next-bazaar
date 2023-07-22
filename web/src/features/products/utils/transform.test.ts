@@ -61,7 +61,7 @@ describe('transformProduct', () => {
     }
 
     expect(() => transformProduct(product)).toThrowError(
-      'required fields are undefined'
+      'required field `id` is undefined'
     )
   })
 
@@ -75,7 +75,7 @@ describe('transformProduct', () => {
     }
 
     expect(() => transformProduct(product)).toThrowError(
-      'required fields are undefined'
+      'required field `name` is undefined'
     )
   })
 
@@ -89,7 +89,7 @@ describe('transformProduct', () => {
     }
 
     expect(() => transformProduct(product)).toThrowError(
-      'required fields are undefined'
+      'required field `price` is undefined'
     )
   })
 
@@ -103,7 +103,7 @@ describe('transformProduct', () => {
     }
 
     expect(() => transformProduct(product)).toThrowError(
-      'required fields are undefined'
+      'required field `stock_quantity` is undefined'
     )
   })
 
@@ -117,7 +117,7 @@ describe('transformProduct', () => {
     }
 
     expect(() => transformProduct(product)).toThrowError(
-      'required fields are undefined'
+      'required field `category` is undefined'
     )
   })
 
@@ -131,7 +131,7 @@ describe('transformProduct', () => {
     }
 
     expect(() => transformProduct(product)).toThrowError(
-      'required fields are undefined'
+      'required field `seller` is undefined'
     )
   })
 })

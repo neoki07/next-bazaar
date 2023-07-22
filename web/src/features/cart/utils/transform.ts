@@ -8,15 +8,25 @@ import { Cart, CartProduct } from '../types'
 function transformCartProduct(
   cartProduct: CartDomainCartProductResponse
 ): CartProduct {
-  if (
-    cartProduct.id === undefined ||
-    cartProduct.name === undefined ||
-    cartProduct.price === undefined ||
-    cartProduct.quantity === undefined ||
-    cartProduct.subtotal === undefined
-  ) {
+  if (cartProduct.id === undefined) {
     throw new Error(
-      'required fields are undefined:' + JSON.stringify(cartProduct)
+      'required field `id` is undefined:' + JSON.stringify(cartProduct)
+    )
+  } else if (cartProduct.name === undefined) {
+    throw new Error(
+      'required field `name` is undefined:' + JSON.stringify(cartProduct)
+    )
+  } else if (cartProduct.price === undefined) {
+    throw new Error(
+      'required field `price` is undefined:' + JSON.stringify(cartProduct)
+    )
+  } else if (cartProduct.quantity === undefined) {
+    throw new Error(
+      'required field `quantity` is undefined:' + JSON.stringify(cartProduct)
+    )
+  } else if (cartProduct.subtotal === undefined) {
+    throw new Error(
+      'required field `subtotal` is undefined:' + JSON.stringify(cartProduct)
     )
   }
 
@@ -32,14 +42,24 @@ function transformCartProduct(
 }
 
 export function transformCart(cart: CartDomainCartResponse): Cart {
-  if (
-    cart.products === undefined ||
-    cart.subtotal === undefined ||
-    cart.shipping === undefined ||
-    cart.tax === undefined ||
-    cart.total === undefined
-  ) {
-    throw new Error('required fields are undefined:' + JSON.stringify(cart))
+  if (cart.products === undefined) {
+    throw new Error(
+      'required field `products` is undefined:' + JSON.stringify(cart)
+    )
+  } else if (cart.subtotal === undefined) {
+    throw new Error(
+      'required field `subtotal` is undefined:' + JSON.stringify(cart)
+    )
+  } else if (cart.shipping === undefined) {
+    throw new Error(
+      'required field `shipping` is undefined:' + JSON.stringify(cart)
+    )
+  } else if (cart.tax === undefined) {
+    throw new Error('required field `tax` is undefined:' + JSON.stringify(cart))
+  } else if (cart.total === undefined) {
+    throw new Error(
+      'required field `total` is undefined:' + JSON.stringify(cart)
+    )
   }
 
   return {

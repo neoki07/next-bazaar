@@ -5,15 +5,30 @@ import Decimal from 'decimal.js'
 export function transformProduct(
   product: ProductDomainProductResponse
 ): Product {
-  if (
-    product.id === undefined ||
-    product.name === undefined ||
-    product.price === undefined ||
-    product.stock_quantity === undefined ||
-    product.category === undefined ||
-    product.seller === undefined
-  ) {
-    throw new Error('required fields are undefined:' + JSON.stringify(product))
+  if (product.id === undefined) {
+    throw new Error(
+      'required field `id` is undefined:' + JSON.stringify(product)
+    )
+  } else if (product.name === undefined) {
+    throw new Error(
+      'required field `name` is undefined:' + JSON.stringify(product)
+    )
+  } else if (product.price === undefined) {
+    throw new Error(
+      'required field `price` is undefined:' + JSON.stringify(product)
+    )
+  } else if (product.stock_quantity === undefined) {
+    throw new Error(
+      'required field `stock_quantity` is undefined:' + JSON.stringify(product)
+    )
+  } else if (product.category === undefined) {
+    throw new Error(
+      'required field `category` is undefined:' + JSON.stringify(product)
+    )
+  } else if (product.seller === undefined) {
+    throw new Error(
+      'required field `seller` is undefined:' + JSON.stringify(product)
+    )
   }
 
   return {
