@@ -26,12 +26,19 @@ func TestMain(m *testing.M) {
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
 
-	err = test_util.NewTestDB(ctx, dbConfig)
+	purge, err := test_util.NewTestDB(ctx, dbConfig)
 	if err != nil {
 		log.Fatal("cannot create test db:", err)
 	}
 
-	os.Exit(m.Run())
+	code := m.Run()
+
+	if err := purge(); err != nil {
+		log.Fatal("cannot purge test db:", err)
+	}
+
+	cancel()
+
+	os.Exit(code)
 }
