@@ -4,17 +4,17 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-txdb"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/go-connections/nat"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/google/uuid"
+	"github.com/ory/dockertest"
+	"github.com/ory/dockertest/docker"
 	"github.com/stretchr/testify/require"
-	"github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/wait"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
@@ -32,38 +32,75 @@ type DatabaseConfig struct {
 	MigrateSourceURL string
 }
 
-func newTestContainer(ctx context.Context, config DatabaseConfig) (testcontainers.Container, nat.Port, error) {
-	req := testcontainers.ContainerRequest{
-		Image:        config.Image,
-		ExposedPorts: []string{fmt.Sprintf("%d/tcp", config.Port)},
-		HostConfigModifier: func(hostConfig *container.HostConfig) {
-			hostConfig.AutoRemove = true
-		},
-		Env: map[string]string{
-			"POSTGRES_USER":     config.User,
-			"POSTGRES_PASSWORD": config.Password,
-			"POSTGRES_DB":       config.DBName,
-		},
-		WaitingFor: wait.ForListeningPort(
-			nat.Port(
-				fmt.Sprintf("%d/tcp", config.Port),
-			),
-		),
+func newTestDBContainer(ctx context.Context, config DatabaseConfig) (
+	db *sql.DB,
+	url string,
+	purge func() error,
+	err error,
+) {
+	// uses a sensible default on windows (tcp/http) and linux/osx (socket)
+	pool, err := dockertest.NewPool("")
+	if err != nil {
+		return nil, "", nil, fmt.Errorf("could not construct pool: %s", err)
 	}
-	testContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: req,
-		Started:          true,
+
+	err = pool.Client.Ping()
+	if err != nil {
+		return nil, "", nil, fmt.Errorf("could not connect to Docker: %s", err)
+	}
+
+	// pulls an image, creates a container based on it and runs it
+	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
+		Repository: "postgres",
+		Tag:        "11",
+		Env: []string{
+			fmt.Sprintf("POSTGRES_PASSWORD=%s", config.Password),
+			fmt.Sprintf("POSTGRES_USER=%s", config.User),
+			fmt.Sprintf("POSTGRES_DB=%s", config.DBName),
+			"listen_addresses = '*'",
+		},
+	}, func(config *docker.HostConfig) {
+		// set AutoRemove to true so that stopped container goes away by itself
+		config.AutoRemove = true
+		config.RestartPolicy = docker.RestartPolicy{Name: "no"}
 	})
 	if err != nil {
-		return nil, "", err
+		return nil, "", nil, fmt.Errorf("could not start resource: %s", err)
 	}
 
-	mappedPort, err := testContainer.MappedPort(ctx, nat.Port(fmt.Sprintf("%d", config.Port)))
-	if err != nil {
-		return nil, "", err
+	hostAndPort := resource.GetHostPort(fmt.Sprintf("%d/tcp", config.Port))
+	url = fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=disable",
+		config.User,
+		config.Password,
+		hostAndPort,
+		config.DBName,
+	)
+
+	log.Println("Connecting to database on url:", url)
+
+	resource.Expire(60) // Tell docker to hard kill the container in 60 seconds
+
+	// exponential backoff-retry, because the application in the container might not be ready to accept connections yet
+	pool.MaxWait = 60 * time.Second
+	if err = pool.Retry(func() error {
+		db, err = sql.Open("postgres", url)
+		if err != nil {
+			return err
+		}
+		return db.Ping()
+	}); err != nil {
+		return nil, "", nil, fmt.Errorf("could not connect to docker: %s", err)
 	}
 
-	return testContainer, mappedPort, nil
+	purge = func() error {
+		if err := pool.Purge(resource); err != nil {
+			return fmt.Errorf("could not purge resource: %s", err)
+		}
+		return nil
+	}
+
+	return
+
 }
 
 func migrateUp(db *sql.DB, config DatabaseConfig) error {
@@ -88,32 +125,20 @@ func migrateUp(db *sql.DB, config DatabaseConfig) error {
 }
 
 // NewTestDB creates a new test database.
-func NewTestDB(ctx context.Context, config DatabaseConfig) error {
-	_, mappedPort, err := newTestContainer(ctx, config)
+func NewTestDB(ctx context.Context, config DatabaseConfig) (purge func() error, err error) {
+	db, url, purge, err := newTestDBContainer(ctx, config)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	sourceName := fmt.Sprintf("postgresql://%s:%s@127.0.0.1:%d/%s?sslmode=disable",
-		config.User,
-		config.Password,
-		mappedPort.Int(),
-		config.DBName,
-	)
-
-	testDB, err := sql.Open(config.DriverName, sourceName)
+	err = migrateUp(db, config)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = migrateUp(testDB, config)
-	if err != nil {
-		return err
-	}
+	txdb.Register(testDBDriverName, config.DriverName, url)
 
-	txdb.Register(testDBDriverName, config.DriverName, sourceName)
-
-	return nil
+	return
 }
 
 // OpenTestDB opens a new test database connection.
