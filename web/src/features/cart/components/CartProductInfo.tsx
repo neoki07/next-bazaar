@@ -2,48 +2,48 @@ import { NativeNumberSelect, useForm } from '@/components/Form'
 import { Image } from '@/components/Image'
 import { Price } from '@/components/Price'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CloseButton, Flex, Group, Stack, Text, rem } from '@mantine/core'
+import {
+  CloseButton,
+  Flex,
+  Stack,
+  Text,
+  clsx,
+  createStyles,
+  rem,
+} from '@mantine/core'
 import range from 'lodash/range'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { z } from 'zod'
-import { useCart } from '../hooks/useCart'
-import { useCartProductsCount } from '../hooks/useCartProductsCount'
-import { useDeleteProduct } from '../hooks/useDeleteProduct'
-import { useUpdateProductQuantity } from '../hooks/useUpdateProductQuantity'
 import { CartProduct } from '../types'
 
+const schema = z.object({
+  quantity: z.number().min(1).max(10),
+})
+
+const useStyles = createStyles(() => ({
+  root: {
+    listStyle: 'none',
+  },
+}))
+
 interface CartProductInfoProps {
+  className?: string
   cartProduct: CartProduct
   imageSize: number
+  onChangeQuantity?: (id: string, quantity: number) => void
+  onDelete?: (id: string) => void
 }
 
 export function CartProductInfo({
+  className,
   cartProduct,
   imageSize,
+  onChangeQuantity,
+  onDelete,
 }: CartProductInfoProps) {
+  const { classes } = useStyles()
+
   const [isDeleting, setIsDeleting] = useState(false)
-
-  const { refetch: refetchCart } = useCart()
-  const { refetch: refetchCartProductsCount } = useCartProductsCount({
-    enabled: false,
-  })
-
-  const updateProductQuantityMutation = useUpdateProductQuantity({
-    onSuccess: () => {
-      refetchCart()
-      refetchCartProductsCount()
-    },
-  })
-  const deleteProductMutation = useDeleteProduct({
-    onSuccess: () => {
-      refetchCart()
-      refetchCartProductsCount()
-    },
-  })
-
-  const schema = z.object({
-    quantity: z.number().min(1).max(10),
-  })
 
   const [Form, methods] = useForm<{
     quantity: number
@@ -59,33 +59,21 @@ export function CartProductInfo({
     setValue('quantity', cartProduct.quantity)
   }, [methods, cartProduct.quantity])
 
-  const handleSubmit = useCallback(
-    (data: z.infer<typeof schema>) => {
-      updateProductQuantityMutation.mutate({
-        productId: cartProduct.id,
-        data: { quantity: data.quantity },
-      })
-    },
-    [updateProductQuantityMutation, cartProduct.id]
-  )
-
   const handleDelete = useCallback(() => {
     setIsDeleting(true)
-    deleteProductMutation.mutate({
-      productId: cartProduct.id,
-    })
-  }, [deleteProductMutation, cartProduct.id])
+    onDelete?.(cartProduct.id)
+  }, [onDelete, cartProduct.id])
 
   const handleChangeQuantity = useCallback(
     (event: ChangeEvent<HTMLSelectElement>) => {
       const { value } = event.target
-      handleSubmit({ quantity: Number(value) })
+      onChangeQuantity?.(cartProduct.id, Number(value))
     },
-    [handleSubmit]
+    [onChangeQuantity, cartProduct.id]
   )
 
   return (
-    <Group my="sm">
+    <li className={clsx(classes.root, className)}>
       <Stack spacing={4}>
         <Flex gap="xs">
           {cartProduct.imageUrl !== undefined && (
@@ -117,6 +105,6 @@ export function CartProductInfo({
           />
         </Flex>
       </Stack>
-    </Group>
+    </li>
   )
 }

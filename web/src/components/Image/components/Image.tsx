@@ -31,13 +31,11 @@ export function Image({
   }, [])
 
   return (
-    <div style={{ position: 'relative', maxWidth: width }}>
+    <div style={{ position: 'relative', maxWidth: width, maxHeight: height }}>
       {isLoading && isImageLoading && (
         <ImageSkeleton
           style={{
             position: 'absolute',
-            zIndex: 'auto',
-            top: '-2px',
           }}
           width={width}
           height={height}

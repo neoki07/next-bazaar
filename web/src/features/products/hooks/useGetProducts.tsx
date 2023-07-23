@@ -16,8 +16,14 @@ function transform(
   response: AxiosResponse<ProductDomainListProductsResponse>
 ): GetProductsResultData {
   const { data } = response
-  if (data.meta === undefined || data.data === undefined) {
-    throw new Error('required fields are undefined:' + JSON.stringify(data))
+  if (data.meta === undefined) {
+    throw new Error(
+      'required field `meta` is undefined:' + JSON.stringify(data)
+    )
+  } else if (data.data === undefined) {
+    throw new Error(
+      'required field `data` is undefined:' + JSON.stringify(data)
+    )
   }
 
   return {

@@ -1,6 +1,12 @@
 import { MainLayout } from '@/components/Layout'
 import { Price } from '@/components/Price'
-import { CartProductList, useCart } from '@/features/cart'
+import {
+  CartProductList,
+  useCart,
+  useCartProductsCount,
+  useUpdateProductQuantity,
+} from '@/features/cart'
+import { useDeleteProduct } from '@/features/cart/hooks/useDeleteProduct'
 import {
   Button,
   Container,
@@ -13,6 +19,9 @@ import {
   createStyles,
   rem,
 } from '@mantine/core'
+import { useCallback } from 'react'
+
+const IMAGE_SIZE = 200
 
 const useStyles = createStyles((theme) => ({
   container: {
@@ -49,8 +58,44 @@ const useStyles = createStyles((theme) => ({
 }))
 
 export default function CartPage() {
-  const { data: cart, isLoading } = useCart()
   const { classes } = useStyles()
+
+  const { data: cart, isLoading, refetch: refetchCart } = useCart()
+  const { refetch: refetchCartProductsCount } = useCartProductsCount({
+    enabled: false,
+  })
+
+  const updateProductQuantityMutation = useUpdateProductQuantity({
+    onSuccess: () => {
+      refetchCart()
+      refetchCartProductsCount()
+    },
+  })
+  const deleteProductMutation = useDeleteProduct({
+    onSuccess: () => {
+      refetchCart()
+      refetchCartProductsCount()
+    },
+  })
+
+  const handleChangeProductQuantity = useCallback(
+    (productId: string, quantity: number) => {
+      updateProductQuantityMutation.mutate({
+        productId,
+        data: { quantity },
+      })
+    },
+    [updateProductQuantityMutation]
+  )
+
+  const handleDeleteProduct = useCallback(
+    (productId: string) => {
+      deleteProductMutation.mutate({
+        productId,
+      })
+    },
+    [deleteProductMutation]
+  )
 
   return (
     <MainLayout>
@@ -63,6 +108,9 @@ export default function CartPage() {
             <CartProductList
               cartProducts={cart?.products}
               isLoading={isLoading}
+              imageSize={IMAGE_SIZE}
+              onChangeQuantity={handleChangeProductQuantity}
+              onDelete={handleDeleteProduct}
             />
           </div>
           <Stack className={classes.container} spacing="xl">

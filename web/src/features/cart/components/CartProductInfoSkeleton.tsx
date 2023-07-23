@@ -1,16 +1,26 @@
 import { Image } from '@/components/Image'
 import { PriceSkeleton } from '@/components/Price'
-import { Flex, Group, Skeleton, Stack, Text } from '@mantine/core'
+import { Flex, Skeleton, Stack, Text, clsx, createStyles } from '@mantine/core'
+
+const useStyles = createStyles(() => ({
+  root: {
+    listStyle: 'none',
+  },
+}))
 
 interface CartProductInfoSkeletonProps {
+  className?: string
   imageSize: number
 }
 
 export function CartProductInfoSkeleton({
+  className,
   imageSize,
 }: CartProductInfoSkeletonProps) {
+  const { classes } = useStyles()
+
   return (
-    <Group my="sm">
+    <li className={clsx(classes.root, className)}>
       <Stack spacing={4}>
         <Flex gap="xs">
           <Image isLoading alt="" width={imageSize} height={imageSize} />
@@ -26,6 +36,6 @@ export function CartProductInfoSkeleton({
           <div />
         </Flex>
       </Stack>
-    </Group>
+    </li>
   )
 }

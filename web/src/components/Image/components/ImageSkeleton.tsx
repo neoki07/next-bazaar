@@ -6,9 +6,9 @@ interface ImageSkeletonProps extends Pick<ImageProps, 'width' | 'height'> {
   style?: React.CSSProperties
 }
 
-export function ImageSkeleton({ height, width }: ImageSkeletonProps) {
+export function ImageSkeleton({ width, height }: ImageSkeletonProps) {
   return (
-    <Skeleton>
+    <Skeleton style={{ width, height }} aria-label="Image loading skeleton">
       <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} />
     </Skeleton>
   )
