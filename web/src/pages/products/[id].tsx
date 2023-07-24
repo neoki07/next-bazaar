@@ -7,6 +7,7 @@ import { useCartProductsCount } from '@/features/cart'
 import { useAddToCart } from '@/features/cart/hooks/useAddToCart'
 import { useGetProduct } from '@/features/products'
 import { useSession } from '@/providers/session'
+import { Page } from '@/types/page'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Button,
@@ -28,7 +29,7 @@ const IMAGE_SIZE = 648
 
 function notifyUnauthorizedError() {
   notifications.show({
-    id: 'unauthorized-error',
+    id: 'add-cart-unauthorized-error',
     title: 'Unauthorized Error',
     message: 'You must be logged in to add products to your cart.',
     color: 'red',
@@ -155,7 +156,7 @@ interface ProductAreaProps {
   productId: string
 }
 
-export default function ProductPage() {
+const ProductPage: Page = () => {
   const router = useRouter()
   const { id } = router.query
   if (Array.isArray(id)) {
@@ -170,3 +171,5 @@ export default function ProductPage() {
     </MainLayout>
   )
 }
+
+export default ProductPage

@@ -1,4 +1,13 @@
-import { ReactNode, createContext, useContext } from 'react'
+import { getCurrentUser } from '@/features/auth'
+import { AxiosError } from 'axios'
+import { useRouter } from 'next/router'
+import {
+  ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 
 interface User {
   name: string
@@ -17,16 +26,34 @@ const SessionContext = createContext<{
 }>({ session: undefined, status: 'loading' })
 
 interface SessionProviderProps {
-  session?: Session
-  status: SessionStatus
   children: ReactNode
 }
 
-export function SessionProvider({
-  session,
-  status,
-  children,
-}: SessionProviderProps) {
+export function SessionProvider({ children }: SessionProviderProps) {
+  const router = useRouter()
+  const [session, setSession] = useState<Session>()
+  const [status, setStatus] = useState<SessionStatus>('loading')
+
+  useEffect(() => {
+    getCurrentUser()
+      .then(({ data: { name, email } }) => {
+        if (name !== undefined && email !== undefined) {
+          setSession({ user: { name, email } })
+          setStatus('authenticated')
+        } else {
+          throw new Error('username or email is undefined')
+        }
+      })
+      .catch((error: AxiosError) => {
+        if (error.response?.status === 401) {
+          setSession(undefined)
+          setStatus('unauthenticated')
+        } else {
+          throw new Error(error.message)
+        }
+      })
+  }, [router])
+
   return (
     <SessionContext.Provider value={{ session, status }}>
       {children}

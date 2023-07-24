@@ -1,5 +1,6 @@
 import { PasswordInput, TextInput, useForm } from '@/components/Form'
 import { useAuth } from '@/features/auth'
+import { Page } from '@/types/page'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Anchor,
@@ -31,7 +32,7 @@ const schema = z
     path: ['confirmPassword'],
   })
 
-export default function RegisterPage() {
+const RegisterPage: Page = () => {
   const [isRegisterButtonClicked, setIsRegisterButtonClicked] = useState(false)
 
   const handleRegisterError = useCallback(() => {
@@ -130,3 +131,5 @@ export default function RegisterPage() {
     </Container>
   )
 }
+
+export default RegisterPage
