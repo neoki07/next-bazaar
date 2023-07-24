@@ -177,3 +177,5 @@ export default function CartPage() {
     </MainLayout>
   )
 }
+
+CartPage.auth = true

@@ -28,7 +28,7 @@ const IMAGE_SIZE = 648
 
 function notifyUnauthorizedError() {
   notifications.show({
-    id: 'unauthorized-error',
+    id: 'add-cart-unauthorized-error',
     title: 'Unauthorized Error',
     message: 'You must be logged in to add products to your cart.',
     color: 'red',
