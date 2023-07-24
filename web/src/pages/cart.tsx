@@ -7,6 +7,7 @@ import {
   useUpdateProductQuantity,
 } from '@/features/cart'
 import { useDeleteProduct } from '@/features/cart/hooks/useDeleteProduct'
+import { Page } from '@/types/page'
 import {
   Button,
   Container,
@@ -57,7 +58,7 @@ const useStyles = createStyles((theme) => ({
   },
 }))
 
-export default function CartPage() {
+const CartPage: Page = () => {
   const { classes } = useStyles()
 
   const { data: cart, isLoading, refetch: refetchCart } = useCart()
@@ -179,3 +180,4 @@ export default function CartPage() {
 }
 
 CartPage.auth = true
+export default CartPage

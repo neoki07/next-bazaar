@@ -1,5 +1,6 @@
 import { PasswordInput, TextInput, useForm } from '@/components/Form'
 import { useAuth } from '@/features/auth'
+import { Page } from '@/types/page'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Anchor,
@@ -25,7 +26,7 @@ const schema = z.object({
   password: z.string().min(8, { message: 'Minimum 8 characters' }),
 })
 
-export default function LoginPage() {
+const LoginPage: Page = () => {
   const [isLoginButtonClicked, setIsLoginButtonClicked] = useState(false)
 
   const handleLoginError = useCallback(() => {
@@ -131,3 +132,5 @@ export default function LoginPage() {
     </Container>
   )
 }
+
+export default LoginPage

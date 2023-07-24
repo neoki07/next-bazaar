@@ -1,5 +1,6 @@
 import { AuthGuard } from '@/features/auth'
 import { SessionProvider } from '@/providers/session'
+import { PageAuthConfig } from '@/types/page'
 import { MantineProvider } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -17,7 +18,7 @@ const queryClient = new QueryClient({
 })
 
 interface AppProps extends NextAppProps {
-  Component: NextComponentType & { auth?: boolean }
+  Component: NextComponentType & PageAuthConfig
 }
 
 export default function App({ Component, pageProps }: AppProps) {

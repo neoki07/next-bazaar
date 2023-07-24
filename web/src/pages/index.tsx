@@ -5,13 +5,14 @@ import {
   ProductCardSkeleton,
   useGetProducts,
 } from '@/features/products'
+import { Page } from '@/types/page'
 import { Container, Grid } from '@mantine/core'
 import range from 'lodash/range'
 import { useCallback } from 'react'
 
 const IMAGE_SIZE = 260
 
-export default function Home() {
+const HomePage: Page = () => {
   const { data, isLoading } = useGetProducts(1, 10)
   const getProductLink = useCallback(
     (product: Product) => `/products/${product.id}`,
@@ -42,3 +43,5 @@ export default function Home() {
     </MainLayout>
   )
 }
+
+export default HomePage
