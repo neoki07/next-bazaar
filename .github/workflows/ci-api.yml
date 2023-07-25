@@ -4,13 +4,9 @@ on:
   push:
     branches:
       - "main"
-    paths:
-      - "api/**"
   pull_request:
     branches:
       - "main"
-    paths:
-      - "api/**"
 
 defaults:
   run:
@@ -19,21 +15,6 @@ defaults:
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: root
-          POSTGRES_PASSWORD: secret
-          POSTGRES_DB: next-bazaar
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
       - uses: actions/checkout@v3
@@ -48,12 +29,6 @@ jobs:
           curl -L https://github.com/golang-migrate/migrate/releases/download/v4.15.2/migrate.linux-amd64.tar.gz | tar xvz
           sudo mv migrate /usr/bin/
           which migrate
-
-      - name: Run migrations
-        run: make test-migrateup
-
-      - name: Pull testcontainers/ryuk:0.4.0
-        run: docker pull testcontainers/ryuk:0.4.0
 
       - name: Test
         run: make test
