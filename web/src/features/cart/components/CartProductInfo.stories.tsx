@@ -28,3 +28,19 @@ export const Default: Story = {
     imageSize: IMAGE_SIZE,
   },
 }
+
+export const NotEditable: Story = {
+  args: {
+    cartProduct: {
+      id: '1',
+      name: 'Product',
+      description: 'Description',
+      price: new Decimal(10.0),
+      quantity: 5,
+      subtotal: new Decimal(50.0),
+      imageUrl: 'https://via.placeholder.com/200',
+    },
+    imageSize: IMAGE_SIZE,
+    editable: false,
+  },
+}
