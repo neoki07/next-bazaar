@@ -26,6 +26,7 @@ interface CartProductListProps {
   cartProducts?: CartProduct[]
   imageSize: number
   isLoading?: boolean
+  editable?: boolean
   onChangeQuantity?: (id: string, quantity: number) => void
   onDelete?: (id: string) => void
 }
@@ -34,6 +35,7 @@ export function CartProductList({
   cartProducts,
   imageSize,
   isLoading,
+  editable = true,
   onChangeQuantity,
   onDelete,
 }: CartProductListProps) {
@@ -59,6 +61,7 @@ export function CartProductList({
               className={classes.listItem}
               cartProduct={product}
               imageSize={imageSize}
+              editable={editable}
               onChangeQuantity={onChangeQuantity}
               onDelete={onDelete}
             />

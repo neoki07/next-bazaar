@@ -30,6 +30,7 @@ interface CartProductInfoProps {
   className?: string
   cartProduct: CartProduct
   imageSize: number
+  editable?: boolean
   onChangeQuantity?: (id: string, quantity: number) => void
   onDelete?: (id: string) => void
 }
@@ -38,6 +39,7 @@ export function CartProductInfo({
   className,
   cartProduct,
   imageSize,
+  editable = true,
   onChangeQuantity,
   onDelete,
 }: CartProductInfoProps) {
@@ -84,25 +86,31 @@ export function CartProductInfo({
               height={imageSize}
             />
           )}
-          <Form>
-            <Stack spacing="xs">
-              <Text fz="md">{cartProduct.name}</Text>
-              <Price price={cartProduct.price} size="xl" weight="bold" />
-              <NativeNumberSelect
-                w={rem(80)}
-                label="Quantity"
-                name="quantity"
-                options={range(1, Math.max(10, cartProduct.quantity) + 1)}
-                onChange={handleChangeQuantity}
-                disabled={isDeleting}
-              />
-            </Stack>
-          </Form>
-          <CloseButton
-            aria-label="Remove product"
-            onClick={handleDelete}
-            disabled={isDeleting}
-          />
+          <Stack spacing="xs">
+            <Text fz="md">{cartProduct.name}</Text>
+            <Price price={cartProduct.price} size="xl" weight="bold" />
+            {editable ? (
+              <Form>
+                <NativeNumberSelect
+                  w={rem(80)}
+                  label="Quantity"
+                  name="quantity"
+                  options={range(1, Math.max(10, cartProduct.quantity) + 1)}
+                  onChange={handleChangeQuantity}
+                  disabled={isDeleting}
+                />
+              </Form>
+            ) : (
+              <Text>Quantity: {cartProduct.quantity}</Text>
+            )}
+          </Stack>
+          {editable && (
+            <CloseButton
+              aria-label="Remove product"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            />
+          )}
         </Flex>
       </Stack>
     </li>

@@ -30,7 +30,9 @@ export function CartProductInfoSkeleton({
                 <Text fz="md">dummy</Text>
               </Skeleton>
               <PriceSkeleton width="50%" />
-              <Skeleton width="50%" height={60} />
+              <Skeleton width="50%">
+                <Text fz="md">dummy</Text>
+              </Skeleton>
             </Stack>
           </div>
           <div />
