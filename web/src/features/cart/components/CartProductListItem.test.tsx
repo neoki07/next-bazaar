@@ -85,4 +85,17 @@ describe('CartProductListItem', () => {
     expect(onDelete).toHaveBeenCalledTimes(1)
     expect(onDelete).toHaveBeenCalledWith('1')
   })
+
+  it('renders quantity text when editable is false', () => {
+    render(
+      <CartProductListItem
+        cartProduct={cartProduct}
+        imageSize={IMAGE_SIZE}
+        editable={false}
+      />
+    )
+
+    expect(screen.getByText('Quantity: 5')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Quantity')).not.toBeInTheDocument()
+  })
 })
