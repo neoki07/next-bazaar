@@ -15,6 +15,10 @@ import { useCallback, useEffect } from 'react'
 const IMAGE_SIZE = 120
 
 const useStyles = createStyles((theme) => ({
+  title: {
+    fontWeight: 700,
+    fontSize: theme.fontSizes.lg,
+  },
   continueButton: {
     color: theme.colors.gray[6],
 
@@ -46,6 +50,7 @@ export function AddedModal({ opened, onClose }: AddedModalProps) {
 
   return (
     <Modal
+      classNames={{ title: classes.title }}
       opened={opened}
       onClose={onClose}
       title="Added product to cart"
