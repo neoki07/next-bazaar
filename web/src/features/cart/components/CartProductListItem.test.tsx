@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Decimal from 'decimal.js'
-import { CartProductInfo } from './CartProductInfo'
+import { CartProductListItem } from './CartProductListItem'
 
 const IMAGE_SIZE = 200
 
@@ -17,9 +17,11 @@ const cartProduct = {
   imageUrl: 'https://example.com/image.png',
 }
 
-describe('CartProductInfo', () => {
+describe('CartProductListItem', () => {
   it('renders product information', () => {
-    render(<CartProductInfo cartProduct={cartProduct} imageSize={IMAGE_SIZE} />)
+    render(
+      <CartProductListItem cartProduct={cartProduct} imageSize={IMAGE_SIZE} />
+    )
 
     expect(screen.getByText('Product')).toBeInTheDocument()
     expect(screen.getByText('$10.00')).toBeInTheDocument()
@@ -33,7 +35,9 @@ describe('CartProductInfo', () => {
   })
 
   it('renders quantity select', () => {
-    render(<CartProductInfo cartProduct={cartProduct} imageSize={IMAGE_SIZE} />)
+    render(
+      <CartProductListItem cartProduct={cartProduct} imageSize={IMAGE_SIZE} />
+    )
 
     const quantitySelect = screen.getByLabelText('Quantity')
     expect(quantitySelect).toBeInTheDocument()
@@ -43,7 +47,7 @@ describe('CartProductInfo', () => {
   it('calls onChangeQuantity when quantity changes', async () => {
     const onChangeQuantity = jest.fn()
     render(
-      <CartProductInfo
+      <CartProductListItem
         cartProduct={cartProduct}
         imageSize={IMAGE_SIZE}
         onChangeQuantity={onChangeQuantity}
@@ -57,7 +61,9 @@ describe('CartProductInfo', () => {
   })
 
   it('renders delete button', () => {
-    render(<CartProductInfo cartProduct={cartProduct} imageSize={IMAGE_SIZE} />)
+    render(
+      <CartProductListItem cartProduct={cartProduct} imageSize={IMAGE_SIZE} />
+    )
 
     expect(
       screen.getByRole('button', { name: 'Remove product' })
@@ -67,7 +73,7 @@ describe('CartProductInfo', () => {
   it('calls onDelete when delete button is clicked', async () => {
     const onDelete = jest.fn()
     render(
-      <CartProductInfo
+      <CartProductListItem
         cartProduct={cartProduct}
         imageSize={IMAGE_SIZE}
         onDelete={onDelete}

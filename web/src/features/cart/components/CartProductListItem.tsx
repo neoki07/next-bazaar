@@ -26,7 +26,7 @@ const useStyles = createStyles(() => ({
   },
 }))
 
-interface CartProductInfoProps {
+interface CartProductListItemProps {
   className?: string
   cartProduct: CartProduct
   imageSize: number
@@ -35,14 +35,14 @@ interface CartProductInfoProps {
   onDelete?: (id: string) => void
 }
 
-export function CartProductInfo({
+export function CartProductListItem({
   className,
   cartProduct,
   imageSize,
   editable = true,
   onChangeQuantity,
   onDelete,
-}: CartProductInfoProps) {
+}: CartProductListItemProps) {
   const { classes } = useStyles()
 
   const [isDeleting, setIsDeleting] = useState(false)

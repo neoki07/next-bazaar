@@ -1,18 +1,18 @@
 import { Meta, StoryObj } from '@storybook/react'
 import Decimal from 'decimal.js'
-import { CartProductInfo } from './CartProductInfo'
+import { CartProductListItem } from './CartProductListItem'
 
 const IMAGE_SIZE = 200
 
-const meta: Meta<typeof CartProductInfo> = {
-  title: 'Features/Cart/CartProductInfo',
-  component: CartProductInfo,
+const meta: Meta<typeof CartProductListItem> = {
+  title: 'Features/Cart/CartProductListItem',
+  component: CartProductListItem,
   tags: ['autodocs'],
   argTypes: {},
 }
 
 export default meta
-type Story = StoryObj<typeof CartProductInfo>
+type Story = StoryObj<typeof CartProductListItem>
 
 export const Default: Story = {
   args: {

@@ -8,15 +8,15 @@ const useStyles = createStyles(() => ({
   },
 }))
 
-interface CartProductInfoSkeletonProps {
+interface CartProductListItemSkeletonProps {
   className?: string
   imageSize: number
 }
 
-export function CartProductInfoSkeleton({
+export function CartProductListItemSkeleton({
   className,
   imageSize,
-}: CartProductInfoSkeletonProps) {
+}: CartProductListItemSkeletonProps) {
   const { classes } = useStyles()
 
   return (
