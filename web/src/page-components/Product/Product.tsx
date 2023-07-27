@@ -45,6 +45,7 @@ interface ProductAreaProps {
 }
 
 export function ProductArea({ productId }: ProductAreaProps) {
+  const router = useRouter()
   const [openedModal, { open: openModal, close: closeModal }] =
     useDisclosure(false)
   const { session } = useSession()
@@ -60,6 +61,7 @@ export function ProductArea({ productId }: ProductAreaProps) {
     },
     onError: (error) => {
       if (error.response?.status === 401) {
+        router.push('/')
         notifyUnauthorizedError()
       } else {
         throw new Error('Unexpected error')
