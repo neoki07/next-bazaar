@@ -40,6 +40,33 @@ export const Default: Story = {
   },
 }
 
+export const NotEditable: Story = {
+  args: {
+    cartProducts: [
+      {
+        id: '1',
+        name: 'Product 1',
+        description: 'Description 1',
+        price: new Decimal(10.0),
+        quantity: 1,
+        subtotal: new Decimal(10.0),
+        imageUrl: 'https://via.placeholder.com/200',
+      },
+      {
+        id: '2',
+        name: 'Product 2',
+        description: 'Description 2',
+        price: new Decimal(20.0),
+        quantity: 2,
+        subtotal: new Decimal(40.0),
+        imageUrl: 'https://via.placeholder.com/200',
+      },
+    ],
+    imageSize: IMAGE_SIZE,
+    editable: false,
+  },
+}
+
 export const Loading: Story = {
   args: {
     imageSize: IMAGE_SIZE,

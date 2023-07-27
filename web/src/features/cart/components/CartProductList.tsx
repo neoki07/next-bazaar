@@ -1,8 +1,8 @@
 import { Text, createStyles } from '@mantine/core'
 import { range } from 'lodash'
 import { CartProduct } from '../types'
-import { CartProductInfo } from './CartProductInfo'
-import { CartProductInfoSkeleton } from './CartProductInfoSkeleton'
+import { CartProductListItem } from './CartProductListItem'
+import { CartProductListItemSkeleton } from './CartProductListItemSkeleton'
 
 const useStyles = createStyles((theme) => ({
   list: {
@@ -26,6 +26,7 @@ interface CartProductListProps {
   cartProducts?: CartProduct[]
   imageSize: number
   isLoading?: boolean
+  editable?: boolean
   onChangeQuantity?: (id: string, quantity: number) => void
   onDelete?: (id: string) => void
 }
@@ -34,6 +35,7 @@ export function CartProductList({
   cartProducts,
   imageSize,
   isLoading,
+  editable = true,
   onChangeQuantity,
   onDelete,
 }: CartProductListProps) {
@@ -44,7 +46,7 @@ export function CartProductList({
       {isLoading || cartProducts === undefined ? (
         <ul className={classes.list}>
           {range(3).map((index) => (
-            <CartProductInfoSkeleton
+            <CartProductListItemSkeleton
               key={index}
               className={classes.listItem}
               imageSize={imageSize}
@@ -54,11 +56,12 @@ export function CartProductList({
       ) : cartProducts.length > 0 ? (
         <ul className={classes.list}>
           {cartProducts.map((product) => (
-            <CartProductInfo
+            <CartProductListItem
               key={product.id}
               className={classes.listItem}
               cartProduct={product}
               imageSize={imageSize}
+              editable={editable}
               onChangeQuantity={onChangeQuantity}
               onDelete={onDelete}
             />

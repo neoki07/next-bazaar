@@ -17,12 +17,14 @@ import {
   Text,
   rem,
 } from '@mantine/core'
+import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { IconX } from '@tabler/icons-react'
 import range from 'lodash/range'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 import { z } from 'zod'
+import { AddedModal } from './AddedModal'
 
 const IMAGE_SIZE = 648
 
@@ -43,6 +45,8 @@ interface ProductAreaProps {
 }
 
 export function ProductArea({ productId }: ProductAreaProps) {
+  const [openedModal, { open: openModal, close: closeModal }] =
+    useDisclosure(false)
   const { session } = useSession()
   const { data: product, isLoading } = useGetProduct(productId)
   const { refetch: refetchCartProductsCount } = useCartProductsCount({
@@ -50,7 +54,10 @@ export function ProductArea({ productId }: ProductAreaProps) {
   })
 
   const addToCartMutation = useAddToCart({
-    onSuccess: () => refetchCartProductsCount(),
+    onSuccess: () => {
+      refetchCartProductsCount()
+      openModal()
+    },
     onError: (error) => {
       if (error.response?.status === 401) {
         notifyUnauthorizedError()
@@ -143,6 +150,7 @@ export function ProductArea({ productId }: ProductAreaProps) {
               <Button type="submit" color="dark" fullWidth>
                 Add to Cart
               </Button>
+              <AddedModal opened={openedModal} onClose={closeModal} />
             </Skeleton>
           </Stack>
         </Form>
