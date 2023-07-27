@@ -19,9 +19,24 @@ import {
   createStyles,
   rem,
 } from '@mantine/core'
+import { notifications } from '@mantine/notifications'
+import { IconX } from '@tabler/icons-react'
+import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 
 const IMAGE_SIZE = 200
+
+function notifyUnauthorizedError() {
+  notifications.show({
+    id: 'expired-session-error',
+    title: 'Unauthorized Error',
+    message: 'Your session has expired. Please log in again.',
+    color: 'red',
+    icon: <IconX />,
+    withCloseButton: true,
+    withBorder: true,
+  })
+}
 
 const useStyles = createStyles((theme) => ({
   container: {
@@ -58,6 +73,7 @@ const useStyles = createStyles((theme) => ({
 }))
 
 export function Cart() {
+  const router = useRouter()
   const { classes } = useStyles()
 
   const { data: cart, isLoading, refetch: refetchCart } = useCart()
@@ -70,11 +86,27 @@ export function Cart() {
       refetchCart()
       refetchCartProductsCount()
     },
+    onError: (error) => {
+      if (error.response?.status === 401) {
+        router.push('/')
+        notifyUnauthorizedError()
+      } else {
+        throw new Error('Unexpected error')
+      }
+    },
   })
   const deleteProductMutation = useDeleteProduct({
     onSuccess: () => {
       refetchCart()
       refetchCartProductsCount()
+    },
+    onError: (error) => {
+      if (error.response?.status === 401) {
+        router.push('/')
+        notifyUnauthorizedError()
+      } else {
+        throw new Error('Unexpected error')
+      }
     },
   })
 
