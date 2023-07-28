@@ -1,4 +1,8 @@
 import {
+  NOT_IMPLEMENTED_ERROR_IDS,
+  notifyNotImplementedError,
+} from '@/features/notification/not-implemented'
+import {
   Category,
   Product,
   ProductCard,
@@ -15,7 +19,6 @@ import {
   rem,
 } from '@mantine/core'
 import range from 'lodash/range'
-import Link from 'next/link'
 
 const PAGE_SIZE = 8
 
@@ -62,11 +65,21 @@ export function CategorySection({
             ))}
       </Grid>
       <Center>
-        <Link href="#">
-          <Button className={classes.viewMoreButton} variant="default">
-            View More
-          </Button>
-        </Link>
+        {/* TODO: Add link to view more products */}
+        {/* <Link href="#"> */}
+        <Button
+          className={classes.viewMoreButton}
+          variant="default"
+          onClick={() =>
+            notifyNotImplementedError(
+              NOT_IMPLEMENTED_ERROR_IDS.viewMoreProducts,
+              'View More Products is not implemented yet'
+            )
+          }
+        >
+          View More
+        </Button>
+        {/* </Link> */}
       </Center>
     </Stack>
   )

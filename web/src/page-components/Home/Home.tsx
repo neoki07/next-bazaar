@@ -5,7 +5,6 @@ import { useCallback } from 'react'
 import { CategorySection } from './CategorySection'
 
 const IMAGE_SIZE = 260
-const PAGE_SIZE = 20
 
 export function Home() {
   const { data: categories, isLoading } = useGetProductCategories(1, 100)
