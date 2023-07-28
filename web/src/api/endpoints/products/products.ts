@@ -15,7 +15,9 @@ import type { ErrorType } from '../../custom-axios-instance'
 import { customAxiosInstance } from '../../custom-axios-instance'
 import type {
   ApiErrorResponse,
+  GetProductsCategoriesParams,
   GetProductsParams,
+  ProductDomainListProductCategoriesResponse,
   ProductDomainListProductsResponse,
   ProductDomainProductResponse,
 } from '../../model'
@@ -166,6 +168,84 @@ export const useGetProductsId = <
   }
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
   const queryOptions = getGetProductsIdQueryOptions(id, options)
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary List product categories
+ */
+export const getProductsCategories = (
+  params: GetProductsCategoriesParams,
+  options?: SecondParameter<typeof customAxiosInstance>,
+  signal?: AbortSignal
+) => {
+  return customAxiosInstance<ProductDomainListProductCategoriesResponse>(
+    { url: `/products/categories`, method: 'get', params, signal },
+    options
+  )
+}
+
+export const getGetProductsCategoriesQueryKey = (
+  params: GetProductsCategoriesParams
+) => [`/products/categories`, ...(params ? [params] : [])] as const
+
+export const getGetProductsCategoriesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getProductsCategories>>,
+  TError = ErrorType<ApiErrorResponse>
+>(
+  params: GetProductsCategoriesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getProductsCategories>>,
+      TError,
+      TData
+    >
+    request?: SecondParameter<typeof customAxiosInstance>
+  }
+): UseQueryOptions<
+  Awaited<ReturnType<typeof getProductsCategories>>,
+  TError,
+  TData
+> & { queryKey: QueryKey } => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetProductsCategoriesQueryKey(params)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getProductsCategories>>
+  > = ({ signal }) => getProductsCategories(params, requestOptions, signal)
+
+  return { queryKey, queryFn, ...queryOptions }
+}
+
+export type GetProductsCategoriesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getProductsCategories>>
+>
+export type GetProductsCategoriesQueryError = ErrorType<ApiErrorResponse>
+
+export const useGetProductsCategories = <
+  TData = Awaited<ReturnType<typeof getProductsCategories>>,
+  TError = ErrorType<ApiErrorResponse>
+>(
+  params: GetProductsCategoriesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getProductsCategories>>,
+      TError,
+      TData
+    >
+    request?: SecondParameter<typeof customAxiosInstance>
+  }
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+  const queryOptions = getGetProductsCategoriesQueryOptions(params, options)
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey

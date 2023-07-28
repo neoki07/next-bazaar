@@ -226,6 +226,11 @@ const docTemplate = `{
                 "summary": "List products",
                 "parameters": [
                     {
+                        "type": "string",
+                        "name": "category_id",
+                        "in": "query"
+                    },
+                    {
                         "minimum": 1,
                         "type": "integer",
                         "name": "page_id",
@@ -246,6 +251,51 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/product_domain.ListProductsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/categories": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "List product categories",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "page_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/product_domain.ListProductCategoriesResponse"
                         }
                     },
                     "400": {
@@ -555,6 +605,37 @@ const docTemplate = `{
                 }
             }
         },
+        "product_domain.ListProductCategoriesResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/product_domain.ProductCategoryResponse"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/product_domain.ListProductCategoriesResponseMeta"
+                }
+            }
+        },
+        "product_domain.ListProductCategoriesResponseMeta": {
+            "type": "object",
+            "properties": {
+                "page_count": {
+                    "type": "integer"
+                },
+                "page_id": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total_count": {
+                    "type": "integer"
+                }
+            }
+        },
         "product_domain.ListProductsResponse": {
             "type": "object",
             "properties": {
@@ -583,6 +664,17 @@ const docTemplate = `{
                 },
                 "total_count": {
                     "type": "integer"
+                }
+            }
+        },
+        "product_domain.ProductCategoryResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },

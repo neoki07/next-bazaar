@@ -28,15 +28,17 @@ function transform(
 
   return {
     meta: data.meta,
-    data: data.data.map((item) => {
-      return transformProduct(item)
-    }),
+    data: data.data.map(transformProduct),
   }
 }
 
-export function useGetProducts(page: number, pageSize: number) {
+export function useGetProducts(
+  page: number,
+  pageSize: number,
+  categoryId?: string
+) {
   return useGetProductsQuery<GetProductsResultData>(
-    { page_id: page, page_size: pageSize },
+    { page_id: page, page_size: pageSize, category_id: categoryId },
     {
       query: { select: transform },
     }

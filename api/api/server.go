@@ -76,6 +76,7 @@ func (server *Server) setupRouter() {
 	v1.Post("/users/login", server.handlers.user.login)
 
 	v1.Get("/products", server.handlers.product.listProducts)
+	v1.Get("/products/categories", server.handlers.product.listProductCategories)
 	v1.Get("/products/:id", server.handlers.product.getProduct)
 
 	v1.Use(authMiddleware(server))

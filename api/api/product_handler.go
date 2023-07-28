@@ -68,8 +68,9 @@ func (h *productHandler) listProducts(c *fiber.Ctx) error {
 	}
 
 	arg := product_domain.GetProductsServiceParams{
-		PageID:   req.PageID,
-		PageSize: req.PageSize,
+		PageID:     req.PageID,
+		PageSize:   req.PageSize,
+		CategoryID: req.CategoryID,
 	}
 
 	products, err := h.service.GetProducts(c.Context(), arg)
@@ -97,6 +98,44 @@ func (h *productHandler) listProducts(c *fiber.Ctx) error {
 			TotalCount: totalCount,
 		},
 		Data: rspData,
+	}
+	return c.Status(fiber.StatusOK).JSON(rsp)
+}
+
+// @Summary      List product categories
+// @Tags         Products
+// @Param        query query product_domain.ListProductCategoriesRequest true "query"
+// @Success      200 {object} product_domain.ListProductCategoriesResponse
+// @Failure      400 {object} errorResponse
+// @Failure      500 {object} errorResponse
+// @Router       /products/categories [get]
+func (h *productHandler) listProductCategories(c *fiber.Ctx) error {
+	req := new(product_domain.ListProductCategoriesRequest)
+	if err := c.QueryParser(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	validate := validation.NewValidator()
+	if err := validate.Struct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	arg := product_domain.GetProductCategoriesServiceParams{
+		PageID:   req.PageID,
+		PageSize: req.PageSize,
+	}
+
+	categories, err := h.service.GetProductCategories(c.Context(), arg)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
+	}
+
+	rsp := product_domain.ListProductCategoriesResponse{
+		Meta: product_domain.ListProductCategoriesResponseMeta{
+			PageID:   req.PageID,
+			PageSize: req.PageSize,
+		},
+		Data: product_domain.NewProductCategoriesResponse(categories),
 	}
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }

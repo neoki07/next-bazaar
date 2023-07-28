@@ -37,17 +37,16 @@ func (s *ProductService) GetProduct(ctx context.Context, id uuid.UUID) (Product,
 }
 
 type GetProductsServiceParams struct {
-	PageID   int32
-	PageSize int32
+	PageID     int32
+	PageSize   int32
+	CategoryID uuid.NullUUID
 }
 
 func (s *ProductService) GetProducts(ctx context.Context, params GetProductsServiceParams) ([]Product, error) {
-	pageSize := params.PageSize
-	pageID := params.PageID
-
 	arg := db.ListProductsParams{
-		Limit:  pageSize,
-		Offset: (pageID - 1) * pageSize,
+		Limit:      params.PageSize,
+		Offset:     (params.PageID - 1) * params.PageSize,
+		CategoryID: params.CategoryID,
 	}
 
 	products, err := s.store.ListProducts(ctx, arg)
@@ -87,4 +86,28 @@ func (s *ProductService) GetProducts(ctx context.Context, params GetProductsServ
 
 func (s *ProductService) CountProducts(ctx context.Context) (int64, error) {
 	return s.store.CountProducts(ctx)
+}
+
+type GetProductCategoriesServiceParams struct {
+	PageID   int32
+	PageSize int32
+}
+
+func (s *ProductService) GetProductCategories(ctx context.Context, params GetProductCategoriesServiceParams) ([]Category, error) {
+	arg := db.ListCategoriesParams{
+		Limit:  params.PageSize,
+		Offset: (params.PageID - 1) * params.PageSize,
+	}
+
+	categories, err := s.store.ListCategories(ctx, arg)
+	if err != nil {
+		return nil, err
+	}
+
+	rsp := make([]Category, len(categories))
+	for i, category := range categories {
+		rsp[i] = toCategoryDomain(category)
+	}
+
+	return rsp, nil
 }

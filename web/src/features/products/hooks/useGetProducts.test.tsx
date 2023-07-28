@@ -82,7 +82,7 @@ describe('useGetProducts', () => {
   setupMockServer(...handlers)
 
   it('returns meta data and products correctly', async () => {
-    const { result } = renderHook(() => useGetProducts(1, 5), {
+    const { result } = renderHook(() => useGetProducts(1, 5, 'dummy'), {
       wrapper: queryWrapper,
     })
     await waitFor(() => {

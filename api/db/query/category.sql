@@ -16,7 +16,7 @@ ORDER BY id;
 
 -- name: ListCategories :many
 SELECT * FROM categories
-ORDER BY id
+ORDER BY created_at
 LIMIT $1
 OFFSET $2;
 

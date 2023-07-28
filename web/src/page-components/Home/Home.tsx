@@ -1,43 +1,36 @@
 import { MainLayout } from '@/components/Layout'
-import {
-  Product,
-  ProductCard,
-  ProductCardSkeleton,
-  useGetProducts,
-} from '@/features/products'
-import { Container, Grid } from '@mantine/core'
-import range from 'lodash/range'
+import { Product, useGetProductCategories } from '@/features/products'
+import { Container, Stack, rem } from '@mantine/core'
 import { useCallback } from 'react'
+import { CategorySection } from './CategorySection'
 
 const IMAGE_SIZE = 260
+const PAGE_SIZE = 20
 
 export function Home() {
-  const { data, isLoading } = useGetProducts(1, 10)
+  const { data: categories, isLoading } = useGetProductCategories(1, 100)
   const getProductLink = useCallback(
     (product: Product) => `/products/${product.id}`,
     []
   )
 
+  if (isLoading) {
+    return null
+  }
+
   return (
     <MainLayout>
       <Container size="lg">
-        <Grid columns={4} gutter="xl">
-          {isLoading
-            ? range(10).map((index) => (
-                <Grid.Col key={index} span={1}>
-                  <ProductCardSkeleton imageSize={IMAGE_SIZE} />
-                </Grid.Col>
-              ))
-            : data?.data.map((product) => (
-                <Grid.Col key={product.id} span={1}>
-                  <ProductCard
-                    product={product}
-                    getProductLink={getProductLink}
-                    imageSize={IMAGE_SIZE}
-                  />
-                </Grid.Col>
-              ))}
-        </Grid>
+        <Stack spacing={rem(40)}>
+          {categories?.data.map((category) => (
+            <CategorySection
+              key={category.id}
+              category={category}
+              getProductLink={getProductLink}
+              imageSize={IMAGE_SIZE}
+            />
+          ))}
+        </Stack>
       </Container>
     </MainLayout>
   )
