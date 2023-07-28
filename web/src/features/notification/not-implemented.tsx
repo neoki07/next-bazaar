@@ -1,11 +1,15 @@
 import { notifications } from '@mantine/notifications'
 import { IconX } from '@tabler/icons-react'
+import { NotificationConfig } from './shared'
 
-export const NOT_IMPLEMENTED_ERROR_IDS = {
-  viewMoreProducts: 'view-more-products-not-implemented-error',
+export const NOTIFY_NOT_IMPLEMENTED_ERRORS = {
+  viewMoreProducts: {
+    id: 'view-more-products-not-implemented-error',
+    message: 'View More Products is not implemented yet',
+  },
 } as const
 
-export function notifyNotImplementedError(id: string, message: string) {
+export function notifyNotImplementedError({ id, message }: NotificationConfig) {
   notifications.show({
     id,
     message,

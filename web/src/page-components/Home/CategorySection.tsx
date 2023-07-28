@@ -1,5 +1,5 @@
 import {
-  NOT_IMPLEMENTED_ERROR_IDS,
+  NOTIFY_NOT_IMPLEMENTED_ERRORS,
   notifyNotImplementedError,
 } from '@/features/notification/not-implemented'
 import {
@@ -72,8 +72,7 @@ export function CategorySection({
           variant="default"
           onClick={() =>
             notifyNotImplementedError(
-              NOT_IMPLEMENTED_ERROR_IDS.viewMoreProducts,
-              'View More Products is not implemented yet'
+              NOTIFY_NOT_IMPLEMENTED_ERRORS.viewMoreProducts
             )
           }
         >

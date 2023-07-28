@@ -5,6 +5,10 @@ import { MainLayout } from '@/components/Layout'
 import { Price, PriceSkeleton } from '@/components/Price'
 import { useCartProductsCount } from '@/features/cart'
 import { useAddToCart } from '@/features/cart/hooks/useAddToCart'
+import {
+  NOTIFY_UNAUTHORIZED_ERRORS,
+  notifyUnauthorizedError,
+} from '@/features/notification/unauthorized'
 import { useGetProduct } from '@/features/products'
 import { useSession } from '@/providers/session'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -18,8 +22,6 @@ import {
   rem,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { notifications } from '@mantine/notifications'
-import { IconX } from '@tabler/icons-react'
 import range from 'lodash/range'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
@@ -27,18 +29,6 @@ import { z } from 'zod'
 import { AddedModal } from './AddedModal'
 
 const IMAGE_SIZE = 648
-
-function notifyUnauthorizedError() {
-  notifications.show({
-    id: 'add-cart-unauthorized-error',
-    title: 'Unauthorized Error',
-    message: 'You must be logged in to add products to your cart.',
-    color: 'red',
-    icon: <IconX />,
-    withCloseButton: true,
-    withBorder: true,
-  })
-}
 
 interface ProductAreaProps {
   productId: string
@@ -62,7 +52,7 @@ export function ProductArea({ productId }: ProductAreaProps) {
     onError: (error) => {
       if (error.response?.status === 401) {
         router.push('/')
-        notifyUnauthorizedError()
+        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.addToCart)
       } else {
         throw new Error('Unexpected error')
       }
@@ -76,7 +66,7 @@ export function ProductArea({ productId }: ProductAreaProps) {
   const handleSubmit = useCallback(
     (data: z.infer<typeof schema>) => {
       if (session === undefined) {
-        notifyUnauthorizedError()
+        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.addToCart)
         return
       }
 

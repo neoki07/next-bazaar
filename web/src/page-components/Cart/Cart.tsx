@@ -8,6 +8,10 @@ import {
 } from '@/features/cart'
 import { useDeleteProduct } from '@/features/cart/hooks/useDeleteProduct'
 import {
+  NOTIFY_UNAUTHORIZED_ERRORS,
+  notifyUnauthorizedError,
+} from '@/features/notification/unauthorized'
+import {
   Button,
   Container,
   Divider,
@@ -19,24 +23,10 @@ import {
   createStyles,
   rem,
 } from '@mantine/core'
-import { notifications } from '@mantine/notifications'
-import { IconX } from '@tabler/icons-react'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 
 const IMAGE_SIZE = 200
-
-function notifyUnauthorizedError() {
-  notifications.show({
-    id: 'expired-session-error',
-    title: 'Unauthorized Error',
-    message: 'Your session has expired. Please log in again.',
-    color: 'red',
-    icon: <IconX />,
-    withCloseButton: true,
-    withBorder: true,
-  })
-}
 
 const useStyles = createStyles((theme) => ({
   container: {
@@ -89,7 +79,7 @@ export function Cart() {
     onError: (error) => {
       if (error.response?.status === 401) {
         router.push('/')
-        notifyUnauthorizedError()
+        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.expiredSession)
       } else {
         throw new Error('Unexpected error')
       }
@@ -103,7 +93,7 @@ export function Cart() {
     onError: (error) => {
       if (error.response?.status === 401) {
         router.push('/')
-        notifyUnauthorizedError()
+        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.expiredSession)
       } else {
         throw new Error('Unexpected error')
       }
