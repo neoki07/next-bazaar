@@ -72,7 +72,7 @@ export function CategorySection({
           variant="default"
           onClick={() =>
             notifyNotImplementedError(
-              NOTIFY_NOT_IMPLEMENTED_ERRORS.viewMoreProducts
+              NOTIFY_NOT_IMPLEMENTED_ERRORS.ViewMoreProducts
             )
           }
         >

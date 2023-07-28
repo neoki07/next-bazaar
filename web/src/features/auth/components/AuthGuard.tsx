@@ -23,7 +23,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
     ) {
       router.push(REDIRECT_PATH_WHEN_UNAUTHENTICATED)
       notifyUnauthorizedError(
-        NOTIFY_UNAUTHORIZED_ERRORS.accessToAuthenticatedPage
+        NOTIFY_UNAUTHORIZED_ERRORS.AccessToAuthenticatedPage
       )
     }
   }, [router, status])

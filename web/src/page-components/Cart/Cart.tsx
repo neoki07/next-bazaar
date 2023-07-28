@@ -8,6 +8,10 @@ import {
 } from '@/features/cart'
 import { useDeleteProduct } from '@/features/cart/hooks/useDeleteProduct'
 import {
+  NOTIFY_NOT_IMPLEMENTED_ERRORS,
+  notifyNotImplementedError,
+} from '@/features/notification/not-implemented'
+import {
   NOTIFY_UNAUTHORIZED_ERRORS,
   notifyUnauthorizedError,
 } from '@/features/notification/unauthorized'
@@ -79,7 +83,7 @@ export function Cart() {
     onError: (error) => {
       if (error.response?.status === 401) {
         router.push('/')
-        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.expiredSession)
+        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.ExpiredSession)
       } else {
         throw new Error('Unexpected error')
       }
@@ -93,7 +97,7 @@ export function Cart() {
     onError: (error) => {
       if (error.response?.status === 401) {
         router.push('/')
-        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.expiredSession)
+        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.ExpiredSession)
       } else {
         throw new Error('Unexpected error')
       }
@@ -188,7 +192,15 @@ export function Cart() {
                     />
                   </Flex>
                 </div>
-                <Button color="dark" fullWidth>
+                <Button
+                  color="dark"
+                  fullWidth
+                  onClick={() =>
+                    notifyNotImplementedError(
+                      NOTIFY_NOT_IMPLEMENTED_ERRORS.ProceedToCheckout
+                    )
+                  }
+                >
                   Proceed to Checkout
                 </Button>
               </>

@@ -3,15 +3,17 @@ import { IconX } from '@tabler/icons-react'
 import { NotificationConfig } from './shared'
 
 export const NOTIFY_UNAUTHORIZED_ERRORS = {
-  accessToAuthenticatedPage: {
+  AccessToAuthenticatedPage: {
     id: 'access-to-authenticated-page-unauthorized-error',
     message: 'You must be logged in to access authenticated pages.',
   },
-  expiredSession: {
+
+  ExpiredSession: {
     id: 'expired-session-unauthorized-error',
     message: 'Your session has expired. Please log in again.',
   },
-  addToCart: {
+
+  AddToCart: {
     id: 'add-to-cart-unauthorized-error',
     message: 'You must be logged in to add products to your cart.',
   },

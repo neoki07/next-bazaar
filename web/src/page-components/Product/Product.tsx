@@ -52,7 +52,7 @@ export function ProductArea({ productId }: ProductAreaProps) {
     onError: (error) => {
       if (error.response?.status === 401) {
         router.push('/')
-        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.addToCart)
+        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.AddToCart)
       } else {
         throw new Error('Unexpected error')
       }
@@ -66,7 +66,7 @@ export function ProductArea({ productId }: ProductAreaProps) {
   const handleSubmit = useCallback(
     (data: z.infer<typeof schema>) => {
       if (session === undefined) {
-        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.addToCart)
+        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.AddToCart)
         return
       }
 
