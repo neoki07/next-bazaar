@@ -10,3 +10,8 @@ export interface Product {
   seller: string
   imageUrl?: string
 }
+
+export interface Category {
+  id: string
+  name: string
+}

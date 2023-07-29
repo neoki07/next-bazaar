@@ -1,5 +1,9 @@
 import { useAuth } from '@/features/auth'
 import { useCartProductsCount } from '@/features/cart'
+import {
+  NOTIFY_NOT_IMPLEMENTED_ERRORS,
+  notifyNotImplementedError,
+} from '@/features/notification/not-implemented'
 import { useSession } from '@/providers/session'
 import {
   ActionIcon,
@@ -120,7 +124,14 @@ export function Header() {
                 </UnstyledButton>
               </Menu.Target>
               <Menu.Dropdown>
-                <Menu.Item icon={<IconSettings size="0.9rem" stroke={1.5} />}>
+                <Menu.Item
+                  icon={<IconSettings size="0.9rem" stroke={1.5} />}
+                  onClick={() =>
+                    notifyNotImplementedError(
+                      NOTIFY_NOT_IMPLEMENTED_ERRORS.AccountSettings
+                    )
+                  }
+                >
                   Account settings
                 </Menu.Item>
 

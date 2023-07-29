@@ -5,6 +5,11 @@ import { MainLayout } from '@/components/Layout'
 import { Price, PriceSkeleton } from '@/components/Price'
 import { useCartProductsCount } from '@/features/cart'
 import { useAddToCart } from '@/features/cart/hooks/useAddToCart'
+import {
+  NOTIFY_UNAUTHENTICATED_ERROR_ID,
+  NOTIFY_UNAUTHENTICATED_ERROR_MESSAGES,
+  notifyUnauthenticatedError,
+} from '@/features/notification/unauthenticated'
 import { useGetProduct } from '@/features/products'
 import { useSession } from '@/providers/session'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -18,8 +23,6 @@ import {
   rem,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { notifications } from '@mantine/notifications'
-import { IconX } from '@tabler/icons-react'
 import range from 'lodash/range'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
@@ -28,24 +31,11 @@ import { AddedModal } from './AddedModal'
 
 const IMAGE_SIZE = 648
 
-function notifyUnauthorizedError() {
-  notifications.show({
-    id: 'add-cart-unauthorized-error',
-    title: 'Unauthorized Error',
-    message: 'You must be logged in to add products to your cart.',
-    color: 'red',
-    icon: <IconX />,
-    withCloseButton: true,
-    withBorder: true,
-  })
-}
-
 interface ProductAreaProps {
   productId: string
 }
 
 export function ProductArea({ productId }: ProductAreaProps) {
-  const router = useRouter()
   const [openedModal, { open: openModal, close: closeModal }] =
     useDisclosure(false)
   const { session } = useSession()
@@ -61,8 +51,10 @@ export function ProductArea({ productId }: ProductAreaProps) {
     },
     onError: (error) => {
       if (error.response?.status === 401) {
-        router.push('/')
-        notifyUnauthorizedError()
+        notifyUnauthenticatedError({
+          id: NOTIFY_UNAUTHENTICATED_ERROR_ID,
+          message: NOTIFY_UNAUTHENTICATED_ERROR_MESSAGES.AddToCart,
+        })
       } else {
         throw new Error('Unexpected error')
       }
@@ -76,7 +68,10 @@ export function ProductArea({ productId }: ProductAreaProps) {
   const handleSubmit = useCallback(
     (data: z.infer<typeof schema>) => {
       if (session === undefined) {
-        notifyUnauthorizedError()
+        notifyUnauthenticatedError({
+          id: NOTIFY_UNAUTHENTICATED_ERROR_ID,
+          message: NOTIFY_UNAUTHENTICATED_ERROR_MESSAGES.AddToCart,
+        })
         return
       }
 

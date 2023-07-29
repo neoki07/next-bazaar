@@ -1,5 +1,8 @@
-import { ProductDomainProductResponse } from '@/api/model'
-import { Product } from '@/features/products'
+import {
+  ProductDomainProductCategoryResponse,
+  ProductDomainProductResponse,
+} from '@/api/model'
+import { Category, Product } from '@/features/products'
 import Decimal from 'decimal.js'
 
 export function transformProduct(
@@ -40,5 +43,24 @@ export function transformProduct(
     category: product.category,
     seller: product.seller,
     imageUrl: product.image_url,
+  }
+}
+
+export function transformProductCategory(
+  product: ProductDomainProductCategoryResponse
+): Category {
+  if (product.id === undefined) {
+    throw new Error(
+      'required field `id` is undefined:' + JSON.stringify(product)
+    )
+  } else if (product.name === undefined) {
+    throw new Error(
+      'required field `name` is undefined:' + JSON.stringify(product)
+    )
+  }
+
+  return {
+    id: product.id,
+    name: product.name,
   }
 }

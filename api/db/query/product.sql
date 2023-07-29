@@ -23,6 +23,7 @@ WHERE id = $1 LIMIT 1;
 
 -- name: ListProducts :many
 SELECT * FROM products
+WHERE category_id = sqlc.narg('category_id') OR sqlc.narg('category_id') IS NULL
 ORDER BY created_at
 LIMIT $1
 OFFSET $2;

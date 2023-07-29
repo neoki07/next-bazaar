@@ -31,8 +31,9 @@ type GetProductRequest struct {
 }
 
 type ListProductsRequest struct {
-	PageID   int32 `query:"page_id" json:"page_id" validate:"required,min=1"`
-	PageSize int32 `query:"page_size" json:"page_size" validate:"required,min=1,max=100"`
+	PageID     int32         `query:"page_id" json:"page_id" validate:"required,min=1"`
+	PageSize   int32         `query:"page_size" json:"page_size" validate:"required,min=1,max=100"`
+	CategoryID uuid.NullUUID `query:"category_id" json:"category_id" swaggertype:"string"`
 }
 
 type ProductResponse struct {
@@ -91,4 +92,36 @@ type ListProductsResponseMeta struct {
 type ListProductsResponse struct {
 	Meta ListProductsResponseMeta `json:"meta"`
 	Data ProductsResponse         `json:"data"`
+}
+
+type ListProductCategoriesRequest struct {
+	PageID   int32 `query:"page_id" json:"page_id" validate:"required,min=1"`
+	PageSize int32 `query:"page_size" json:"page_size" validate:"required,min=1,max=100"`
+}
+
+type ListProductCategoriesResponseMeta struct {
+	PageID   int32 `json:"page_id"`
+	PageSize int32 `json:"page_size"`
+}
+
+type ProductCategoryResponse struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+}
+
+type ProductCategoriesResponse []ProductCategoryResponse
+
+func NewProductCategoriesResponse(categories []Category) ProductCategoriesResponse {
+	rsp := make(ProductCategoriesResponse, 0, len(categories))
+
+	for _, category := range categories {
+		rsp = append(rsp, ProductCategoryResponse(category))
+	}
+
+	return rsp
+}
+
+type ListProductCategoriesResponse struct {
+	Meta ListProductCategoriesResponseMeta `json:"meta"`
+	Data ProductCategoriesResponse         `json:"data"`
 }

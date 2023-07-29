@@ -66,6 +66,26 @@ definitions:
     required:
     - quantity
     type: object
+  product_domain.ListProductCategoriesResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/product_domain.ProductCategoryResponse'
+        type: array
+      meta:
+        $ref: '#/definitions/product_domain.ListProductCategoriesResponseMeta'
+    type: object
+  product_domain.ListProductCategoriesResponseMeta:
+    properties:
+      page_count:
+        type: integer
+      page_id:
+        type: integer
+      page_size:
+        type: integer
+      total_count:
+        type: integer
+    type: object
   product_domain.ListProductsResponse:
     properties:
       data:
@@ -85,6 +105,13 @@ definitions:
         type: integer
       total_count:
         type: integer
+    type: object
+  product_domain.ProductCategoryResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
     type: object
   product_domain.ProductResponse:
     properties:
@@ -278,6 +305,9 @@ paths:
     get:
       parameters:
       - in: query
+        name: category_id
+        type: string
+      - in: query
         minimum: 1
         name: page_id
         required: true
@@ -330,6 +360,36 @@ paths:
           schema:
             $ref: '#/definitions/api.errorResponse'
       summary: Get product
+      tags:
+      - Products
+  /products/categories:
+    get:
+      parameters:
+      - in: query
+        minimum: 1
+        name: page_id
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/product_domain.ListProductCategoriesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: List product categories
       tags:
       - Products
   /users/login:

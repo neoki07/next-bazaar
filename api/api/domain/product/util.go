@@ -37,3 +37,10 @@ func toProductDomain(product db.Product, category db.Category, seller db.User) P
 		ImageUrl:      product.ImageUrl,
 	}
 }
+
+func toCategoryDomain(category db.Category) Category {
+	return Category{
+		ID:   category.ID,
+		Name: category.Name,
+	}
+}

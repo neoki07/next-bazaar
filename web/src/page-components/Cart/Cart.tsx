@@ -8,6 +8,15 @@ import {
 } from '@/features/cart'
 import { useDeleteProduct } from '@/features/cart/hooks/useDeleteProduct'
 import {
+  NOTIFY_NOT_IMPLEMENTED_ERRORS,
+  notifyNotImplementedError,
+} from '@/features/notification/not-implemented'
+import {
+  NOTIFY_UNAUTHENTICATED_ERROR_ID,
+  NOTIFY_UNAUTHENTICATED_ERROR_MESSAGES,
+  notifyUnauthenticatedError,
+} from '@/features/notification/unauthenticated'
+import {
   Button,
   Container,
   Divider,
@@ -19,24 +28,10 @@ import {
   createStyles,
   rem,
 } from '@mantine/core'
-import { notifications } from '@mantine/notifications'
-import { IconX } from '@tabler/icons-react'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 
 const IMAGE_SIZE = 200
-
-function notifyUnauthorizedError() {
-  notifications.show({
-    id: 'expired-session-error',
-    title: 'Unauthorized Error',
-    message: 'Your session has expired. Please log in again.',
-    color: 'red',
-    icon: <IconX />,
-    withCloseButton: true,
-    withBorder: true,
-  })
-}
 
 const useStyles = createStyles((theme) => ({
   container: {
@@ -89,7 +84,10 @@ export function Cart() {
     onError: (error) => {
       if (error.response?.status === 401) {
         router.push('/')
-        notifyUnauthorizedError()
+        notifyUnauthenticatedError({
+          id: NOTIFY_UNAUTHENTICATED_ERROR_ID,
+          message: NOTIFY_UNAUTHENTICATED_ERROR_MESSAGES.ExpiredSession,
+        })
       } else {
         throw new Error('Unexpected error')
       }
@@ -103,7 +101,10 @@ export function Cart() {
     onError: (error) => {
       if (error.response?.status === 401) {
         router.push('/')
-        notifyUnauthorizedError()
+        notifyUnauthenticatedError({
+          id: NOTIFY_UNAUTHENTICATED_ERROR_ID,
+          message: NOTIFY_UNAUTHENTICATED_ERROR_MESSAGES.ExpiredSession,
+        })
       } else {
         throw new Error('Unexpected error')
       }
@@ -198,7 +199,15 @@ export function Cart() {
                     />
                   </Flex>
                 </div>
-                <Button color="dark" fullWidth>
+                <Button
+                  color="dark"
+                  fullWidth
+                  onClick={() =>
+                    notifyNotImplementedError(
+                      NOTIFY_NOT_IMPLEMENTED_ERRORS.ProceedToCheckout
+                    )
+                  }
+                >
                   Proceed to Checkout
                 </Button>
               </>
