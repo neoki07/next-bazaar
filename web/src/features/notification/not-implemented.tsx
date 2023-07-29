@@ -19,14 +19,13 @@ export const NOTIFY_NOT_IMPLEMENTED_ERRORS = {
   },
 } as const
 
-export function notifyNotImplementedError({ id, message }: NotificationConfig) {
+export function notifyNotImplementedError(config: NotificationConfig) {
   notifications.show({
-    id,
-    message,
     title: 'Not Implemented Error',
     color: 'yellow',
     icon: <IconX />,
     withCloseButton: true,
     withBorder: true,
+    ...config,
   })
 }

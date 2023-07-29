@@ -12,9 +12,10 @@ import {
   notifyNotImplementedError,
 } from '@/features/notification/not-implemented'
 import {
-  NOTIFY_UNAUTHORIZED_ERRORS,
-  notifyUnauthorizedError,
-} from '@/features/notification/unauthorized'
+  NOTIFY_UNAUTHENTICATED_ERROR_ID,
+  NOTIFY_UNAUTHENTICATED_ERROR_MESSAGES,
+  notifyUnauthenticatedError,
+} from '@/features/notification/unauthenticated'
 import {
   Button,
   Container,
@@ -83,7 +84,10 @@ export function Cart() {
     onError: (error) => {
       if (error.response?.status === 401) {
         router.push('/')
-        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.ExpiredSession)
+        notifyUnauthenticatedError({
+          id: NOTIFY_UNAUTHENTICATED_ERROR_ID,
+          message: NOTIFY_UNAUTHENTICATED_ERROR_MESSAGES.ExpiredSession,
+        })
       } else {
         throw new Error('Unexpected error')
       }
@@ -97,7 +101,10 @@ export function Cart() {
     onError: (error) => {
       if (error.response?.status === 401) {
         router.push('/')
-        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.ExpiredSession)
+        notifyUnauthenticatedError({
+          id: NOTIFY_UNAUTHENTICATED_ERROR_ID,
+          message: NOTIFY_UNAUTHENTICATED_ERROR_MESSAGES.ExpiredSession,
+        })
       } else {
         throw new Error('Unexpected error')
       }

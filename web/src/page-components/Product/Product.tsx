@@ -6,9 +6,10 @@ import { Price, PriceSkeleton } from '@/components/Price'
 import { useCartProductsCount } from '@/features/cart'
 import { useAddToCart } from '@/features/cart/hooks/useAddToCart'
 import {
-  NOTIFY_UNAUTHORIZED_ERRORS,
-  notifyUnauthorizedError,
-} from '@/features/notification/unauthorized'
+  NOTIFY_UNAUTHENTICATED_ERROR_ID,
+  NOTIFY_UNAUTHENTICATED_ERROR_MESSAGES,
+  notifyUnauthenticatedError,
+} from '@/features/notification/unauthenticated'
 import { useGetProduct } from '@/features/products'
 import { useSession } from '@/providers/session'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -35,7 +36,6 @@ interface ProductAreaProps {
 }
 
 export function ProductArea({ productId }: ProductAreaProps) {
-  const router = useRouter()
   const [openedModal, { open: openModal, close: closeModal }] =
     useDisclosure(false)
   const { session } = useSession()
@@ -51,8 +51,10 @@ export function ProductArea({ productId }: ProductAreaProps) {
     },
     onError: (error) => {
       if (error.response?.status === 401) {
-        router.push('/')
-        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.AddToCart)
+        notifyUnauthenticatedError({
+          id: NOTIFY_UNAUTHENTICATED_ERROR_ID,
+          message: NOTIFY_UNAUTHENTICATED_ERROR_MESSAGES.AddToCart,
+        })
       } else {
         throw new Error('Unexpected error')
       }
@@ -66,7 +68,10 @@ export function ProductArea({ productId }: ProductAreaProps) {
   const handleSubmit = useCallback(
     (data: z.infer<typeof schema>) => {
       if (session === undefined) {
-        notifyUnauthorizedError(NOTIFY_UNAUTHORIZED_ERRORS.AddToCart)
+        notifyUnauthenticatedError({
+          id: NOTIFY_UNAUTHENTICATED_ERROR_ID,
+          message: NOTIFY_UNAUTHENTICATED_ERROR_MESSAGES.AddToCart,
+        })
         return
       }
 

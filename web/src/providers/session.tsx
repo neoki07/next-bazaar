@@ -1,3 +1,4 @@
+import { AXIOS_INSTANCE } from '@/api/custom-axios-instance'
 import { getCurrentUser } from '@/features/auth'
 import { AxiosError } from 'axios'
 import { useRouter } from 'next/router'
@@ -53,6 +54,20 @@ export function SessionProvider({ children }: SessionProviderProps) {
         }
       })
   }, [router])
+
+  useEffect(() => {
+    AXIOS_INSTANCE.interceptors.response.use(
+      (response) => response,
+      (error: AxiosError) => {
+        if (error.response?.status === 401) {
+          setSession(undefined)
+          setStatus('unauthenticated')
+        }
+
+        return Promise.reject(error)
+      }
+    )
+  }, [])
 
   return (
     <SessionContext.Provider value={{ session, status }}>

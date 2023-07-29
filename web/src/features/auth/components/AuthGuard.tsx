@@ -1,7 +1,8 @@
 import {
-  NOTIFY_UNAUTHORIZED_ERRORS,
-  notifyUnauthorizedError,
-} from '@/features/notification/unauthorized'
+  NOTIFY_UNAUTHENTICATED_ERROR_ID,
+  NOTIFY_UNAUTHENTICATED_ERROR_MESSAGES,
+  notifyUnauthenticatedError,
+} from '@/features/notification/unauthenticated'
 import { useSession } from '@/providers/session'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
@@ -22,9 +23,11 @@ export function AuthGuard({ children }: AuthGuardProps) {
       router.pathname !== REDIRECT_PATH_WHEN_UNAUTHENTICATED
     ) {
       router.push(REDIRECT_PATH_WHEN_UNAUTHENTICATED)
-      notifyUnauthorizedError(
-        NOTIFY_UNAUTHORIZED_ERRORS.AccessToAuthenticatedPage
-      )
+      notifyUnauthenticatedError({
+        id: NOTIFY_UNAUTHENTICATED_ERROR_ID,
+        message:
+          NOTIFY_UNAUTHENTICATED_ERROR_MESSAGES.AccessToAuthenticatedPage,
+      })
     }
   }, [router, status])
 
