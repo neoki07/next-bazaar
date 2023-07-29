@@ -1,13 +1,34 @@
-import { AppShell } from '@mantine/core'
+import { AppShell, createStyles, rem } from '@mantine/core'
 import Head from 'next/head'
 import { type ReactNode } from 'react'
+import { Footer } from './Footer'
 import { Header } from './Header'
+
+const useStyles = createStyles((theme) => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: '100vh',
+  },
+
+  body: {
+    flex: 1,
+  },
+
+  main: {
+    padding: rem(32),
+    paddingTop: `calc(var(--mantine-header-height, 0px) + ${rem(32)})`,
+    minHeight: 0,
+  },
+}))
 
 interface MainLayoutProps {
   children: ReactNode
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
+  const { classes } = useStyles()
+
   return (
     <>
       <Head>
@@ -16,8 +37,16 @@ export function MainLayout({ children }: MainLayoutProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <AppShell header={<Header />}>
-        <main>{children}</main>
+      <AppShell
+        classNames={{
+          root: classes.root,
+          body: classes.body,
+          main: classes.main,
+        }}
+        header={<Header />}
+        footer={<Footer />}
+      >
+        {children}
       </AppShell>
     </>
   )

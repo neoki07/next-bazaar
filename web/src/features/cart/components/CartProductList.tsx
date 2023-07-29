@@ -26,6 +26,7 @@ interface CartProductListProps {
   cartProducts?: CartProduct[]
   imageSize: number
   isLoading?: boolean
+  itemsCountOnLoad?: number
   editable?: boolean
   onChangeQuantity?: (id: string, quantity: number) => void
   onDelete?: (id: string) => void
@@ -35,6 +36,7 @@ export function CartProductList({
   cartProducts,
   imageSize,
   isLoading,
+  itemsCountOnLoad = 3,
   editable = true,
   onChangeQuantity,
   onDelete,
@@ -45,7 +47,7 @@ export function CartProductList({
     <>
       {isLoading || cartProducts === undefined ? (
         <ul className={classes.list}>
-          {range(3).map((index) => (
+          {range(itemsCountOnLoad).map((index) => (
             <CartProductListItemSkeleton
               key={index}
               className={classes.listItem}

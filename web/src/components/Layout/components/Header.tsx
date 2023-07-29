@@ -53,7 +53,7 @@ const useStyles = createStyles((theme) => ({
 
 export function Header() {
   const { session, status } = useSession()
-  const { classes, theme } = useStyles()
+  const { classes } = useStyles()
 
   const [isLogoutButtonClicked, setIsLogoutButtonClicked] = useState(false)
 
