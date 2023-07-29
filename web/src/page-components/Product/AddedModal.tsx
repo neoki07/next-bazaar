@@ -60,6 +60,7 @@ export function AddedModal({ opened, onClose }: AddedModalProps) {
         <CartProductList
           cartProducts={cart?.products}
           isLoading={isFetching}
+          itemsCountOnLoad={0}
           imageSize={IMAGE_SIZE}
           editable={false}
         />
