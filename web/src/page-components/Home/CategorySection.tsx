@@ -21,8 +21,6 @@ import {
 } from '@mantine/core'
 import range from 'lodash/range'
 
-const PAGE_SIZE = 8
-
 const useStyles = createStyles((theme) => ({
   viewMoreButton: {
     width: rem(400),
@@ -35,23 +33,25 @@ interface CategorySectionProps {
   category: Category
   getProductLink: (product: Product) => string
   imageSize: number
+  productCount: number
 }
 
 export function CategorySection({
   category,
   getProductLink,
   imageSize,
+  productCount,
 }: CategorySectionProps) {
   const { classes } = useStyles()
-  const { data, isLoading } = useGetProducts(1, PAGE_SIZE, category.id)
+  const { data, isLoading } = useGetProducts(1, productCount, category.id)
 
   return (
-    <Container key={category.id} size="lg">
+    <Container size="lg">
       <Stack spacing="xl">
         <Title order={2}>{category.name}</Title>
         <Grid columns={4} gutter="xl">
           {isLoading
-            ? range(PAGE_SIZE).map((index) => (
+            ? range(productCount).map((index) => (
                 <Grid.Col key={index} span={1}>
                   <ProductCardSkeleton imageSize={imageSize} />
                 </Grid.Col>
