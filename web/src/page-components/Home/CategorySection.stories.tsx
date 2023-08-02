@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { rest } from 'msw'
 import { CategorySection } from './CategorySection'
 
-const IMAGE_SIZE = 200
+const IMAGE_SIZE = 260
 
 const handlers = [
   rest.get('*/products', (_req, res, ctx) => {
@@ -25,7 +25,7 @@ const handlers = [
             stock_quantity: 10,
             category: 'Category 1',
             seller: 'Seller 1',
-            image_url: 'https://via.placeholder.com/200',
+            image_url: 'https://via.placeholder.com/260',
           },
           {
             id: '2',
@@ -35,7 +35,7 @@ const handlers = [
             stock_quantity: 20,
             category: 'Category 2',
             seller: 'Seller 2',
-            image_url: 'https://via.placeholder.com/200',
+            image_url: 'https://via.placeholder.com/260',
           },
           {
             id: '3',
@@ -45,7 +45,7 @@ const handlers = [
             stock_quantity: 30,
             category: 'Category 3',
             seller: 'Seller 3',
-            image_url: 'https://via.placeholder.com/200',
+            image_url: 'https://via.placeholder.com/260',
           },
           {
             id: '4',
@@ -55,7 +55,7 @@ const handlers = [
             stock_quantity: 40,
             category: 'Category 4',
             seller: 'Seller 4',
-            image_url: 'https://via.placeholder.com/200',
+            image_url: 'https://via.placeholder.com/260',
           },
           {
             id: '5',
@@ -65,7 +65,7 @@ const handlers = [
             stock_quantity: 50,
             category: 'Category 5',
             seller: 'Seller 5',
-            image_url: 'https://via.placeholder.com/200',
+            image_url: 'https://via.placeholder.com/260',
           },
         ],
       })
