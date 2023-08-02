@@ -12,6 +12,7 @@ import {
 import {
   Button,
   Center,
+  Container,
   Grid,
   Stack,
   Title,
@@ -45,41 +46,43 @@ export function CategorySection({
   const { data, isLoading } = useGetProducts(1, PAGE_SIZE, category.id)
 
   return (
-    <Stack spacing="xl">
-      <Title order={2}>{category.name}</Title>
-      <Grid columns={4} gutter="xl">
-        {isLoading
-          ? range(PAGE_SIZE).map((index) => (
-              <Grid.Col key={index} span={1}>
-                <ProductCardSkeleton imageSize={imageSize} />
-              </Grid.Col>
-            ))
-          : data?.data.map((product) => (
-              <Grid.Col key={product.id} span={1}>
-                <ProductCard
-                  product={product}
-                  getProductLink={getProductLink}
-                  imageSize={imageSize}
-                />
-              </Grid.Col>
-            ))}
-      </Grid>
-      <Center>
-        {/* TODO: Add link to view more products */}
-        {/* <Link href="#"> */}
-        <Button
-          className={classes.viewMoreButton}
-          variant="default"
-          onClick={() =>
-            notifyNotImplementedError(
-              NOTIFY_NOT_IMPLEMENTED_ERRORS.ViewMoreProducts
-            )
-          }
-        >
-          View More
-        </Button>
-        {/* </Link> */}
-      </Center>
-    </Stack>
+    <Container key={category.id} size="lg">
+      <Stack spacing="xl">
+        <Title order={2}>{category.name}</Title>
+        <Grid columns={4} gutter="xl">
+          {isLoading
+            ? range(PAGE_SIZE).map((index) => (
+                <Grid.Col key={index} span={1}>
+                  <ProductCardSkeleton imageSize={imageSize} />
+                </Grid.Col>
+              ))
+            : data?.data.map((product) => (
+                <Grid.Col key={product.id} span={1}>
+                  <ProductCard
+                    product={product}
+                    getProductLink={getProductLink}
+                    imageSize={imageSize}
+                  />
+                </Grid.Col>
+              ))}
+        </Grid>
+        <Center>
+          {/* TODO: Add link to view more products */}
+          {/* <Link href="#"> */}
+          <Button
+            className={classes.viewMoreButton}
+            variant="default"
+            onClick={() =>
+              notifyNotImplementedError(
+                NOTIFY_NOT_IMPLEMENTED_ERRORS.ViewMoreProducts
+              )
+            }
+          >
+            View More
+          </Button>
+          {/* </Link> */}
+        </Center>
+      </Stack>
+    </Container>
   )
 }

@@ -1,6 +1,6 @@
 import { MainLayout } from '@/components/Layout'
 import { Product, useGetProductCategories } from '@/features/products'
-import { Container, Stack, rem } from '@mantine/core'
+import { Stack, rem } from '@mantine/core'
 import { useCallback } from 'react'
 import { CategorySection } from './CategorySection'
 
@@ -19,18 +19,16 @@ export function Home() {
 
   return (
     <MainLayout>
-      <Container size="lg">
-        <Stack spacing={rem(40)}>
-          {categories?.data.map((category) => (
-            <CategorySection
-              key={category.id}
-              category={category}
-              getProductLink={getProductLink}
-              imageSize={IMAGE_SIZE}
-            />
-          ))}
-        </Stack>
-      </Container>
+      <Stack spacing={rem(40)}>
+        {categories?.data.map((category) => (
+          <CategorySection
+            key={category.id}
+            category={category}
+            getProductLink={getProductLink}
+            imageSize={IMAGE_SIZE}
+          />
+        ))}
+      </Stack>
     </MainLayout>
   )
 }
