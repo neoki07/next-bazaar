@@ -71,6 +71,7 @@ func (h *productHandler) listProducts(c *fiber.Ctx) error {
 		PageID:     req.PageID,
 		PageSize:   req.PageSize,
 		CategoryID: req.CategoryID,
+		SellerID:   req.SellerID,
 	}
 
 	products, err := h.service.GetProducts(c.Context(), arg)

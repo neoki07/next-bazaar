@@ -34,6 +34,7 @@ type ListProductsRequest struct {
 	PageID     int32         `query:"page_id" json:"page_id" validate:"required,min=1"`
 	PageSize   int32         `query:"page_size" json:"page_size" validate:"required,min=1,max=100"`
 	CategoryID uuid.NullUUID `query:"category_id" json:"category_id" swaggertype:"string"`
+	SellerID   uuid.NullUUID `query:"seller_id" json:"seller_id" swaggertype:"string"`
 }
 
 type ProductResponse struct {

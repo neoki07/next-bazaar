@@ -77,13 +77,9 @@ definitions:
     type: object
   product_domain.ListProductCategoriesResponseMeta:
     properties:
-      page_count:
-        type: integer
       page_id:
         type: integer
       page_size:
-        type: integer
-      total_count:
         type: integer
     type: object
   product_domain.ListProductsResponse:
@@ -318,6 +314,9 @@ paths:
         name: page_size
         required: true
         type: integer
+      - in: query
+        name: seller_id
+        type: string
       responses:
         "200":
           description: OK

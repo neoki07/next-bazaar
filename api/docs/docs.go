@@ -244,6 +244,11 @@ const docTemplate = `{
                         "name": "page_size",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "seller_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -622,16 +627,10 @@ const docTemplate = `{
         "product_domain.ListProductCategoriesResponseMeta": {
             "type": "object",
             "properties": {
-                "page_count": {
-                    "type": "integer"
-                },
                 "page_id": {
                     "type": "integer"
                 },
                 "page_size": {
-                    "type": "integer"
-                },
-                "total_count": {
                     "type": "integer"
                 }
             }

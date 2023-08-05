@@ -139,7 +139,7 @@ func TestGetProduct(t *testing.T) {
 func TestListProducts(t *testing.T) {
 	pageSize := 5
 
-	defaultCreateSeed := func(t *testing.T, store db.Store) (firstCategoryID string) {
+	defaultCreateSeed := func(t *testing.T, store db.Store) fiber.Map {
 		var err error
 
 		ctx := context.Background()
@@ -173,23 +173,26 @@ func TestListProducts(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		return categories[0].ID.String()
+		return fiber.Map{
+			"users":      users,
+			"categories": categories,
+		}
 	}
 
-	noopCreateSeed := func(t *testing.T, store db.Store) string {
-		return ""
+	noopCreateSeed := func(t *testing.T, store db.Store) fiber.Map {
+		return fiber.Map{}
 	}
 
 	testCases := []struct {
 		name          string
-		createQuery   func(t *testing.T, categoryID string) fiber.Map
+		createQuery   func(t *testing.T, seedData fiber.Map) fiber.Map
 		buildStore    func(t *testing.T) (store db.Store, cleanup func())
-		createSeed    func(t *testing.T, store db.Store) (firstCategoryID string)
+		createSeed    func(t *testing.T, store db.Store) fiber.Map
 		checkResponse func(t *testing.T, response *http.Response)
 	}{
 		{
 			name: "OK",
-			createQuery: func(t *testing.T, categoryID string) fiber.Map {
+			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
 				return fiber.Map{
 					"page_id":   "1",
 					"page_size": fmt.Sprintf("%d", pageSize),
@@ -226,11 +229,14 @@ func TestListProducts(t *testing.T) {
 		},
 		{
 			name: "FilterByCategory",
-			createQuery: func(t *testing.T, categoryID string) fiber.Map {
+			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
+				categories, ok := seedData["categories"].([]db.Category)
+				require.True(t, ok)
+
 				return fiber.Map{
 					"page_id":     "1",
 					"page_size":   fmt.Sprintf("%d", pageSize),
-					"category_id": categoryID,
+					"category_id": categories[0].ID.String(),
 				}
 			},
 			buildStore: test_util.BuildTestDBStore,
@@ -248,8 +254,34 @@ func TestListProducts(t *testing.T) {
 			},
 		},
 		{
+			name: "FilterBySeller",
+			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
+				users, ok := seedData["users"].([]db.User)
+				require.True(t, ok)
+
+				return fiber.Map{
+					"page_id":   "1",
+					"page_size": fmt.Sprintf("%d", pageSize),
+					"seller_id": users[0].ID.String(),
+				}
+			},
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: defaultCreateSeed,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusOK, response.StatusCode)
+
+				gotResponse := unmarshalListProductsResponse(t, response.Body)
+
+				require.Len(t, gotResponse.Data, 3)
+
+				for i := 0; i < 3; i++ {
+					require.Equal(t, "testuser-0", gotResponse.Data[i].Seller)
+				}
+			},
+		},
+		{
 			name: "PageIDNotFound",
-			createQuery: func(t *testing.T, categoryID string) fiber.Map {
+			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
 				return fiber.Map{
 					"page_size": fmt.Sprintf("%d", pageSize),
 				}
@@ -262,7 +294,7 @@ func TestListProducts(t *testing.T) {
 		},
 		{
 			name: "PageIDLessThanLowerLimit",
-			createQuery: func(t *testing.T, categoryID string) fiber.Map {
+			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
 				return fiber.Map{
 					"page_id":   "0",
 					"page_size": fmt.Sprintf("%d", pageSize),
@@ -276,7 +308,7 @@ func TestListProducts(t *testing.T) {
 		},
 		{
 			name: "PageSizeNotFound",
-			createQuery: func(t *testing.T, categoryID string) fiber.Map {
+			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
 				return fiber.Map{
 					"page_id": "1",
 				}
@@ -289,7 +321,7 @@ func TestListProducts(t *testing.T) {
 		},
 		{
 			name: "PageSizeLessThanLowerLimit",
-			createQuery: func(t *testing.T, categoryID string) fiber.Map {
+			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
 				return fiber.Map{
 					"page_id":   "1",
 					"page_size": "0",
@@ -303,7 +335,7 @@ func TestListProducts(t *testing.T) {
 		},
 		{
 			name: "PageSizeMoreThanUpperLimit",
-			createQuery: func(t *testing.T, categoryID string) fiber.Map {
+			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
 				return fiber.Map{
 					"page_id":   "1",
 					"page_size": "101",
@@ -317,7 +349,7 @@ func TestListProducts(t *testing.T) {
 		},
 		{
 			name: "InternalServerError",
-			createQuery: func(t *testing.T, categoryID string) fiber.Map {
+			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
 				return fiber.Map{
 					"page_id":   "1",
 					"page_size": "1",
@@ -348,12 +380,12 @@ func TestListProducts(t *testing.T) {
 			store, cleanupStore := tc.buildStore(t)
 			defer cleanupStore()
 
-			firstCategoryID := tc.createSeed(t, store)
+			seedData := tc.createSeed(t, store)
 
 			request := test_util.NewRequest(t, test_util.RequestParams{
 				Method: http.MethodGet,
 				URL:    "/api/v1/products",
-				Query:  tc.createQuery(t, firstCategoryID),
+				Query:  tc.createQuery(t, seedData),
 			})
 
 			server := newTestServer(t, store)

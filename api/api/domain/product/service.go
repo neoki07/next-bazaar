@@ -40,6 +40,7 @@ type GetProductsServiceParams struct {
 	PageID     int32
 	PageSize   int32
 	CategoryID uuid.NullUUID
+	SellerID   uuid.NullUUID
 }
 
 func (s *ProductService) GetProducts(ctx context.Context, params GetProductsServiceParams) ([]Product, error) {
@@ -47,6 +48,7 @@ func (s *ProductService) GetProducts(ctx context.Context, params GetProductsServ
 		Limit:      params.PageSize,
 		Offset:     (params.PageID - 1) * params.PageSize,
 		CategoryID: params.CategoryID,
+		SellerID:   params.SellerID,
 	}
 
 	products, err := s.store.ListProducts(ctx, arg)
