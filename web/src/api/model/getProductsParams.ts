@@ -9,4 +9,5 @@ export type GetProductsParams = {
   category_id?: string
   page_id: number
   page_size: number
+  seller_id?: string
 }
