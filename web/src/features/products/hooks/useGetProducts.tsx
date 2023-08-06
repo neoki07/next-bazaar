@@ -32,13 +32,26 @@ function transform(
   }
 }
 
-export function useGetProducts(
-  page: number,
-  pageSize: number,
+interface UseGetProductsParams {
+  page: number
+  pageSize: number
   categoryId?: string
-) {
+  sellerId?: string
+}
+
+export function useGetProducts({
+  page,
+  pageSize,
+  categoryId,
+  sellerId,
+}: UseGetProductsParams) {
   return useGetProductsQuery<GetProductsResultData>(
-    { page_id: page, page_size: pageSize, category_id: categoryId },
+    {
+      page_id: page,
+      page_size: pageSize,
+      category_id: categoryId,
+      seller_id: sellerId,
+    },
     {
       query: { select: transform },
     }

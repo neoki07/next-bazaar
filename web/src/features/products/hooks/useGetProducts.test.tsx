@@ -82,9 +82,18 @@ describe('useGetProducts', () => {
   setupMockServer(...handlers)
 
   it('returns meta data and products correctly', async () => {
-    const { result } = renderHook(() => useGetProducts(1, 5, 'dummy'), {
-      wrapper: queryWrapper,
-    })
+    const { result } = renderHook(
+      () =>
+        useGetProducts({
+          page: 1,
+          pageSize: 5,
+          categoryId: 'dummy',
+          sellerId: 'dummy',
+        }),
+      {
+        wrapper: queryWrapper,
+      }
+    )
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
     })

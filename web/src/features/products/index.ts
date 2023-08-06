@@ -1,5 +1,6 @@
 export * from './components/ProductCard'
 export * from './components/ProductCardSkeleton'
+export * from './components/ProductList'
 export * from './hooks/useGetProduct'
 export * from './hooks/useGetProductCategories'
 export * from './hooks/useGetProducts'

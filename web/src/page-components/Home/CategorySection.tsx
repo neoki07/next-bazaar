@@ -43,7 +43,11 @@ export function CategorySection({
   productCount,
 }: CategorySectionProps) {
   const { classes } = useStyles()
-  const { data, isLoading } = useGetProducts(1, productCount, category.id)
+  const { data, isLoading } = useGetProducts({
+    page: 1,
+    pageSize: productCount,
+    categoryId: category.id,
+  })
 
   return (
     <Container size="lg">
