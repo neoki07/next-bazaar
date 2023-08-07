@@ -23,14 +23,24 @@ WHERE id = $1 LIMIT 1;
 
 -- name: ListProducts :many
 SELECT * FROM products
-WHERE (category_id = sqlc.narg('category_id') OR sqlc.narg('category_id') IS NULL)
-AND (seller_id = sqlc.narg('seller_id') OR sqlc.narg('seller_id') IS NULL)
+WHERE category_id = sqlc.narg('category_id') OR sqlc.narg('category_id') IS NULL
 ORDER BY created_at
 LIMIT $1
 OFFSET $2;
 
 -- name: CountProducts :one
 SELECT count(*) FROM products;
+
+-- name: ListProductsBySeller :many
+SELECT * FROM products
+WHERE seller_id = sqlc.arg('seller_id')
+ORDER BY created_at
+LIMIT $1
+OFFSET $2;
+
+-- name: CountProductsBySeller :one
+SELECT count(*) FROM products
+WHERE seller_id = sqlc.arg('seller_id');
 
 -- name: TruncateProductsTable :exec
 TRUNCATE TABLE products CASCADE;

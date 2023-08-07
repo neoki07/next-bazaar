@@ -71,7 +71,6 @@ func (h *productHandler) listProducts(c *fiber.Ctx) error {
 		PageID:     req.PageID,
 		PageSize:   req.PageSize,
 		CategoryID: req.CategoryID,
-		SellerID:   req.SellerID,
 	}
 
 	products, err := h.service.GetProducts(c.Context(), arg)
@@ -80,6 +79,64 @@ func (h *productHandler) listProducts(c *fiber.Ctx) error {
 	}
 
 	totalCount, err := h.service.CountProducts(c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
+	}
+
+	pageCount := int64(math.Ceil(float64(totalCount) / float64(req.PageSize)))
+
+	rspData, err := product_domain.NewProductsResponse(products)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
+	}
+
+	rsp := product_domain.ListProductsResponse{
+		Meta: product_domain.ListProductsResponseMeta{
+			PageID:     req.PageID,
+			PageSize:   req.PageSize,
+			PageCount:  pageCount,
+			TotalCount: totalCount,
+		},
+		Data: rspData,
+	}
+	return c.Status(fiber.StatusOK).JSON(rsp)
+}
+
+// @Summary      List products by seller
+// @Tags         Users
+// @Param        query query product_domain.ListProductsBySellerRequest true "query"
+// @Success      200 {object} product_domain.ListProductsResponse
+// @Failure      400 {object} errorResponse
+// @Failure      500 {object} errorResponse
+// @Router       /users/products [get]
+func (h *productHandler) listProductsBySeller(c *fiber.Ctx) error {
+	session, err := getSession(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
+	}
+
+	req := new(product_domain.ListProductsBySellerRequest)
+	if err := c.QueryParser(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	validate := validation.NewValidator()
+	if err := validate.Struct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	arg := product_domain.GetProductsBySellerServiceParams{
+		PageID:   req.PageID,
+		PageSize: req.PageSize,
+		SellerID: session.UserID,
+	}
+
+	products, err := h.service.GetProductsBySeller(c.Context(), arg)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
+	}
+
+	totalCount, err := h.service.CountProductsBySeller(c.Context(), session.UserID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 	}

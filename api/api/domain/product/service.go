@@ -40,7 +40,6 @@ type GetProductsServiceParams struct {
 	PageID     int32
 	PageSize   int32
 	CategoryID uuid.NullUUID
-	SellerID   uuid.NullUUID
 }
 
 func (s *ProductService) GetProducts(ctx context.Context, params GetProductsServiceParams) ([]Product, error) {
@@ -48,7 +47,6 @@ func (s *ProductService) GetProducts(ctx context.Context, params GetProductsServ
 		Limit:      params.PageSize,
 		Offset:     (params.PageID - 1) * params.PageSize,
 		CategoryID: params.CategoryID,
-		SellerID:   params.SellerID,
 	}
 
 	products, err := s.store.ListProducts(ctx, arg)
@@ -88,6 +86,58 @@ func (s *ProductService) GetProducts(ctx context.Context, params GetProductsServ
 
 func (s *ProductService) CountProducts(ctx context.Context) (int64, error) {
 	return s.store.CountProducts(ctx)
+}
+
+type GetProductsBySellerServiceParams struct {
+	PageID   int32
+	PageSize int32
+	SellerID uuid.UUID
+}
+
+func (s *ProductService) GetProductsBySeller(ctx context.Context, params GetProductsBySellerServiceParams) ([]Product, error) {
+	arg := db.ListProductsBySellerParams{
+		Limit:    params.PageSize,
+		Offset:   (params.PageID - 1) * params.PageSize,
+		SellerID: params.SellerID,
+	}
+
+	products, err := s.store.ListProductsBySeller(ctx, arg)
+	if err != nil {
+		return nil, err
+	}
+
+	categoryIDs := productsToCategoryIDs(products)
+	categories, err := s.store.GetCategoriesByIDs(ctx, categoryIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	categoriesMap := make(map[uuid.UUID]db.Category)
+	for _, category := range categories {
+		categoriesMap[category.ID] = category
+	}
+
+	sellersIDs := productsToSellersIDs(products)
+	sellers, err := s.store.GetUsersByIDs(ctx, sellersIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	sellersMap := make(map[uuid.UUID]db.User)
+	for _, seller := range sellers {
+		sellersMap[seller.ID] = seller
+	}
+
+	rsp := make([]Product, len(products))
+	for i, product := range products {
+		rsp[i] = toProductDomain(product, categoriesMap[product.CategoryID], sellersMap[product.SellerID])
+	}
+
+	return rsp, nil
+}
+
+func (s *ProductService) CountProductsBySeller(ctx context.Context, sellerID uuid.UUID) (int64, error) {
+	return s.store.CountProductsBySeller(ctx, sellerID)
 }
 
 type GetProductCategoriesServiceParams struct {

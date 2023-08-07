@@ -12,6 +12,7 @@ import (
 
 type Querier interface {
 	CountProducts(ctx context.Context) (int64, error)
+	CountProductsBySeller(ctx context.Context, sellerID uuid.UUID) (int64, error)
 	CreateCartProduct(ctx context.Context, arg CreateCartProductParams) (CartProduct, error)
 	CreateCategory(ctx context.Context, name string) (Category, error)
 	CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error)
@@ -31,6 +32,7 @@ type Querier interface {
 	GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]User, error)
 	ListCategories(ctx context.Context, arg ListCategoriesParams) ([]Category, error)
 	ListProducts(ctx context.Context, arg ListProductsParams) ([]Product, error)
+	ListProductsBySeller(ctx context.Context, arg ListProductsBySellerParams) ([]Product, error)
 	TruncateCartProductsTable(ctx context.Context) error
 	TruncateCategoriesTable(ctx context.Context) error
 	TruncateProductsTable(ctx context.Context) error
