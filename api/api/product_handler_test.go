@@ -35,28 +35,28 @@ func TestGetProduct(t *testing.T) {
 			createSeed: func(t *testing.T, store db.Store) (productID string) {
 				ctx := context.Background()
 
-				user := test_util.CreateUserTestData(t, ctx, store,
-					"testuser",
-					"test@example.com",
-					"test-password",
-					token.NewToken(time.Minute),
-				)
+				user := test_util.CreateWithSessionUser(t, ctx, store, test_util.WithSessionUserParams{
+					Name:         "testuser",
+					Email:        "test@example.com",
+					Password:     "test-password",
+					SessionToken: token.NewToken(time.Minute),
+				})
 
-				createdCategory, err := store.CreateCategory(ctx, "test-category")
+				category, err := store.CreateCategory(ctx, "test-category")
 				require.NoError(t, err)
 
-				createdProduct, err := store.CreateProduct(ctx, db.CreateProductParams{
+				product, err := store.CreateProduct(ctx, db.CreateProductParams{
 					Name:          "test-product",
 					Description:   sql.NullString{String: "test-description", Valid: true},
 					Price:         "100.00",
 					StockQuantity: 10,
-					CategoryID:    createdCategory.ID,
+					CategoryID:    category.ID,
 					SellerID:      user.ID,
 					ImageUrl:      sql.NullString{String: "test-image-url", Valid: true},
 				})
 				require.NoError(t, err)
 
-				return createdProduct.ID.String()
+				return product.ID.String()
 			},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
@@ -146,12 +146,12 @@ func TestListProducts(t *testing.T) {
 
 		users := make([]db.User, 2)
 		for i := range users {
-			users[i] = test_util.CreateUserTestData(t, ctx, store,
-				fmt.Sprintf("testuser-%d", i),
-				fmt.Sprintf("test-%d@example.com", i),
-				"test-password",
-				token.NewToken(time.Minute),
-			)
+			users[i] = test_util.CreateWithSessionUser(t, ctx, store, test_util.WithSessionUserParams{
+				Name:         fmt.Sprintf("testuser-%d", i),
+				Email:        fmt.Sprintf("test-%d@example.com", i),
+				Password:     "test-password",
+				SessionToken: token.NewToken(time.Minute),
+			})
 		}
 
 		categories := make([]db.Category, 3)
@@ -419,13 +419,9 @@ func TestListProductsBySeller(t *testing.T) {
 		return fiber.Map{}
 	}
 
-	defaultSetupAuth := func(request *http.Request) {
-		test_util.AddSessionTokenInCookie(cookieSessionTokenKey, sessionTokens[0].ID.String(), request)
-	}
-
 	testCases := []struct {
 		name          string
-		setupAuth     func(request *http.Request)
+		setupAuth     func(request *http.Request, sessionToken string)
 		createQuery   func(t *testing.T, seedData fiber.Map) fiber.Map
 		buildStore    func(t *testing.T) (store db.Store, cleanup func())
 		createSeed    func(t *testing.T, store db.Store) fiber.Map
@@ -433,7 +429,7 @@ func TestListProductsBySeller(t *testing.T) {
 	}{
 		{
 			name:      "OK",
-			setupAuth: defaultSetupAuth,
+			setupAuth: test_util.AddSessionTokenInCookie,
 			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
 				return fiber.Map{
 					"page_id":   "1",
@@ -471,7 +467,7 @@ func TestListProductsBySeller(t *testing.T) {
 		},
 		{
 			name:      "NoAuthorization",
-			setupAuth: func(request *http.Request) {},
+			setupAuth: test_util.NoopSetupAuth,
 			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
 				return fiber.Map{
 					"page_id":   "1",
@@ -486,7 +482,7 @@ func TestListProductsBySeller(t *testing.T) {
 		},
 		{
 			name:      "PageIDNotFound",
-			setupAuth: defaultSetupAuth,
+			setupAuth: test_util.AddSessionTokenInCookie,
 			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
 				return fiber.Map{
 					"page_size": fmt.Sprintf("%d", pageSize),
@@ -500,7 +496,7 @@ func TestListProductsBySeller(t *testing.T) {
 		},
 		{
 			name:      "PageIDLessThanLowerLimit",
-			setupAuth: defaultSetupAuth,
+			setupAuth: test_util.AddSessionTokenInCookie,
 			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
 				return fiber.Map{
 					"page_id":   "0",
@@ -515,7 +511,7 @@ func TestListProductsBySeller(t *testing.T) {
 		},
 		{
 			name:      "PageSizeNotFound",
-			setupAuth: defaultSetupAuth,
+			setupAuth: test_util.AddSessionTokenInCookie,
 			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
 				return fiber.Map{
 					"page_id": "1",
@@ -529,7 +525,7 @@ func TestListProductsBySeller(t *testing.T) {
 		},
 		{
 			name:      "PageSizeLessThanLowerLimit",
-			setupAuth: defaultSetupAuth,
+			setupAuth: test_util.AddSessionTokenInCookie,
 			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
 				return fiber.Map{
 					"page_id":   "1",
@@ -544,7 +540,7 @@ func TestListProductsBySeller(t *testing.T) {
 		},
 		{
 			name:      "PageSizeMoreThanUpperLimit",
-			setupAuth: defaultSetupAuth,
+			setupAuth: test_util.AddSessionTokenInCookie,
 			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
 				return fiber.Map{
 					"page_id":   "1",
@@ -559,7 +555,7 @@ func TestListProductsBySeller(t *testing.T) {
 		},
 		{
 			name:      "InternalServerError",
-			setupAuth: defaultSetupAuth,
+			setupAuth: test_util.AddSessionTokenInCookie,
 			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
 				return fiber.Map{
 					"page_id":   "1",
@@ -602,11 +598,12 @@ func TestListProductsBySeller(t *testing.T) {
 			seedData := tc.createSeed(t, store)
 
 			request := test_util.NewRequest(t, test_util.RequestParams{
-				Method:    http.MethodGet,
-				URL:       "/api/v1/users/products",
-				Query:     tc.createQuery(t, seedData),
-				SetupAuth: tc.setupAuth,
+				Method: http.MethodGet,
+				URL:    "/api/v1/users/products",
+				Query:  tc.createQuery(t, seedData),
 			})
+
+			tc.setupAuth(request, sessionTokens[0].ID.String())
 
 			server := newTestServer(t, store)
 			response := test_util.SendRequest(t, server.app, request)

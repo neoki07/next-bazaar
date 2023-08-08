@@ -10,13 +10,16 @@ import (
 	"github.com/ot07/next-bazaar/token"
 )
 
+const (
+	cookieSessionTokenKey = "session_token"
+)
+
 func AddSessionTokenInCookie(
-	key string,
-	sessionToken string,
 	request *http.Request,
+	sessionToken string,
 ) {
 	cookie := &http.Cookie{
-		Name:     key,
+		Name:     cookieSessionTokenKey,
 		Value:    sessionToken,
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,

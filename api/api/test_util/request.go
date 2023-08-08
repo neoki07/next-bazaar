@@ -13,11 +13,10 @@ import (
 )
 
 type RequestParams struct {
-	Method    string
-	URL       string
-	Query     fiber.Map
-	Body      fiber.Map
-	SetupAuth func(request *http.Request)
+	Method string
+	URL    string
+	Query  fiber.Map
+	Body   fiber.Map
 }
 
 func NewRequest(
@@ -44,10 +43,6 @@ func NewRequest(
 	}
 
 	request.Header.Set("Content-Type", "application/json")
-
-	if params.SetupAuth != nil {
-		params.SetupAuth(request)
-	}
 
 	return request
 }
