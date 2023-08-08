@@ -39,3 +39,36 @@ func CreateUserTestData(
 
 	return user
 }
+
+type WithSessionUserParams struct {
+	Name         string
+	Email        string
+	Password     string
+	SessionToken *token.Token
+}
+
+func CreateWithSessionUser(
+	t *testing.T,
+	ctx context.Context,
+	store db.Store,
+	params WithSessionUserParams,
+) db.User {
+	hashedPassword, err := util.HashPassword(params.Password)
+	require.NoError(t, err)
+
+	user, err := store.CreateUser(ctx, db.CreateUserParams{
+		Name:           params.Name,
+		Email:          params.Email,
+		HashedPassword: hashedPassword,
+	})
+	require.NoError(t, err)
+
+	_, err = store.CreateSession(ctx, db.CreateSessionParams{
+		UserID:       user.ID,
+		SessionToken: params.SessionToken.ID,
+		ExpiredAt:    params.SessionToken.ExpiredAt,
+	})
+	require.NoError(t, err)
+
+	return user
+}

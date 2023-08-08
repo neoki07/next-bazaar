@@ -373,10 +373,7 @@ func TestListProducts(t *testing.T) {
 func TestListProductsBySeller(t *testing.T) {
 	pageSize := 5
 
-	sessionTokens := make([]*token.Token, 2)
-	for i := range sessionTokens {
-		sessionTokens[i] = token.NewToken(time.Minute)
-	}
+	sessionTokens := test_util.NewSessionTokens(2, time.Minute)
 
 	defaultCreateSeed := func(t *testing.T, store db.Store) fiber.Map {
 		var err error
@@ -385,12 +382,12 @@ func TestListProductsBySeller(t *testing.T) {
 
 		users := make([]db.User, 2)
 		for i := range users {
-			users[i] = test_util.CreateUserTestData(t, ctx, store,
-				fmt.Sprintf("testuser-%d", i),
-				fmt.Sprintf("test-%d@example.com", i),
-				"test-password",
-				sessionTokens[i],
-			)
+			users[i] = test_util.CreateWithSessionUser(t, ctx, store, test_util.WithSessionUserParams{
+				Name:         fmt.Sprintf("testuser-%d", i),
+				Email:        fmt.Sprintf("test-%d@example.com", i),
+				Password:     "test-password",
+				SessionToken: sessionTokens[i],
+			})
 		}
 
 		categories := make([]db.Category, 3)
