@@ -10,8 +10,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
-
 	"github.com/golang/mock/gomock"
 	product_domain "github.com/ot07/next-bazaar/api/domain/product"
 	"github.com/ot07/next-bazaar/api/test_util"
@@ -26,13 +24,13 @@ func TestGetProduct(t *testing.T) {
 	testCases := []struct {
 		name          string
 		buildStore    func(t *testing.T) (store db.Store, cleanup func())
-		createSeed    func(t *testing.T, store db.Store) (productID string)
+		createSeed    func(t *testing.T, store db.Store) test_util.SeedData
 		checkResponse func(t *testing.T, response *http.Response)
 	}{
 		{
 			name:       "OK",
 			buildStore: test_util.BuildTestDBStore,
-			createSeed: func(t *testing.T, store db.Store) (productID string) {
+			createSeed: func(t *testing.T, store db.Store) test_util.SeedData {
 				ctx := context.Background()
 
 				user := test_util.CreateWithSessionUser(t, ctx, store, test_util.WithSessionUserParams{
@@ -56,7 +54,9 @@ func TestGetProduct(t *testing.T) {
 				})
 				require.NoError(t, err)
 
-				return product.ID.String()
+				return test_util.SeedData{
+					"product_id": product.ID.String(),
+				}
 			},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
@@ -76,8 +76,10 @@ func TestGetProduct(t *testing.T) {
 		{
 			name:       "NotFound",
 			buildStore: test_util.BuildTestDBStore,
-			createSeed: func(t *testing.T, store db.Store) (productID string) {
-				return util.RandomUUID().String()
+			createSeed: func(t *testing.T, store db.Store) test_util.SeedData {
+				return test_util.SeedData{
+					"product_id": util.RandomUUID().String(),
+				}
 			},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusNotFound, response.StatusCode)
@@ -86,8 +88,10 @@ func TestGetProduct(t *testing.T) {
 		{
 			name:       "InvalidID",
 			buildStore: test_util.BuildTestDBStore,
-			createSeed: func(t *testing.T, store db.Store) (productID string) {
-				return "InvalidID"
+			createSeed: func(t *testing.T, store db.Store) test_util.SeedData {
+				return test_util.SeedData{
+					"product_id": "InvalidID",
+				}
 			},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -104,8 +108,10 @@ func TestGetProduct(t *testing.T) {
 
 				return mockStore, cleanup
 			},
-			createSeed: func(t *testing.T, store db.Store) (productID string) {
-				return util.RandomUUID().String()
+			createSeed: func(t *testing.T, store db.Store) test_util.SeedData {
+				return test_util.SeedData{
+					"product_id": util.RandomUUID().String(),
+				}
 			},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
@@ -122,11 +128,11 @@ func TestGetProduct(t *testing.T) {
 			store, cleanupStore := tc.buildStore(t)
 			defer cleanupStore()
 
-			productID := tc.createSeed(t, store)
+			seedData := tc.createSeed(t, store)
 
 			request := test_util.NewRequest(t, test_util.RequestParams{
 				Method: http.MethodGet,
-				URL:    fmt.Sprintf("/api/v1/products/%s", productID),
+				URL:    fmt.Sprintf("/api/v1/products/%s", seedData["product_id"].(string)),
 			})
 
 			server := newTestServer(t, store)
@@ -139,7 +145,7 @@ func TestGetProduct(t *testing.T) {
 func TestListProducts(t *testing.T) {
 	pageSize := 5
 
-	defaultCreateSeed := func(t *testing.T, store db.Store) fiber.Map {
+	defaultCreateSeed := func(t *testing.T, store db.Store) test_util.SeedData {
 		var err error
 
 		ctx := context.Background()
@@ -173,33 +179,29 @@ func TestListProducts(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		return fiber.Map{
+		return test_util.SeedData{
 			"users":      users,
 			"categories": categories,
 		}
 	}
 
-	noopCreateSeed := func(t *testing.T, store db.Store) fiber.Map {
-		return fiber.Map{}
-	}
-
 	testCases := []struct {
 		name          string
-		createQuery   func(t *testing.T, seedData fiber.Map) fiber.Map
 		buildStore    func(t *testing.T) (store db.Store, cleanup func())
-		createSeed    func(t *testing.T, store db.Store) fiber.Map
+		createSeed    func(t *testing.T, store db.Store) test_util.SeedData
+		createQuery   func(t *testing.T, seedData test_util.SeedData) test_util.Query
 		checkResponse func(t *testing.T, response *http.Response)
 	}{
 		{
-			name: "OK",
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
-				return fiber.Map{
+			name:       "OK",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: defaultCreateSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
+				return test_util.Query{
 					"page_id":   "1",
 					"page_size": fmt.Sprintf("%d", pageSize),
 				}
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
 
@@ -228,19 +230,19 @@ func TestListProducts(t *testing.T) {
 			},
 		},
 		{
-			name: "FilterByCategory",
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
+			name:       "FilterByCategory",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: defaultCreateSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				categories, ok := seedData["categories"].([]db.Category)
 				require.True(t, ok)
 
-				return fiber.Map{
+				return test_util.Query{
 					"page_id":     "1",
 					"page_size":   fmt.Sprintf("%d", pageSize),
 					"category_id": categories[0].ID.String(),
 				}
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
 
@@ -254,81 +256,75 @@ func TestListProducts(t *testing.T) {
 			},
 		},
 		{
-			name: "PageIDNotFound",
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
-				return fiber.Map{
+			name:       "PageIDNotFound",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: test_util.NoopCreateAndReturnSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
+				return test_util.Query{
 					"page_size": fmt.Sprintf("%d", pageSize),
 				}
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: noopCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
-			name: "PageIDLessThanLowerLimit",
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
-				return fiber.Map{
+			name:       "PageIDLessThanLowerLimit",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: test_util.NoopCreateAndReturnSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
+				return test_util.Query{
 					"page_id":   "0",
 					"page_size": fmt.Sprintf("%d", pageSize),
 				}
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: noopCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
-			name: "PageSizeNotFound",
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
-				return fiber.Map{
+			name:       "PageSizeNotFound",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: test_util.NoopCreateAndReturnSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
+				return test_util.Query{
 					"page_id": "1",
 				}
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: noopCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
-			name: "PageSizeLessThanLowerLimit",
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
-				return fiber.Map{
+			name:       "PageSizeLessThanLowerLimit",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: test_util.NoopCreateAndReturnSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
+				return test_util.Query{
 					"page_id":   "1",
 					"page_size": "0",
 				}
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: noopCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
-			name: "PageSizeMoreThanUpperLimit",
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
-				return fiber.Map{
+			name:       "PageSizeMoreThanUpperLimit",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: test_util.NoopCreateAndReturnSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
+				return test_util.Query{
 					"page_id":   "1",
 					"page_size": "101",
 				}
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: noopCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
 			name: "InternalServerError",
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
-				return fiber.Map{
-					"page_id":   "1",
-					"page_size": "1",
-				}
-			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				mockStore, cleanup := test_util.NewMockStore(t)
 
@@ -338,7 +334,13 @@ func TestListProducts(t *testing.T) {
 
 				return mockStore, cleanup
 			},
-			createSeed: noopCreateSeed,
+			createSeed: test_util.NoopCreateAndReturnSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
+				return test_util.Query{
+					"page_id":   "1",
+					"page_size": "1",
+				}
+			},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 			},
@@ -356,7 +358,7 @@ func TestListProducts(t *testing.T) {
 
 			seedData := tc.createSeed(t, store)
 
-			request := test_util.NewRequest(t, test_util.RequestParams{
+			request := test_util.NewRequest2(t, test_util.RequestParams2{
 				Method: http.MethodGet,
 				URL:    "/api/v1/products",
 				Query:  tc.createQuery(t, seedData),
@@ -375,7 +377,7 @@ func TestListProductsBySeller(t *testing.T) {
 
 	sessionTokens := test_util.NewSessionTokens(2, time.Minute)
 
-	defaultCreateSeed := func(t *testing.T, store db.Store) fiber.Map {
+	defaultCreateSeed := func(t *testing.T, store db.Store) test_util.SeedData {
 		var err error
 
 		ctx := context.Background()
@@ -409,35 +411,31 @@ func TestListProductsBySeller(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		return fiber.Map{
+		return test_util.SeedData{
 			"users":      users,
 			"categories": categories,
 		}
 	}
 
-	noopCreateSeed := func(t *testing.T, store db.Store) fiber.Map {
-		return fiber.Map{}
-	}
-
 	testCases := []struct {
 		name          string
-		setupAuth     func(request *http.Request, sessionToken string)
-		createQuery   func(t *testing.T, seedData fiber.Map) fiber.Map
 		buildStore    func(t *testing.T) (store db.Store, cleanup func())
-		createSeed    func(t *testing.T, store db.Store) fiber.Map
+		createSeed    func(t *testing.T, store db.Store) test_util.SeedData
+		createQuery   func(t *testing.T, seedData test_util.SeedData) test_util.Query
+		setupAuth     func(request *http.Request, sessionToken string)
 		checkResponse func(t *testing.T, response *http.Response)
 	}{
 		{
-			name:      "OK",
-			setupAuth: test_util.AddSessionTokenInCookie,
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
-				return fiber.Map{
+			name:       "OK",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: defaultCreateSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
+				return test_util.Query{
 					"page_id":   "1",
 					"page_size": fmt.Sprintf("%d", pageSize),
 				}
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			setupAuth: test_util.AddSessionTokenInCookie,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
 
@@ -466,102 +464,95 @@ func TestListProductsBySeller(t *testing.T) {
 			},
 		},
 		{
-			name:      "NoAuthorization",
-			setupAuth: test_util.NoopSetupAuth,
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
-				return fiber.Map{
+			name:       "NoAuthorization",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: defaultCreateSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
+				return test_util.Query{
 					"page_id":   "1",
 					"page_size": fmt.Sprintf("%d", pageSize),
 				}
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			setupAuth: test_util.NoopSetupAuth,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
 			},
 		},
 		{
-			name:      "PageIDNotFound",
-			setupAuth: test_util.AddSessionTokenInCookie,
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
-				return fiber.Map{
+			name:       "PageIDNotFound",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: defaultCreateSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
+				return test_util.Query{
 					"page_size": fmt.Sprintf("%d", pageSize),
 				}
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			setupAuth: test_util.AddSessionTokenInCookie,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
-			name:      "PageIDLessThanLowerLimit",
-			setupAuth: test_util.AddSessionTokenInCookie,
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
-				return fiber.Map{
+			name:       "PageIDLessThanLowerLimit",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: defaultCreateSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
+				return test_util.Query{
 					"page_id":   "0",
 					"page_size": fmt.Sprintf("%d", pageSize),
 				}
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			setupAuth: test_util.AddSessionTokenInCookie,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
-			name:      "PageSizeNotFound",
-			setupAuth: test_util.AddSessionTokenInCookie,
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
-				return fiber.Map{
+			name:       "PageSizeNotFound",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: defaultCreateSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
+				return test_util.Query{
 					"page_id": "1",
 				}
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			setupAuth: test_util.AddSessionTokenInCookie,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
-			name:      "PageSizeLessThanLowerLimit",
-			setupAuth: test_util.AddSessionTokenInCookie,
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
-				return fiber.Map{
+			name:       "PageSizeLessThanLowerLimit",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: defaultCreateSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
+				return test_util.Query{
 					"page_id":   "1",
 					"page_size": "0",
 				}
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			setupAuth: test_util.AddSessionTokenInCookie,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
-			name:      "PageSizeMoreThanUpperLimit",
-			setupAuth: test_util.AddSessionTokenInCookie,
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
-				return fiber.Map{
+			name:       "PageSizeMoreThanUpperLimit",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: defaultCreateSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
+				return test_util.Query{
 					"page_id":   "1",
 					"page_size": "101",
 				}
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			setupAuth: test_util.AddSessionTokenInCookie,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
-			name:      "InternalServerError",
-			setupAuth: test_util.AddSessionTokenInCookie,
-			createQuery: func(t *testing.T, seedData fiber.Map) fiber.Map {
-				return fiber.Map{
-					"page_id":   "1",
-					"page_size": "1",
-				}
-			},
+			name: "InternalServerError",
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				mockStore, cleanup := test_util.NewMockStore(t)
 
@@ -579,7 +570,14 @@ func TestListProductsBySeller(t *testing.T) {
 
 				return mockStore, cleanup
 			},
-			createSeed: noopCreateSeed,
+			createSeed: test_util.NoopCreateAndReturnSeed,
+			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
+				return test_util.Query{
+					"page_id":   "1",
+					"page_size": "1",
+				}
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 			},
@@ -597,7 +595,7 @@ func TestListProductsBySeller(t *testing.T) {
 
 			seedData := tc.createSeed(t, store)
 
-			request := test_util.NewRequest(t, test_util.RequestParams{
+			request := test_util.NewRequest2(t, test_util.RequestParams2{
 				Method: http.MethodGet,
 				URL:    "/api/v1/users/products",
 				Query:  tc.createQuery(t, seedData),
@@ -628,23 +626,21 @@ func TestListProductCategories(t *testing.T) {
 		}
 	}
 
-	noopCreateSeed := func(t *testing.T, store db.Store) {}
-
 	testCases := []struct {
 		name          string
-		query         fiber.Map
 		buildStore    func(t *testing.T) (store db.Store, cleanup func())
 		createSeed    func(t *testing.T, store db.Store)
+		query         test_util.Query
 		checkResponse func(t *testing.T, response *http.Response)
 	}{
 		{
-			name: "OK",
-			query: fiber.Map{
+			name:       "OK",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: defaultCreateSeed,
+			query: test_util.Query{
 				"page_id":   "1",
 				"page_size": fmt.Sprintf("%d", pageSize),
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
 
@@ -662,69 +658,65 @@ func TestListProductCategories(t *testing.T) {
 			},
 		},
 		{
-			name: "PageIDNotFound",
-			query: fiber.Map{
+			name:       "PageIDNotFound",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: test_util.NoopCreateSeed,
+			query: test_util.Query{
 				"page_size": fmt.Sprintf("%d", pageSize),
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: noopCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
-			name: "PageIDLessThanLowerLimit",
-			query: fiber.Map{
+			name:       "PageIDLessThanLowerLimit",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: test_util.NoopCreateSeed,
+			query: test_util.Query{
 				"page_id":   "0",
 				"page_size": fmt.Sprintf("%d", pageSize),
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: noopCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
-			name: "PageSizeNotFound",
-			query: fiber.Map{
+			name:       "PageSizeNotFound",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: test_util.NoopCreateSeed,
+			query: test_util.Query{
 				"page_id": "1",
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: noopCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
-			name: "PageSizeLessThanLowerLimit",
-			query: fiber.Map{
+			name:       "PageSizeLessThanLowerLimit",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: test_util.NoopCreateSeed,
+			query: test_util.Query{
 				"page_id":   "1",
 				"page_size": "0",
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: noopCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
-			name: "PageSizeMoreThanUpperLimit",
-			query: fiber.Map{
+			name:       "PageSizeMoreThanUpperLimit",
+			buildStore: test_util.BuildTestDBStore,
+			createSeed: test_util.NoopCreateSeed,
+			query: test_util.Query{
 				"page_id":   "1",
 				"page_size": "101",
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: noopCreateSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
 		{
 			name: "InternalServerError",
-			query: fiber.Map{
-				"page_id":   "1",
-				"page_size": "1",
-			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				mockStore, cleanup := test_util.NewMockStore(t)
 
@@ -734,7 +726,11 @@ func TestListProductCategories(t *testing.T) {
 
 				return mockStore, cleanup
 			},
-			createSeed: noopCreateSeed,
+			createSeed: test_util.NoopCreateSeed,
+			query: test_util.Query{
+				"page_id":   "1",
+				"page_size": "1",
+			},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 			},
@@ -752,7 +748,7 @@ func TestListProductCategories(t *testing.T) {
 
 			tc.createSeed(t, store)
 
-			request := test_util.NewRequest(t, test_util.RequestParams{
+			request := test_util.NewRequest2(t, test_util.RequestParams2{
 				Method: http.MethodGet,
 				URL:    "/api/v1/products/categories",
 				Query:  tc.query,
