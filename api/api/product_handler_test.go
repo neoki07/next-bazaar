@@ -358,7 +358,7 @@ func TestListProducts(t *testing.T) {
 
 			seedData := tc.createSeed(t, store)
 
-			request := test_util.NewRequest2(t, test_util.RequestParams2{
+			request := test_util.NewRequest(t, test_util.RequestParams{
 				Method: http.MethodGet,
 				URL:    "/api/v1/products",
 				Query:  tc.createQuery(t, seedData),
@@ -595,7 +595,7 @@ func TestListProductsBySeller(t *testing.T) {
 
 			seedData := tc.createSeed(t, store)
 
-			request := test_util.NewRequest2(t, test_util.RequestParams2{
+			request := test_util.NewRequest(t, test_util.RequestParams{
 				Method: http.MethodGet,
 				URL:    "/api/v1/users/products",
 				Query:  tc.createQuery(t, seedData),
@@ -748,7 +748,7 @@ func TestListProductCategories(t *testing.T) {
 
 			tc.createSeed(t, store)
 
-			request := test_util.NewRequest2(t, test_util.RequestParams2{
+			request := test_util.NewRequest(t, test_util.RequestParams{
 				Method: http.MethodGet,
 				URL:    "/api/v1/products/categories",
 				Query:  tc.query,

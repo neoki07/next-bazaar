@@ -19,48 +19,13 @@ type Body = map[string]interface{}
 type RequestParams struct {
 	Method string
 	URL    string
-	Query  fiber.Map
-	Body   fiber.Map
+	Query  Query
+	Body   Body
 }
 
 func NewRequest(
 	t *testing.T,
 	params RequestParams,
-) *http.Request {
-	var bodyReader io.Reader
-
-	if params.Body != nil {
-		body, err := json.Marshal(params.Body)
-		require.NoError(t, err)
-		bodyReader = bytes.NewReader(body)
-	}
-
-	request, err := http.NewRequest(params.Method, params.URL, bodyReader)
-	require.NoError(t, err)
-
-	if params.Query != nil {
-		query := request.URL.Query()
-		for key, value := range params.Query {
-			query.Add(key, value.(string))
-		}
-		request.URL.RawQuery = query.Encode()
-	}
-
-	request.Header.Set("Content-Type", "application/json")
-
-	return request
-}
-
-type RequestParams2 struct {
-	Method string
-	URL    string
-	Query  Query
-	Body   Body
-}
-
-func NewRequest2(
-	t *testing.T,
-	params RequestParams2,
 ) *http.Request {
 	var bodyReader io.Reader
 

@@ -10,7 +10,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/golang/mock/gomock"
 	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
 	"github.com/ot07/next-bazaar/api/test_util"
@@ -499,7 +498,7 @@ func TestAddProduct(t *testing.T) {
 
 			seedData := tc.createSeed(t, store)
 
-			request := test_util.NewRequest2(t, test_util.RequestParams2{
+			request := test_util.NewRequest(t, test_util.RequestParams{
 				Method: http.MethodPost,
 				URL:    "/api/v1/cart/add-product",
 				Body:   tc.createBody(seedData),
@@ -561,7 +560,7 @@ func TestUpdateProductQuantity(t *testing.T) {
 		name          string
 		buildStore    func(t *testing.T) (store db.Store, cleanup func())
 		createSeed    func(t *testing.T, store db.Store) test_util.SeedData
-		body          fiber.Map
+		body          test_util.Body
 		setupAuth     func(request *http.Request, sessionToken string)
 		checkResponse func(t *testing.T, response *http.Response)
 	}{
@@ -605,7 +604,7 @@ func TestUpdateProductQuantity(t *testing.T) {
 			name:       "QuantityNotFound",
 			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
-			body:       fiber.Map{},
+			body:       test_util.Body{},
 			setupAuth:  test_util.AddSessionTokenInCookie,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -615,7 +614,7 @@ func TestUpdateProductQuantity(t *testing.T) {
 			name:       "QuantityIsZero",
 			buildStore: test_util.BuildTestDBStore,
 			createSeed: defaultCreateSeed,
-			body: fiber.Map{
+			body: test_util.Body{
 				"quantity": 0,
 			},
 			setupAuth: test_util.AddSessionTokenInCookie,
@@ -666,7 +665,7 @@ func TestUpdateProductQuantity(t *testing.T) {
 
 			seedData := tc.createSeed(t, store)
 
-			request := test_util.NewRequest2(t, test_util.RequestParams2{
+			request := test_util.NewRequest(t, test_util.RequestParams{
 				Method: http.MethodPut,
 				URL:    fmt.Sprintf("/api/v1/cart/%s", seedData["product_id"].(string)),
 				Body:   tc.body,
@@ -869,7 +868,7 @@ func TestCartAPIScenario(t *testing.T) {
 	request := test_util.NewRequest(t, test_util.RequestParams{
 		Method: http.MethodPost,
 		URL:    "/api/v1/cart/add-product",
-		Body: fiber.Map{
+		Body: test_util.Body{
 			"product_id": product.ID,
 			"quantity":   5,
 		},
@@ -889,7 +888,7 @@ func TestCartAPIScenario(t *testing.T) {
 	request = test_util.NewRequest(t, test_util.RequestParams{
 		Method: http.MethodPut,
 		URL:    fmt.Sprintf("/api/v1/cart/%s", product.ID),
-		Body: fiber.Map{
+		Body: test_util.Body{
 			"quantity": 10,
 		},
 	})
