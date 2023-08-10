@@ -11,7 +11,7 @@ type SeedData = map[string]interface{}
 
 func NoopSetupAuth(request *http.Request, sessionToken string) {}
 
-func NoopCreateSeed(t *testing.T, store db.Store) {}
+func NoopCreateSeedData(t *testing.T, store db.Store) {}
 
 func NoopCreateAndReturnSeed(t *testing.T, store db.Store) SeedData {
 	return nil

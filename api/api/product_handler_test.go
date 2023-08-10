@@ -22,15 +22,15 @@ import (
 
 func TestGetProduct(t *testing.T) {
 	testCases := []struct {
-		name          string
-		buildStore    func(t *testing.T) (store db.Store, cleanup func())
-		createSeed    func(t *testing.T, store db.Store) test_util.SeedData
-		checkResponse func(t *testing.T, response *http.Response)
+		name           string
+		buildStore     func(t *testing.T) (store db.Store, cleanup func())
+		createSeedData func(t *testing.T, store db.Store) test_util.SeedData
+		checkResponse  func(t *testing.T, response *http.Response)
 	}{
 		{
 			name:       "OK",
 			buildStore: test_util.BuildTestDBStore,
-			createSeed: func(t *testing.T, store db.Store) test_util.SeedData {
+			createSeedData: func(t *testing.T, store db.Store) test_util.SeedData {
 				ctx := context.Background()
 
 				user := test_util.CreateWithSessionUser(t, ctx, store, test_util.WithSessionUserParams{
@@ -76,7 +76,7 @@ func TestGetProduct(t *testing.T) {
 		{
 			name:       "NotFound",
 			buildStore: test_util.BuildTestDBStore,
-			createSeed: func(t *testing.T, store db.Store) test_util.SeedData {
+			createSeedData: func(t *testing.T, store db.Store) test_util.SeedData {
 				return test_util.SeedData{
 					"product_id": util.RandomUUID().String(),
 				}
@@ -88,7 +88,7 @@ func TestGetProduct(t *testing.T) {
 		{
 			name:       "InvalidID",
 			buildStore: test_util.BuildTestDBStore,
-			createSeed: func(t *testing.T, store db.Store) test_util.SeedData {
+			createSeedData: func(t *testing.T, store db.Store) test_util.SeedData {
 				return test_util.SeedData{
 					"product_id": "InvalidID",
 				}
@@ -108,7 +108,7 @@ func TestGetProduct(t *testing.T) {
 
 				return mockStore, cleanup
 			},
-			createSeed: func(t *testing.T, store db.Store) test_util.SeedData {
+			createSeedData: func(t *testing.T, store db.Store) test_util.SeedData {
 				return test_util.SeedData{
 					"product_id": util.RandomUUID().String(),
 				}
@@ -128,7 +128,7 @@ func TestGetProduct(t *testing.T) {
 			store, cleanupStore := tc.buildStore(t)
 			defer cleanupStore()
 
-			seedData := tc.createSeed(t, store)
+			seedData := tc.createSeedData(t, store)
 
 			request := test_util.NewRequest(t, test_util.RequestParams{
 				Method: http.MethodGet,
@@ -145,7 +145,7 @@ func TestGetProduct(t *testing.T) {
 func TestListProducts(t *testing.T) {
 	pageSize := 5
 
-	defaultCreateSeed := func(t *testing.T, store db.Store) test_util.SeedData {
+	defaultCreateSeedData := func(t *testing.T, store db.Store) test_util.SeedData {
 		var err error
 
 		ctx := context.Background()
@@ -186,16 +186,16 @@ func TestListProducts(t *testing.T) {
 	}
 
 	testCases := []struct {
-		name          string
-		buildStore    func(t *testing.T) (store db.Store, cleanup func())
-		createSeed    func(t *testing.T, store db.Store) test_util.SeedData
-		createQuery   func(t *testing.T, seedData test_util.SeedData) test_util.Query
-		checkResponse func(t *testing.T, response *http.Response)
+		name           string
+		buildStore     func(t *testing.T) (store db.Store, cleanup func())
+		createSeedData func(t *testing.T, store db.Store) test_util.SeedData
+		createQuery    func(t *testing.T, seedData test_util.SeedData) test_util.Query
+		checkResponse  func(t *testing.T, response *http.Response)
 	}{
 		{
-			name:       "OK",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			name:           "OK",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				return test_util.Query{
 					"page_id":   "1",
@@ -230,9 +230,9 @@ func TestListProducts(t *testing.T) {
 			},
 		},
 		{
-			name:       "FilterByCategory",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			name:           "FilterByCategory",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				categories, ok := seedData["categories"].([]db.Category)
 				require.True(t, ok)
@@ -256,9 +256,9 @@ func TestListProducts(t *testing.T) {
 			},
 		},
 		{
-			name:       "PageIDNotFound",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: test_util.NoopCreateAndReturnSeed,
+			name:           "PageIDNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: test_util.NoopCreateAndReturnSeed,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				return test_util.Query{
 					"page_size": fmt.Sprintf("%d", pageSize),
@@ -269,9 +269,9 @@ func TestListProducts(t *testing.T) {
 			},
 		},
 		{
-			name:       "PageIDLessThanLowerLimit",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: test_util.NoopCreateAndReturnSeed,
+			name:           "PageIDLessThanLowerLimit",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: test_util.NoopCreateAndReturnSeed,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				return test_util.Query{
 					"page_id":   "0",
@@ -283,9 +283,9 @@ func TestListProducts(t *testing.T) {
 			},
 		},
 		{
-			name:       "PageSizeNotFound",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: test_util.NoopCreateAndReturnSeed,
+			name:           "PageSizeNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: test_util.NoopCreateAndReturnSeed,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				return test_util.Query{
 					"page_id": "1",
@@ -296,9 +296,9 @@ func TestListProducts(t *testing.T) {
 			},
 		},
 		{
-			name:       "PageSizeLessThanLowerLimit",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: test_util.NoopCreateAndReturnSeed,
+			name:           "PageSizeLessThanLowerLimit",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: test_util.NoopCreateAndReturnSeed,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				return test_util.Query{
 					"page_id":   "1",
@@ -310,9 +310,9 @@ func TestListProducts(t *testing.T) {
 			},
 		},
 		{
-			name:       "PageSizeMoreThanUpperLimit",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: test_util.NoopCreateAndReturnSeed,
+			name:           "PageSizeMoreThanUpperLimit",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: test_util.NoopCreateAndReturnSeed,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				return test_util.Query{
 					"page_id":   "1",
@@ -334,7 +334,7 @@ func TestListProducts(t *testing.T) {
 
 				return mockStore, cleanup
 			},
-			createSeed: test_util.NoopCreateAndReturnSeed,
+			createSeedData: test_util.NoopCreateAndReturnSeed,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				return test_util.Query{
 					"page_id":   "1",
@@ -356,7 +356,7 @@ func TestListProducts(t *testing.T) {
 			store, cleanupStore := tc.buildStore(t)
 			defer cleanupStore()
 
-			seedData := tc.createSeed(t, store)
+			seedData := tc.createSeedData(t, store)
 
 			request := test_util.NewRequest(t, test_util.RequestParams{
 				Method: http.MethodGet,
@@ -377,7 +377,7 @@ func TestListProductsBySeller(t *testing.T) {
 
 	sessionTokens := test_util.NewSessionTokens(2, time.Minute)
 
-	defaultCreateSeed := func(t *testing.T, store db.Store) test_util.SeedData {
+	defaultCreateSeedData := func(t *testing.T, store db.Store) test_util.SeedData {
 		var err error
 
 		ctx := context.Background()
@@ -418,17 +418,17 @@ func TestListProductsBySeller(t *testing.T) {
 	}
 
 	testCases := []struct {
-		name          string
-		buildStore    func(t *testing.T) (store db.Store, cleanup func())
-		createSeed    func(t *testing.T, store db.Store) test_util.SeedData
-		createQuery   func(t *testing.T, seedData test_util.SeedData) test_util.Query
-		setupAuth     func(request *http.Request, sessionToken string)
-		checkResponse func(t *testing.T, response *http.Response)
+		name           string
+		buildStore     func(t *testing.T) (store db.Store, cleanup func())
+		createSeedData func(t *testing.T, store db.Store) test_util.SeedData
+		createQuery    func(t *testing.T, seedData test_util.SeedData) test_util.Query
+		setupAuth      func(request *http.Request, sessionToken string)
+		checkResponse  func(t *testing.T, response *http.Response)
 	}{
 		{
-			name:       "OK",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			name:           "OK",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				return test_util.Query{
 					"page_id":   "1",
@@ -464,9 +464,9 @@ func TestListProductsBySeller(t *testing.T) {
 			},
 		},
 		{
-			name:       "NoAuthorization",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			name:           "NoAuthorization",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				return test_util.Query{
 					"page_id":   "1",
@@ -479,9 +479,9 @@ func TestListProductsBySeller(t *testing.T) {
 			},
 		},
 		{
-			name:       "PageIDNotFound",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			name:           "PageIDNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				return test_util.Query{
 					"page_size": fmt.Sprintf("%d", pageSize),
@@ -493,9 +493,9 @@ func TestListProductsBySeller(t *testing.T) {
 			},
 		},
 		{
-			name:       "PageIDLessThanLowerLimit",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			name:           "PageIDLessThanLowerLimit",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				return test_util.Query{
 					"page_id":   "0",
@@ -508,9 +508,9 @@ func TestListProductsBySeller(t *testing.T) {
 			},
 		},
 		{
-			name:       "PageSizeNotFound",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			name:           "PageSizeNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				return test_util.Query{
 					"page_id": "1",
@@ -522,9 +522,9 @@ func TestListProductsBySeller(t *testing.T) {
 			},
 		},
 		{
-			name:       "PageSizeLessThanLowerLimit",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			name:           "PageSizeLessThanLowerLimit",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				return test_util.Query{
 					"page_id":   "1",
@@ -537,9 +537,9 @@ func TestListProductsBySeller(t *testing.T) {
 			},
 		},
 		{
-			name:       "PageSizeMoreThanUpperLimit",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			name:           "PageSizeMoreThanUpperLimit",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				return test_util.Query{
 					"page_id":   "1",
@@ -570,7 +570,7 @@ func TestListProductsBySeller(t *testing.T) {
 
 				return mockStore, cleanup
 			},
-			createSeed: test_util.NoopCreateAndReturnSeed,
+			createSeedData: test_util.NoopCreateAndReturnSeed,
 			createQuery: func(t *testing.T, seedData test_util.SeedData) test_util.Query {
 				return test_util.Query{
 					"page_id":   "1",
@@ -593,7 +593,7 @@ func TestListProductsBySeller(t *testing.T) {
 			store, cleanupStore := tc.buildStore(t)
 			defer cleanupStore()
 
-			seedData := tc.createSeed(t, store)
+			seedData := tc.createSeedData(t, store)
 
 			request := test_util.NewRequest(t, test_util.RequestParams{
 				Method: http.MethodGet,
@@ -614,7 +614,7 @@ func TestListProductsBySeller(t *testing.T) {
 func TestListProductCategories(t *testing.T) {
 	pageSize := 5
 
-	defaultCreateSeed := func(t *testing.T, store db.Store) {
+	defaultCreateSeedData := func(t *testing.T, store db.Store) {
 		var err error
 
 		ctx := context.Background()
@@ -627,16 +627,16 @@ func TestListProductCategories(t *testing.T) {
 	}
 
 	testCases := []struct {
-		name          string
-		buildStore    func(t *testing.T) (store db.Store, cleanup func())
-		createSeed    func(t *testing.T, store db.Store)
-		query         test_util.Query
-		checkResponse func(t *testing.T, response *http.Response)
+		name           string
+		buildStore     func(t *testing.T) (store db.Store, cleanup func())
+		createSeedData func(t *testing.T, store db.Store)
+		query          test_util.Query
+		checkResponse  func(t *testing.T, response *http.Response)
 	}{
 		{
-			name:       "OK",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: defaultCreateSeed,
+			name:           "OK",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
 			query: test_util.Query{
 				"page_id":   "1",
 				"page_size": fmt.Sprintf("%d", pageSize),
@@ -658,9 +658,9 @@ func TestListProductCategories(t *testing.T) {
 			},
 		},
 		{
-			name:       "PageIDNotFound",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: test_util.NoopCreateSeed,
+			name:           "PageIDNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: test_util.NoopCreateSeedData,
 			query: test_util.Query{
 				"page_size": fmt.Sprintf("%d", pageSize),
 			},
@@ -669,9 +669,9 @@ func TestListProductCategories(t *testing.T) {
 			},
 		},
 		{
-			name:       "PageIDLessThanLowerLimit",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: test_util.NoopCreateSeed,
+			name:           "PageIDLessThanLowerLimit",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: test_util.NoopCreateSeedData,
 			query: test_util.Query{
 				"page_id":   "0",
 				"page_size": fmt.Sprintf("%d", pageSize),
@@ -681,9 +681,9 @@ func TestListProductCategories(t *testing.T) {
 			},
 		},
 		{
-			name:       "PageSizeNotFound",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: test_util.NoopCreateSeed,
+			name:           "PageSizeNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: test_util.NoopCreateSeedData,
 			query: test_util.Query{
 				"page_id": "1",
 			},
@@ -692,9 +692,9 @@ func TestListProductCategories(t *testing.T) {
 			},
 		},
 		{
-			name:       "PageSizeLessThanLowerLimit",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: test_util.NoopCreateSeed,
+			name:           "PageSizeLessThanLowerLimit",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: test_util.NoopCreateSeedData,
 			query: test_util.Query{
 				"page_id":   "1",
 				"page_size": "0",
@@ -704,9 +704,9 @@ func TestListProductCategories(t *testing.T) {
 			},
 		},
 		{
-			name:       "PageSizeMoreThanUpperLimit",
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: test_util.NoopCreateSeed,
+			name:           "PageSizeMoreThanUpperLimit",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: test_util.NoopCreateSeedData,
 			query: test_util.Query{
 				"page_id":   "1",
 				"page_size": "101",
@@ -726,7 +726,7 @@ func TestListProductCategories(t *testing.T) {
 
 				return mockStore, cleanup
 			},
-			createSeed: test_util.NoopCreateSeed,
+			createSeedData: test_util.NoopCreateSeedData,
 			query: test_util.Query{
 				"page_id":   "1",
 				"page_size": "1",
@@ -746,7 +746,7 @@ func TestListProductCategories(t *testing.T) {
 			store, cleanupStore := tc.buildStore(t)
 			defer cleanupStore()
 
-			tc.createSeed(t, store)
+			tc.createSeedData(t, store)
 
 			request := test_util.NewRequest(t, test_util.RequestParams{
 				Method: http.MethodGet,
