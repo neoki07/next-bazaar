@@ -400,13 +400,8 @@ func TestAddProduct(t *testing.T) {
 			name:           "NoAuthorization",
 			buildStore:     test_util.BuildTestDBStore,
 			createSeedData: defaultCreateSeedData,
-			createBody: func(seedData test_util.SeedData) test_util.Body {
-				return test_util.Body{
-					"product_id": seedData["product_id"].(string),
-					"quantity":   1,
-				}
-			},
-			setupAuth: test_util.NoopSetupAuth,
+			createBody:     defaultCreateBody,
+			setupAuth:      test_util.NoopSetupAuth,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
 			},
