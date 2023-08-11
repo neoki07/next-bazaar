@@ -200,7 +200,7 @@ func (h *productHandler) listProductCategories(c *fiber.Ctx) error {
 }
 
 // @Summary      Add product
-// @Tags         product
+// @Tags         Users
 // @Param        body body product_domain.AddProductRequest true "Product object"
 // @Success      200 {object} messageResponse
 // @Failure      400 {object} errorResponse

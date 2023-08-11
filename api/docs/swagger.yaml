@@ -66,6 +66,27 @@ definitions:
     required:
     - quantity
     type: object
+  product_domain.AddProductRequest:
+    properties:
+      category_id:
+        type: string
+      description:
+        type: string
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: string
+      stock_quantity:
+        minimum: 0
+        type: integer
+    required:
+    - category_id
+    - name
+    - price
+    - stock_quantity
+    type: object
   product_domain.ListProductCategoriesResponse:
     properties:
       data:
@@ -314,9 +335,6 @@ paths:
         name: page_size
         required: true
         type: integer
-      - in: query
-        name: seller_id
-        type: string
       responses:
         "200":
           description: OK
@@ -454,6 +472,64 @@ paths:
           schema:
             $ref: '#/definitions/api.errorResponse'
       summary: Get current user
+      tags:
+      - Users
+  /users/products:
+    get:
+      parameters:
+      - in: query
+        minimum: 1
+        name: page_id
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/product_domain.ListProductsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: List products by seller
+      tags:
+      - Users
+    post:
+      parameters:
+      - description: Product object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/product_domain.AddProductRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.messageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Add product
       tags:
       - Users
   /users/register:
