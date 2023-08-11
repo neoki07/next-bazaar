@@ -2,9 +2,11 @@ package product_domain
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 	db "github.com/ot07/next-bazaar/db/sqlc"
+	"github.com/shopspring/decimal"
 )
 
 type ProductService struct {
@@ -162,4 +164,28 @@ func (s *ProductService) GetProductCategories(ctx context.Context, params GetPro
 	}
 
 	return rsp, nil
+}
+
+type AddProductServiceParams struct {
+	Name          string
+	Description   sql.NullString
+	Price         decimal.Decimal
+	StockQuantity int32
+	CategoryID    uuid.UUID
+	SellerID      uuid.UUID
+	ImageUrl      sql.NullString
+}
+
+func (s *ProductService) AddProduct(ctx context.Context, params AddProductServiceParams) error {
+	_, err := s.store.AddProduct(ctx, db.AddProductParams{
+		Name:          params.Name,
+		Description:   params.Description,
+		Price:         params.Price.String(),
+		StockQuantity: params.StockQuantity,
+		CategoryID:    params.CategoryID,
+		SellerID:      params.SellerID,
+		ImageUrl:      params.ImageUrl,
+	})
+
+	return err
 }

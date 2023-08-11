@@ -11,6 +11,7 @@ import (
 )
 
 type Querier interface {
+	AddProduct(ctx context.Context, arg AddProductParams) (Product, error)
 	CountProducts(ctx context.Context) (int64, error)
 	CountProductsBySeller(ctx context.Context, sellerID uuid.UUID) (int64, error)
 	CreateCartProduct(ctx context.Context, arg CreateCartProductParams) (CartProduct, error)

@@ -12,6 +12,61 @@ import (
 	"github.com/google/uuid"
 )
 
+const addProduct = `-- name: AddProduct :one
+INSERT INTO products (
+  name,
+  description,
+  price,
+  stock_quantity,
+  category_id,
+  seller_id,
+  image_url
+) VALUES (
+  $1,
+  $2,
+  $3,
+  $4,
+  $5,
+  $6,
+  $7
+) RETURNING id, name, description, price, stock_quantity, category_id, seller_id, image_url, created_at
+`
+
+type AddProductParams struct {
+	Name          string         `json:"name"`
+	Description   sql.NullString `json:"description"`
+	Price         string         `json:"price"`
+	StockQuantity int32          `json:"stock_quantity"`
+	CategoryID    uuid.UUID      `json:"category_id"`
+	SellerID      uuid.UUID      `json:"seller_id"`
+	ImageUrl      sql.NullString `json:"image_url"`
+}
+
+func (q *Queries) AddProduct(ctx context.Context, arg AddProductParams) (Product, error) {
+	row := q.db.QueryRowContext(ctx, addProduct,
+		arg.Name,
+		arg.Description,
+		arg.Price,
+		arg.StockQuantity,
+		arg.CategoryID,
+		arg.SellerID,
+		arg.ImageUrl,
+	)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Price,
+		&i.StockQuantity,
+		&i.CategoryID,
+		&i.SellerID,
+		&i.ImageUrl,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const countProducts = `-- name: CountProducts :one
 SELECT count(*) FROM products
 `

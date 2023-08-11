@@ -85,6 +85,7 @@ func (server *Server) setupRouter() {
 	v1.Get("/users/me", server.handlers.user.getCurrentUser)
 
 	v1.Get("/users/products", server.handlers.product.listProductsBySeller)
+	v1.Post("/users/products", server.handlers.product.addProduct)
 
 	v1.Get("/cart", server.handlers.cart.getCart)
 	v1.Get("/cart/count", server.handlers.cart.getCartProductsCount)

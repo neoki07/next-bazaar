@@ -36,6 +36,21 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
+// AddProduct mocks base method.
+func (m *MockStore) AddProduct(arg0 context.Context, arg1 db.AddProductParams) (db.Product, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddProduct", arg0, arg1)
+	ret0, _ := ret[0].(db.Product)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddProduct indicates an expected call of AddProduct.
+func (mr *MockStoreMockRecorder) AddProduct(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddProduct", reflect.TypeOf((*MockStore)(nil).AddProduct), arg0, arg1)
+}
+
 // CountProducts mocks base method.
 func (m *MockStore) CountProducts(arg0 context.Context) (int64, error) {
 	m.ctrl.T.Helper()

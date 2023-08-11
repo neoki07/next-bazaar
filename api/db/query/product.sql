@@ -42,5 +42,24 @@ OFFSET $2;
 SELECT count(*) FROM products
 WHERE seller_id = sqlc.arg('seller_id');
 
+-- name: AddProduct :one
+INSERT INTO products (
+  name,
+  description,
+  price,
+  stock_quantity,
+  category_id,
+  seller_id,
+  image_url
+) VALUES (
+  sqlc.arg('name'),
+  sqlc.narg('description'),
+  sqlc.arg('price'),
+  sqlc.arg('stock_quantity'),
+  sqlc.arg('category_id'),
+  sqlc.arg('seller_id'),
+  sqlc.narg('image_url')
+) RETURNING *;
+
 -- name: TruncateProductsTable :exec
 TRUNCATE TABLE products CASCADE;

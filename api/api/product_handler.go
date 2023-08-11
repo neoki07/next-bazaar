@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	product_domain "github.com/ot07/next-bazaar/api/domain/product"
 	"github.com/ot07/next-bazaar/api/validation"
+	"github.com/shopspring/decimal"
 )
 
 type productHandler struct {
@@ -195,5 +196,51 @@ func (h *productHandler) listProductCategories(c *fiber.Ctx) error {
 		},
 		Data: product_domain.NewProductCategoriesResponse(categories),
 	}
+	return c.Status(fiber.StatusOK).JSON(rsp)
+}
+
+// @Summary      Add product
+// @Tags         product
+// @Param        body body product_domain.AddProductRequest true "Product object"
+// @Success      200 {object} messageResponse
+// @Failure      400 {object} errorResponse
+// @Failure      401 {object} errorResponse
+// @Failure      500 {object} errorResponse
+// @Router       /users/products [post]
+func (h *productHandler) addProduct(c *fiber.Ctx) error {
+	session, err := getSession(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
+	}
+
+	req := new(product_domain.AddProductRequest)
+	if err := c.BodyParser(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	validate := validation.NewValidator()
+	if err := validate.Struct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	price, err := decimal.NewFromString(req.Price)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	err = h.service.AddProduct(c.Context(), product_domain.AddProductServiceParams{
+		Name:          req.Name,
+		Description:   sql.NullString{String: req.Description, Valid: len(req.Description) > 0},
+		Price:         price,
+		StockQuantity: req.StockQuantity,
+		CategoryID:    req.CategoryID,
+		SellerID:      session.UserID,
+		ImageUrl:      sql.NullString{String: req.ImageUrl, Valid: len(req.ImageUrl) > 0},
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
+	}
+
+	rsp := newMessageResponse("Product added successfully")
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
