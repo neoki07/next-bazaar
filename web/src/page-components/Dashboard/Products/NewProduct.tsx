@@ -6,6 +6,8 @@ import {
   useGetProductCategories,
 } from '@/features/products'
 import { Container, Stack, Title } from '@mantine/core'
+import { notifications } from '@mantine/notifications'
+import { IconCheck } from '@tabler/icons-react'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 
@@ -21,6 +23,16 @@ export function NewProduct() {
   const addProductMutation = useAddProduct({
     onSuccess: () => {
       router.push('/dashboard/products')
+
+      notifications.show({
+        id: 'product-saved-successfully',
+        title: 'Product Saved Successfully',
+        message: null,
+        color: 'teal',
+        icon: <IconCheck />,
+        withCloseButton: true,
+        withBorder: true,
+      })
     },
     onError: (error) => {
       throw new Error(error.message)
@@ -29,7 +41,6 @@ export function NewProduct() {
 
   const handleSubmit = useCallback(
     (data: ProductFormValues) => {
-      console.error('data:', data)
       addProductMutation.mutate({
         data: {
           name: data.name,
