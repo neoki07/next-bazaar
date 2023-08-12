@@ -15,18 +15,29 @@ describe('ProductForm', () => {
   it('renders all form fields', () => {
     render(<ProductForm allCategories={allCategories} onSubmit={jest.fn()} />)
 
-    expect(screen.getByLabelText('Name')).toBeInTheDocument()
+    expect(
+      screen.getByLabelText((content) => content.includes('Name'))
+    ).toBeInTheDocument()
     expect(screen.getByLabelText('Description')).toBeInTheDocument()
-    expect(screen.getByLabelText('Category')).toBeInTheDocument()
-    expect(screen.getByLabelText('Price')).toBeInTheDocument()
-    expect(screen.getByLabelText('StockQuantity')).toBeInTheDocument()
+    expect(
+      screen.getByLabelText((content) => content.includes('Category'))
+    ).toBeInTheDocument()
+    expect(
+      screen.getByLabelText((content) => content.includes('Price'))
+    ).toBeInTheDocument()
+    expect(
+      screen.getByLabelText((content) => content.includes('StockQuantity'))
+    ).toBeInTheDocument()
+
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
   })
 
   it('renders all categories as options', () => {
     render(<ProductForm allCategories={allCategories} onSubmit={jest.fn()} />)
 
-    const categorySelect = screen.getByLabelText('Category')
+    const categorySelect = screen.getByLabelText((content) =>
+      content.includes('Category')
+    )
     expect(categorySelect).toHaveDisplayValue('')
     expect(within(categorySelect).getByRole('option', { name: 'Category 1' }))
     expect(within(categorySelect).getByRole('option', { name: 'Category 2' }))
@@ -50,11 +61,23 @@ describe('ProductForm', () => {
       <ProductForm allCategories={allCategories} onSubmit={handleSubmit} />
     )
 
-    await user.type(screen.getByLabelText('Name'), 'Product 1')
+    await user.type(
+      screen.getByLabelText((content) => content.includes('Name')),
+      'Product 1'
+    )
     await user.type(screen.getByLabelText('Description'), 'Description 1')
-    await user.selectOptions(screen.getByLabelText('Category'), '1')
-    await user.type(screen.getByLabelText('Price'), '10.00')
-    await user.type(screen.getByLabelText('StockQuantity'), '5')
+    await user.selectOptions(
+      screen.getByLabelText((content) => content.includes('Category')),
+      '1'
+    )
+    await user.type(
+      screen.getByLabelText((content) => content.includes('Price')),
+      '10.00'
+    )
+    await user.type(
+      screen.getByLabelText((content) => content.includes('StockQuantity')),
+      '5'
+    )
     await user.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(screen.queryByText('Required')).not.toBeInTheDocument()

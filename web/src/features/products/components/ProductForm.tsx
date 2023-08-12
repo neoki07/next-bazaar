@@ -78,13 +78,14 @@ export function ProductForm({ allCategories, onSubmit }: ProductFormProps) {
   return (
     <Form>
       <Stack>
-        <TextInput label="Name" name="name" />
+        <TextInput label="Name" name="name" withAsterisk />
 
         <Textarea label="Description" name="description" minRows={5} />
 
         <NativeSelect
           label="Category"
           name="categoryId"
+          withAsterisk
           options={[
             { label: '', value: '' },
             ...allCategories.map((category) => ({
@@ -97,6 +98,7 @@ export function ProductForm({ allCategories, onSubmit }: ProductFormProps) {
         <NumberInput
           label="Price"
           name="price"
+          withAsterisk
           precision={2}
           min={0.01}
           step={0.01}
@@ -108,7 +110,12 @@ export function ProductForm({ allCategories, onSubmit }: ProductFormProps) {
           }
         />
 
-        <NumberInput label="StockQuantity" name="stockQuantity" min={0} />
+        <NumberInput
+          label="StockQuantity"
+          name="stockQuantity"
+          withAsterisk
+          min={0}
+        />
 
         <Center mt="sm">
           <Button type="submit" loading={methods.formState.isSubmitting}>
