@@ -88,7 +88,6 @@ describe('useGetProducts', () => {
           page: 1,
           pageSize: 5,
           categoryId: 'dummy',
-          sellerId: 'dummy',
         }),
       {
         wrapper: queryWrapper,
