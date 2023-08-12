@@ -18,6 +18,9 @@ import { customAxiosInstance } from '../../custom-axios-instance'
 import type {
   ApiErrorResponse,
   ApiMessageResponse,
+  GetUsersProductsParams,
+  ProductDomainAddProductRequest,
+  ProductDomainListProductsResponse,
   UserDomainLoginRequest,
   UserDomainRegisterRequest,
   UserDomainUserResponse,
@@ -225,6 +228,153 @@ export const useGetUsersMe = <
   return query
 }
 
+/**
+ * @summary List products by seller
+ */
+export const getUsersProducts = (
+  params: GetUsersProductsParams,
+  options?: SecondParameter<typeof customAxiosInstance>,
+  signal?: AbortSignal
+) => {
+  return customAxiosInstance<ProductDomainListProductsResponse>(
+    { url: `/users/products`, method: 'get', params, signal },
+    options
+  )
+}
+
+export const getGetUsersProductsQueryKey = (params: GetUsersProductsParams) =>
+  [`/users/products`, ...(params ? [params] : [])] as const
+
+export const getGetUsersProductsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUsersProducts>>,
+  TError = ErrorType<ApiErrorResponse>
+>(
+  params: GetUsersProductsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUsersProducts>>,
+      TError,
+      TData
+    >
+    request?: SecondParameter<typeof customAxiosInstance>
+  }
+): UseQueryOptions<
+  Awaited<ReturnType<typeof getUsersProducts>>,
+  TError,
+  TData
+> & { queryKey: QueryKey } => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetUsersProductsQueryKey(params)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getUsersProducts>>
+  > = ({ signal }) => getUsersProducts(params, requestOptions, signal)
+
+  return { queryKey, queryFn, ...queryOptions }
+}
+
+export type GetUsersProductsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUsersProducts>>
+>
+export type GetUsersProductsQueryError = ErrorType<ApiErrorResponse>
+
+export const useGetUsersProducts = <
+  TData = Awaited<ReturnType<typeof getUsersProducts>>,
+  TError = ErrorType<ApiErrorResponse>
+>(
+  params: GetUsersProductsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUsersProducts>>,
+      TError,
+      TData
+    >
+    request?: SecondParameter<typeof customAxiosInstance>
+  }
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+  const queryOptions = getGetUsersProductsQueryOptions(params, options)
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary Add product
+ */
+export const postUsersProducts = (
+  productDomainAddProductRequest: ProductDomainAddProductRequest,
+  options?: SecondParameter<typeof customAxiosInstance>
+) => {
+  return customAxiosInstance<ApiMessageResponse>(
+    {
+      url: `/users/products`,
+      method: 'post',
+      headers: { 'Content-Type': 'application/json' },
+      data: productDomainAddProductRequest,
+    },
+    options
+  )
+}
+
+export const getPostUsersProductsMutationOptions = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postUsersProducts>>,
+    TError,
+    { data: ProductDomainAddProductRequest },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postUsersProducts>>,
+  TError,
+  { data: ProductDomainAddProductRequest },
+  TContext
+> => {
+  const { mutation: mutationOptions, request: requestOptions } = options ?? {}
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postUsersProducts>>,
+    { data: ProductDomainAddProductRequest }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return postUsersProducts(data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostUsersProductsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postUsersProducts>>
+>
+export type PostUsersProductsMutationBody = ProductDomainAddProductRequest
+export type PostUsersProductsMutationError = ErrorType<ApiErrorResponse>
+
+export const usePostUsersProducts = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postUsersProducts>>,
+    TError,
+    { data: ProductDomainAddProductRequest },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}) => {
+  const mutationOptions = getPostUsersProductsMutationOptions(options)
+
+  return useMutation(mutationOptions)
+}
 /**
  * @summary Register user
  */
