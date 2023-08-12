@@ -269,3 +269,54 @@ func (q *Queries) TruncateProductsTable(ctx context.Context) error {
 	_, err := q.db.ExecContext(ctx, truncateProductsTable)
 	return err
 }
+
+const updateProduct = `-- name: UpdateProduct :one
+UPDATE products
+SET
+  name = $2,
+  description = $3,
+  price = $4,
+  stock_quantity = $5,
+  category_id = $6,
+  seller_id = $7,
+  image_url = $8
+WHERE id = $1
+RETURNING id, name, description, price, stock_quantity, category_id, seller_id, image_url, created_at
+`
+
+type UpdateProductParams struct {
+	ID            uuid.UUID      `json:"id"`
+	Name          string         `json:"name"`
+	Description   sql.NullString `json:"description"`
+	Price         string         `json:"price"`
+	StockQuantity int32          `json:"stock_quantity"`
+	CategoryID    uuid.UUID      `json:"category_id"`
+	SellerID      uuid.UUID      `json:"seller_id"`
+	ImageUrl      sql.NullString `json:"image_url"`
+}
+
+func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error) {
+	row := q.db.QueryRowContext(ctx, updateProduct,
+		arg.ID,
+		arg.Name,
+		arg.Description,
+		arg.Price,
+		arg.StockQuantity,
+		arg.CategoryID,
+		arg.SellerID,
+		arg.ImageUrl,
+	)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Price,
+		&i.StockQuantity,
+		&i.CategoryID,
+		&i.SellerID,
+		&i.ImageUrl,
+		&i.CreatedAt,
+	)
+	return i, err
+}

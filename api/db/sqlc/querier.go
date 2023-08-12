@@ -40,6 +40,7 @@ type Querier interface {
 	TruncateSessionsTable(ctx context.Context) error
 	TruncateUsersTable(ctx context.Context) error
 	UpdateCartProduct(ctx context.Context, arg UpdateCartProductParams) (CartProduct, error)
+	UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error)
 }
 
 var _ Querier = (*Queries)(nil)

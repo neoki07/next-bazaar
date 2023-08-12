@@ -244,3 +244,55 @@ func (h *productHandler) addProduct(c *fiber.Ctx) error {
 	rsp := newMessageResponse("Product added successfully")
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
+
+// @Summary      Update product
+// @Tags         Users
+// @Param        body body product_domain.UpdateProductRequest true "Product object"
+// @Success      200 {object} messageResponse
+// @Failure      400 {object} errorResponse
+// @Failure      401 {object} errorResponse
+// @Failure      500 {object} errorResponse
+// @Router       /users/products/{id} [post]
+func (h *productHandler) updateProduct(c *fiber.Ctx) error {
+	session, err := getSession(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
+	}
+
+	reqParams := new(product_domain.UpdateProductRequestParams)
+	if err := c.ParamsParser(reqParams); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	reqBody := new(product_domain.UpdateProductRequestBody)
+	if err := c.BodyParser(reqBody); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	validate := validation.NewValidator()
+	if err := validate.Struct(reqBody); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	price, err := decimal.NewFromString(reqBody.Price)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	err = h.service.UpdateProduct(c.Context(), product_domain.UpdateProductServiceParams{
+		ID:            reqParams.ProductID,
+		Name:          reqBody.Name,
+		Description:   sql.NullString{String: reqBody.Description, Valid: len(reqBody.Description) > 0},
+		Price:         price,
+		StockQuantity: reqBody.StockQuantity,
+		CategoryID:    reqBody.CategoryID,
+		SellerID:      session.UserID,
+		ImageUrl:      sql.NullString{String: reqBody.ImageUrl, Valid: len(reqBody.ImageUrl) > 0},
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
+	}
+
+	rsp := newMessageResponse("Product updated successfully")
+	return c.Status(fiber.StatusOK).JSON(rsp)
+}

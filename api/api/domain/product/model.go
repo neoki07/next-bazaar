@@ -50,6 +50,19 @@ type AddProductRequest struct {
 	ImageUrl      string    `json:"image_url" validate:"omitempty,http_url"`
 }
 
+type UpdateProductRequestParams struct {
+	ProductID uuid.UUID `params:"id"`
+}
+
+type UpdateProductRequestBody struct {
+	Name          string    `json:"name" validate:"required"`
+	Description   string    `json:"description" validate:"omitempty"`
+	Price         string    `json:"price" validate:"required,decimal,decimal_gt=0"`
+	StockQuantity int32     `json:"stock_quantity" validate:"required,min=0"`
+	CategoryID    uuid.UUID `json:"category_id" validate:"required"`
+	ImageUrl      string    `json:"image_url" validate:"omitempty,http_url"`
+}
+
 type ProductResponse struct {
 	ID            uuid.UUID     `json:"id"`
 	Name          string        `json:"name"`

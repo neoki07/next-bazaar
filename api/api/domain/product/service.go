@@ -189,3 +189,29 @@ func (s *ProductService) AddProduct(ctx context.Context, params AddProductServic
 
 	return err
 }
+
+type UpdateProductServiceParams struct {
+	ID            uuid.UUID
+	Name          string
+	Description   sql.NullString
+	Price         decimal.Decimal
+	StockQuantity int32
+	CategoryID    uuid.UUID
+	SellerID      uuid.UUID
+	ImageUrl      sql.NullString
+}
+
+func (s *ProductService) UpdateProduct(ctx context.Context, params UpdateProductServiceParams) error {
+	_, err := s.store.UpdateProduct(ctx, db.UpdateProductParams{
+		ID:            params.ID,
+		Name:          params.Name,
+		Description:   params.Description,
+		Price:         params.Price.String(),
+		StockQuantity: params.StockQuantity,
+		CategoryID:    params.CategoryID,
+		SellerID:      params.SellerID,
+		ImageUrl:      params.ImageUrl,
+	})
+
+	return err
+}

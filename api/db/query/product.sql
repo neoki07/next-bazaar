@@ -61,5 +61,18 @@ INSERT INTO products (
   sqlc.narg('image_url')
 ) RETURNING *;
 
+-- name: UpdateProduct :one
+UPDATE products
+SET
+  name = sqlc.arg('name'),
+  description = sqlc.narg('description'),
+  price = sqlc.arg('price'),
+  stock_quantity = sqlc.arg('stock_quantity'),
+  category_id = sqlc.arg('category_id'),
+  seller_id = sqlc.arg('seller_id'),
+  image_url = sqlc.narg('image_url')
+WHERE id = $1
+RETURNING *;
+
 -- name: TruncateProductsTable :exec
 TRUNCATE TABLE products CASCADE;

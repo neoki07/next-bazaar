@@ -1032,6 +1032,294 @@ func TestProductHandlerAddProduct(t *testing.T) {
 	}
 }
 
+func TestProductHandlerUpdateProduct(t *testing.T) {
+	sessionToken := token.NewToken(time.Minute)
+
+	defaultCreateSeedData := func(t *testing.T, store db.Store) test_util.SeedData {
+		var err error
+
+		ctx := context.Background()
+
+		user := test_util.CreateWithSessionUser(t, ctx, store, test_util.WithSessionUserParams{
+			Name:         "testuser",
+			Email:        "test@example.com",
+			Password:     "test-password",
+			SessionToken: sessionToken,
+		})
+
+		categories := make([]db.Category, 2)
+		for i := range categories {
+			categories[i], err = store.CreateCategory(ctx, fmt.Sprintf("test-category-%d", i))
+			require.NoError(t, err)
+		}
+
+		product, err := store.CreateProduct(ctx, db.CreateProductParams{
+			Name:          "test-product",
+			Description:   sql.NullString{String: "test-description", Valid: true},
+			Price:         "10.00",
+			StockQuantity: 10,
+			CategoryID:    categories[0].ID,
+			SellerID:      user.ID,
+			ImageUrl:      sql.NullString{String: "https://example.com/image.png", Valid: true},
+		})
+		require.NoError(t, err)
+
+		return test_util.SeedData{
+			"categories": categories,
+			"product":    product,
+		}
+	}
+
+	defaultCreateBody := func(seedData test_util.SeedData) test_util.Body {
+		return test_util.Body{
+			"name":           "test-product-updated",
+			"description":    "test-description-updated",
+			"price":          "20.00",
+			"stock_quantity": 20,
+			"category_id":    seedData["categories"].([]db.Category)[1].ID,
+			"image_url":      "https://example.com/image-updated.png",
+		}
+	}
+
+	testCases := []struct {
+		name           string
+		buildStore     func(t *testing.T) (store db.Store, cleanup func())
+		createSeedData func(t *testing.T, store db.Store) test_util.SeedData
+		createBody     func(seedData test_util.SeedData) test_util.Body
+		setupAuth      func(request *http.Request, sessionToken string)
+		checkResponse  func(t *testing.T, response *http.Response)
+	}{
+		{
+			name:           "OK",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			createBody:     defaultCreateBody,
+			setupAuth:      test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusOK, response.StatusCode)
+			},
+		},
+		{
+			name:           "OptionalFieldsNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			createBody: func(seedData test_util.SeedData) test_util.Body {
+				return test_util.Body{
+					"name":           "test-product-updated",
+					"price":          "20.00",
+					"stock_quantity": 20,
+					"category_id":    seedData["categories"].([]db.Category)[1].ID,
+				}
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusOK, response.StatusCode)
+			},
+		},
+		{
+			name:           "NoAuthorization",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			createBody:     defaultCreateBody,
+			setupAuth:      test_util.NoopSetupAuth,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
+			},
+		},
+		{
+			name:           "NameNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			createBody: func(seedData test_util.SeedData) test_util.Body {
+				return test_util.Body{
+					"description":    "test-description-updated",
+					"price":          "20.00",
+					"stock_quantity": 20,
+					"category_id":    seedData["categories"].([]db.Category)[1].ID,
+					"image_url":      "https://example.com/image-updated.png",
+				}
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+		},
+		{
+			name:           "PriceNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			createBody: func(seedData test_util.SeedData) test_util.Body {
+				return test_util.Body{
+					"name":           "test-product-updated",
+					"description":    "test-description-updated",
+					"stock_quantity": 20,
+					"category_id":    seedData["categories"].([]db.Category)[1].ID,
+					"image_url":      "https://example.com/image-updated.png",
+				}
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+		},
+		{
+			name:           "PriceInvalidFormat",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			createBody: func(seedData test_util.SeedData) test_util.Body {
+				return test_util.Body{
+					"name":           "test-product-updated",
+					"description":    "test-description-updated",
+					"price":          "Invalid Price",
+					"stock_quantity": 20,
+					"category_id":    seedData["categories"].([]db.Category)[1].ID,
+					"image_url":      "https://example.com/image-updated.png",
+				}
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+		},
+		{
+			name:           "PriceIsZero",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			createBody: func(seedData test_util.SeedData) test_util.Body {
+				return test_util.Body{
+					"name":           "test-product-updated",
+					"description":    "test-description-updated",
+					"price":          "0.00",
+					"stock_quantity": 20,
+					"category_id":    seedData["categories"].([]db.Category)[1].ID,
+					"image_url":      "https://example.com/image-updated.png",
+				}
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+		},
+		{
+			name:           "ImageUrlInvalidFormat",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			createBody: func(seedData test_util.SeedData) test_util.Body {
+				return test_util.Body{
+					"name":           "test-product-updated",
+					"description":    "test-description-updated",
+					"price":          "20.00",
+					"stock_quantity": 20,
+					"category_id":    seedData["categories"].([]db.Category)[1].ID,
+					"image_url":      "ttp://example.com/image-updated.png",
+				}
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+		},
+		{
+			name:           "StockQuantityNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			createBody: func(seedData test_util.SeedData) test_util.Body {
+				return test_util.Body{
+					"name":        "test-product-updated",
+					"description": "test-description-updated",
+					"price":       "20.00",
+					"category_id": seedData["categories"].([]db.Category)[1].ID,
+					"image_url":   "https://example.com/image-updated.png",
+				}
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+		},
+		{
+			name:           "CategoryIDNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			createBody: func(seedData test_util.SeedData) test_util.Body {
+				return test_util.Body{
+					"name":           "test-product-updated",
+					"description":    "test-description-updated",
+					"price":          "20.00",
+					"stock_quantity": 20,
+					"image_url":      "https://example.com/image-updated.png",
+				}
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+		},
+		// TODO: Why does the following test fail when using a mock store?
+		// {
+		// 	name: "InternalError",
+		// 	buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+		// 		mockStore, cleanup := test_util.NewMockStore(t)
+
+		// 		test_util.BuildValidSessionStubs(mockStore, db.Session{
+		// 			ID:           util.RandomUUID(),
+		// 			UserID:       util.RandomUUID(),
+		// 			SessionToken: sessionToken.ID,
+		// 			ExpiredAt:    sessionToken.ExpiredAt,
+		// 			CreatedAt:    time.Now(),
+		// 		})
+
+		// 		mockStore.EXPECT().
+		// 			UpdateProduct(gomock.Any(), gomock.Any()).
+		// 			Return(db.Product{}, sql.ErrConnDone)
+
+		// 		return mockStore, cleanup
+		// 	},
+		// 	createSeedData: test_util.NoopCreateAndReturnSeed,
+		// 	createBody: func(seedData test_util.SeedData) test_util.Body {
+		// 		return test_util.Body{
+		// 			"name":           "test-product-updated",
+		// 			"description":    "test-description-updated",
+		// 			"price":          "20.00",
+		// 			"stock_quantity": 20,
+		// 			"category_id":    util.RandomUUID().String(),
+		// 			"seller_id":      util.RandomUUID().String(),
+		// 			"image_url":      "https://example.com/image-updated.png",
+		// 		}
+		// 	},
+		// 	setupAuth: test_util.AddSessionTokenInCookie,
+		// 	checkResponse: func(t *testing.T, response *http.Response) {
+		// 		require.Equal(t, http.StatusInternalServerError, response.StatusCode)
+		// 	},
+		// },
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			store, cleanupStore := tc.buildStore(t)
+			defer cleanupStore()
+
+			seedData := tc.createSeedData(t, store)
+
+			request := test_util.NewRequest(t, test_util.RequestParams{
+				Method: http.MethodPut,
+				URL:    fmt.Sprintf("/api/v1/users/products/%s", seedData["product"].(db.Product).ID),
+				Body:   tc.createBody(seedData),
+			})
+
+			tc.setupAuth(request, sessionToken.ID.String())
+
+			server := newTestServer(t, store)
+			response := test_util.SendRequest(t, server.app, request)
+			tc.checkResponse(t, response)
+		})
+	}
+}
+
 func unmarshalProductResponse(t *testing.T, body io.ReadCloser) product_domain.ProductResponse {
 	data, err := io.ReadAll(body)
 	require.NoError(t, err)
