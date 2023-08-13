@@ -25,7 +25,7 @@ func TestGetProduct(t *testing.T) {
 		name           string
 		buildStore     func(t *testing.T) (store db.Store, cleanup func())
 		createSeedData func(t *testing.T, store db.Store) test_util.SeedData
-		checkResponse  func(t *testing.T, response *http.Response)
+		checkResponse  func(t *testing.T, response *http.Response, seedData test_util.SeedData)
 	}{
 		{
 			name:       "OK",
@@ -55,19 +55,21 @@ func TestGetProduct(t *testing.T) {
 				require.NoError(t, err)
 
 				return test_util.SeedData{
-					"product_id": product.ID.String(),
+					"product_id":  product.ID.String(),
+					"category_id": category.ID.String(),
 				}
 			},
-			checkResponse: func(t *testing.T, response *http.Response) {
+			checkResponse: func(t *testing.T, response *http.Response, seedData test_util.SeedData) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
 
 				gotProduct := unmarshalProductResponse(t, response.Body)
 
-				require.NotEmpty(t, gotProduct.ID)
+				require.Equal(t, seedData["product_id"].(string), gotProduct.ID.String())
 				require.Equal(t, "test-product", gotProduct.Name)
 				require.Equal(t, "test-description", gotProduct.Description.String)
 				require.True(t, decimal.NewFromFloat(100.00).Equal(gotProduct.Price.Decimal))
 				require.Equal(t, int32(10), gotProduct.StockQuantity)
+				require.Equal(t, seedData["category_id"].(string), gotProduct.CategoryID.String())
 				require.Equal(t, "test-category", gotProduct.Category)
 				require.Equal(t, "testuser", gotProduct.Seller)
 				require.Equal(t, "test-image-url", gotProduct.ImageUrl.String)
@@ -81,7 +83,7 @@ func TestGetProduct(t *testing.T) {
 					"product_id": util.RandomUUID().String(),
 				}
 			},
-			checkResponse: func(t *testing.T, response *http.Response) {
+			checkResponse: func(t *testing.T, response *http.Response, seedData test_util.SeedData) {
 				require.Equal(t, http.StatusNotFound, response.StatusCode)
 			},
 		},
@@ -93,7 +95,7 @@ func TestGetProduct(t *testing.T) {
 					"product_id": "InvalidID",
 				}
 			},
-			checkResponse: func(t *testing.T, response *http.Response) {
+			checkResponse: func(t *testing.T, response *http.Response, seedData test_util.SeedData) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
@@ -113,7 +115,7 @@ func TestGetProduct(t *testing.T) {
 					"product_id": util.RandomUUID().String(),
 				}
 			},
-			checkResponse: func(t *testing.T, response *http.Response) {
+			checkResponse: func(t *testing.T, response *http.Response, seedData test_util.SeedData) {
 				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 			},
 		},
@@ -137,7 +139,7 @@ func TestGetProduct(t *testing.T) {
 
 			server := newTestServer(t, store)
 			response := test_util.SendRequest(t, server.app, request)
-			tc.checkResponse(t, response)
+			tc.checkResponse(t, response, seedData)
 		})
 	}
 }
@@ -166,8 +168,9 @@ func TestListProducts(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		for i := 0; i < 6; i++ {
-			_, err = store.CreateProduct(ctx, db.CreateProductParams{
+		products := make([]db.Product, 6)
+		for i := range products {
+			products[i], err = store.CreateProduct(ctx, db.CreateProductParams{
 				Name:          fmt.Sprintf("test-product-%d", i),
 				Description:   sql.NullString{String: fmt.Sprintf("test-description-%d", i), Valid: true},
 				Price:         fmt.Sprintf("%d.00", (i+1)*10),
@@ -181,6 +184,7 @@ func TestListProducts(t *testing.T) {
 
 		return test_util.SeedData{
 			"users":      users,
+			"products":   products,
 			"categories": categories,
 		}
 	}
@@ -190,7 +194,7 @@ func TestListProducts(t *testing.T) {
 		buildStore     func(t *testing.T) (store db.Store, cleanup func())
 		createSeedData func(t *testing.T, store db.Store) test_util.SeedData
 		createQuery    func(t *testing.T, seedData test_util.SeedData) test_util.Query
-		checkResponse  func(t *testing.T, response *http.Response)
+		checkResponse  func(t *testing.T, response *http.Response, seedData test_util.SeedData)
 	}{
 		{
 			name:           "OK",
@@ -202,7 +206,7 @@ func TestListProducts(t *testing.T) {
 					"page_size": fmt.Sprintf("%d", pageSize),
 				}
 			},
-			checkResponse: func(t *testing.T, response *http.Response) {
+			checkResponse: func(t *testing.T, response *http.Response, seedData test_util.SeedData) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
 
 				gotResponse := unmarshalListProductsResponse(t, response.Body)
@@ -218,11 +222,12 @@ func TestListProducts(t *testing.T) {
 					userIndex := i % 2
 					categoryIndex := i % 3
 
-					require.NotEmpty(t, gotResponse.Data[i].ID)
+					require.Equal(t, seedData["products"].([]db.Product)[i].ID, gotResponse.Data[i].ID)
 					require.Equal(t, fmt.Sprintf("test-product-%d", i), gotResponse.Data[i].Name)
 					require.Equal(t, fmt.Sprintf("test-description-%d", i), gotResponse.Data[i].Description.String)
 					require.True(t, decimal.NewFromInt(int64((i+1)*10)).Equal(gotResponse.Data[i].Price.Decimal))
 					require.Equal(t, int32(i+1), gotResponse.Data[i].StockQuantity)
+					require.Equal(t, seedData["categories"].([]db.Category)[categoryIndex].ID, gotResponse.Data[i].CategoryID)
 					require.Equal(t, fmt.Sprintf("test-category-%d", categoryIndex), gotResponse.Data[i].Category)
 					require.Equal(t, fmt.Sprintf("testuser-%d", userIndex), gotResponse.Data[i].Seller)
 					require.Equal(t, fmt.Sprintf("test-image-url-%d", i), gotResponse.Data[i].ImageUrl.String)
@@ -243,7 +248,7 @@ func TestListProducts(t *testing.T) {
 					"category_id": categories[0].ID.String(),
 				}
 			},
-			checkResponse: func(t *testing.T, response *http.Response) {
+			checkResponse: func(t *testing.T, response *http.Response, seedData test_util.SeedData) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
 
 				gotResponse := unmarshalListProductsResponse(t, response.Body)
@@ -264,7 +269,7 @@ func TestListProducts(t *testing.T) {
 					"page_size": fmt.Sprintf("%d", pageSize),
 				}
 			},
-			checkResponse: func(t *testing.T, response *http.Response) {
+			checkResponse: func(t *testing.T, response *http.Response, seedData test_util.SeedData) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
@@ -278,7 +283,7 @@ func TestListProducts(t *testing.T) {
 					"page_size": fmt.Sprintf("%d", pageSize),
 				}
 			},
-			checkResponse: func(t *testing.T, response *http.Response) {
+			checkResponse: func(t *testing.T, response *http.Response, seedData test_util.SeedData) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
@@ -291,7 +296,7 @@ func TestListProducts(t *testing.T) {
 					"page_id": "1",
 				}
 			},
-			checkResponse: func(t *testing.T, response *http.Response) {
+			checkResponse: func(t *testing.T, response *http.Response, seedData test_util.SeedData) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
@@ -305,7 +310,7 @@ func TestListProducts(t *testing.T) {
 					"page_size": "0",
 				}
 			},
-			checkResponse: func(t *testing.T, response *http.Response) {
+			checkResponse: func(t *testing.T, response *http.Response, seedData test_util.SeedData) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
@@ -319,7 +324,7 @@ func TestListProducts(t *testing.T) {
 					"page_size": "101",
 				}
 			},
-			checkResponse: func(t *testing.T, response *http.Response) {
+			checkResponse: func(t *testing.T, response *http.Response, seedData test_util.SeedData) {
 				require.Equal(t, http.StatusBadRequest, response.StatusCode)
 			},
 		},
@@ -341,7 +346,7 @@ func TestListProducts(t *testing.T) {
 					"page_size": "1",
 				}
 			},
-			checkResponse: func(t *testing.T, response *http.Response) {
+			checkResponse: func(t *testing.T, response *http.Response, seedData test_util.SeedData) {
 				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 			},
 		},
@@ -366,7 +371,7 @@ func TestListProducts(t *testing.T) {
 
 			server := newTestServer(t, store)
 			response := test_util.SendRequest(t, server.app, request)
-			tc.checkResponse(t, response)
+			tc.checkResponse(t, response, seedData)
 		})
 
 	}

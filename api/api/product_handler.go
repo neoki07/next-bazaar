@@ -247,7 +247,7 @@ func (h *productHandler) addProduct(c *fiber.Ctx) error {
 
 // @Summary      Update product
 // @Tags         Users
-// @Param        body body product_domain.UpdateProductRequest true "Product object"
+// @Param        body body product_domain.UpdateProductRequestBody true "Product object"
 // @Success      200 {object} messageResponse
 // @Failure      400 {object} errorResponse
 // @Failure      401 {object} errorResponse

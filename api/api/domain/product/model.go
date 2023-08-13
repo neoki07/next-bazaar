@@ -69,6 +69,7 @@ type ProductResponse struct {
 	Description   db.NullString `json:"description" swaggertype:"string"`
 	Price         db.Decimal    `json:"price" swaggertype:"string"`
 	StockQuantity int32         `json:"stock_quantity"`
+	CategoryID    uuid.UUID     `json:"category_id" swaggertype:"string"`
 	Category      string        `json:"category"`
 	Seller        string        `json:"seller"`
 	ImageUrl      db.NullString `json:"image_url" swaggertype:"string"`
@@ -86,6 +87,7 @@ func NewProductResponse(product Product) (ProductResponse, error) {
 		Description:   db.NullString{NullString: product.Description},
 		Price:         db.Decimal{Decimal: dec},
 		StockQuantity: product.StockQuantity,
+		CategoryID:    product.CategoryID,
 		Category:      product.Category,
 		Seller:        product.Seller,
 		ImageUrl:      db.NullString{NullString: product.ImageUrl},

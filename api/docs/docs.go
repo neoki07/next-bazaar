@@ -545,6 +545,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/products/{id}": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update product",
+                "parameters": [
+                    {
+                        "description": "Product object",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/product_domain.UpdateProductRequestBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.messageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/register": {
             "post": {
                 "tags": [
@@ -796,6 +841,9 @@ const docTemplate = `{
                 "category": {
                     "type": "string"
                 },
+                "category_id": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -816,6 +864,36 @@ const docTemplate = `{
                 },
                 "stock_quantity": {
                     "type": "integer"
+                }
+            }
+        },
+        "product_domain.UpdateProductRequestBody": {
+            "type": "object",
+            "required": [
+                "category_id",
+                "name",
+                "price",
+                "stock_quantity"
+            ],
+            "properties": {
+                "category_id": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "string"
+                },
+                "stock_quantity": {
+                    "type": "integer",
+                    "minimum": 0
                 }
             }
         },
