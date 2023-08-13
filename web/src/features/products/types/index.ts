@@ -6,6 +6,7 @@ export interface Product {
   description?: string
   price: Decimal
   stockQuantity: number
+  categoryId: string
   category: string
   seller: string
   imageUrl?: string

@@ -10,7 +10,7 @@ import { Button, Center, Stack } from '@mantine/core'
 import Decimal from 'decimal.js'
 import { SubmitHandler } from 'react-hook-form'
 import { z } from 'zod'
-import { Category } from '../types'
+import { Category, Product } from '../types'
 
 export interface ProductFormValues {
   name: string
@@ -20,12 +20,27 @@ export interface ProductFormValues {
   stockQuantity: number
 }
 
+export function productToFormValues(product: Product): ProductFormValues {
+  return {
+    name: product.name,
+    description: product.description,
+    categoryId: product.categoryId,
+    price: product.price,
+    stockQuantity: product.stockQuantity,
+  }
+}
+
 interface ProductFormProps {
   allCategories: Category[]
+  initialValues?: ProductFormValues
   onSubmit: SubmitHandler<ProductFormValues>
 }
 
-export function ProductForm({ allCategories, onSubmit }: ProductFormProps) {
+export function ProductForm({
+  allCategories,
+  initialValues,
+  onSubmit,
+}: ProductFormProps) {
   const schema = z.object({
     name: z.string().min(1, { message: 'Required' }),
     description: z
@@ -50,14 +65,20 @@ export function ProductForm({ allCategories, onSubmit }: ProductFormProps) {
     stockQuantity?: number
   }>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: '',
-      description: undefined,
+    defaultValues:
+      initialValues === undefined
+        ? {
+            name: '',
+            description: undefined,
 
-      categoryId: '',
-      price: undefined,
-      stockQuantity: undefined,
-    },
+            categoryId: '',
+            price: undefined,
+            stockQuantity: undefined,
+          }
+        : {
+            ...initialValues,
+            price: initialValues.price.toNumber(),
+          },
     onSubmit: (data) => {
       if (data.price === undefined) {
         throw new Error('Price is undefined')

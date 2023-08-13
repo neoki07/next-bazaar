@@ -21,6 +21,7 @@ import type {
   GetUsersProductsParams,
   ProductDomainAddProductRequest,
   ProductDomainListProductsResponse,
+  ProductDomainUpdateProductRequestBody,
   UserDomainLoginRequest,
   UserDomainRegisterRequest,
   UserDomainUserResponse,
@@ -372,6 +373,79 @@ export const usePostUsersProducts = <
   request?: SecondParameter<typeof customAxiosInstance>
 }) => {
   const mutationOptions = getPostUsersProductsMutationOptions(options)
+
+  return useMutation(mutationOptions)
+}
+/**
+ * @summary Update product
+ */
+export const putUsersProductsId = (
+  id: string,
+  productDomainUpdateProductRequestBody: ProductDomainUpdateProductRequestBody,
+  options?: SecondParameter<typeof customAxiosInstance>
+) => {
+  return customAxiosInstance<ApiMessageResponse>(
+    {
+      url: `/users/products/${id}`,
+      method: 'put',
+      headers: { 'Content-Type': 'application/json' },
+      data: productDomainUpdateProductRequestBody,
+    },
+    options
+  )
+}
+
+export const getPutUsersProductsIdMutationOptions = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putUsersProductsId>>,
+    TError,
+    { id: string; data: ProductDomainUpdateProductRequestBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putUsersProductsId>>,
+  TError,
+  { id: string; data: ProductDomainUpdateProductRequestBody },
+  TContext
+> => {
+  const { mutation: mutationOptions, request: requestOptions } = options ?? {}
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putUsersProductsId>>,
+    { id: string; data: ProductDomainUpdateProductRequestBody }
+  > = (props) => {
+    const { id, data } = props ?? {}
+
+    return putUsersProductsId(id, data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PutUsersProductsIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof putUsersProductsId>>
+>
+export type PutUsersProductsIdMutationBody =
+  ProductDomainUpdateProductRequestBody
+export type PutUsersProductsIdMutationError = ErrorType<ApiErrorResponse>
+
+export const usePutUsersProductsId = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putUsersProductsId>>,
+    TError,
+    { id: string; data: ProductDomainUpdateProductRequestBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}) => {
+  const mutationOptions = getPutUsersProductsIdMutationOptions(options)
 
   return useMutation(mutationOptions)
 }

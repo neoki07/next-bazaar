@@ -556,7 +556,7 @@ paths:
       tags:
       - Users
   /users/products/{id}:
-    post:
+    put:
       parameters:
       - description: Product ID
         in: path

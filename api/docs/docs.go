@@ -546,7 +546,7 @@ const docTemplate = `{
             }
         },
         "/users/products/{id}": {
-            "post": {
+            "put": {
                 "tags": [
                     "Users"
                 ],

@@ -253,7 +253,7 @@ func (h *productHandler) addProduct(c *fiber.Ctx) error {
 // @Failure      400 {object} errorResponse
 // @Failure      401 {object} errorResponse
 // @Failure      500 {object} errorResponse
-// @Router       /users/products/{id} [post]
+// @Router       /users/products/{id} [put]
 func (h *productHandler) updateProduct(c *fiber.Ctx) error {
 	session, err := getSession(c)
 	if err != nil {

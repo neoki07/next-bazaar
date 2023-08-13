@@ -538,7 +538,7 @@
             }
         },
         "/users/products/{id}": {
-            "post": {
+            "put": {
                 "tags": [
                     "Users"
                 ],
