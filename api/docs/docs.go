@@ -553,6 +553,13 @@ const docTemplate = `{
                 "summary": "Update product",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "Product object",
                         "name": "body",
                         "in": "body",
