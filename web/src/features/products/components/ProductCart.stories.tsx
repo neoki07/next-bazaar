@@ -17,6 +17,7 @@ export const Default: Story = {
     product: {
       id: '1',
       name: 'Product',
+      categoryId: '1',
       category: 'Category',
       price: new Decimal(10.0),
       stockQuantity: 5,

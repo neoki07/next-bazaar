@@ -13,6 +13,7 @@ type Story = StoryObj<typeof ProductForm>
 
 export const Default: Story = {
   args: {
+    imageSize: 300,
     allCategories: [
       { id: '1', name: 'T-Shirt' },
       { id: '2', name: 'Jeans' },
