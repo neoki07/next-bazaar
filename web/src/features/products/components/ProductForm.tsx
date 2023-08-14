@@ -114,7 +114,7 @@ export function ProductForm({
       <Stack>
         <TextInput label="Name" name="name" withAsterisk />
 
-        <Textarea label="Description" name="description" minRows={5} />
+        <Textarea label="Description" name="description" minRows={8} />
 
         <ProductImageDropzone
           label="Image"
