@@ -6,8 +6,6 @@
  */
 
 export interface ProductDomainListProductCategoriesResponseMeta {
-  page_count?: number
   page_id?: number
   page_size?: number
-  total_count?: number
 }

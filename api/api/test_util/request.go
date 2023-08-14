@@ -12,12 +12,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+type Query = map[string]string
+
+type Body = map[string]interface{}
+
 type RequestParams struct {
-	Method    string
-	URL       string
-	Query     fiber.Map
-	Body      fiber.Map
-	SetupAuth func(request *http.Request)
+	Method string
+	URL    string
+	Query  Query
+	Body   Body
 }
 
 func NewRequest(
@@ -38,16 +41,12 @@ func NewRequest(
 	if params.Query != nil {
 		query := request.URL.Query()
 		for key, value := range params.Query {
-			query.Add(key, value.(string))
+			query.Add(key, value)
 		}
 		request.URL.RawQuery = query.Encode()
 	}
 
 	request.Header.Set("Content-Type", "application/json")
-
-	if params.SetupAuth != nil {
-		params.SetupAuth(request)
-	}
 
 	return request
 }

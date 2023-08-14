@@ -11,29 +11,33 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func CreateUserTestData(
+type WithSessionUserParams struct {
+	Name         string
+	Email        string
+	Password     string
+	SessionToken *token.Token
+}
+
+func CreateWithSessionUser(
 	t *testing.T,
 	ctx context.Context,
 	store db.Store,
-	name string,
-	email string,
-	password string,
-	sessionToken *token.Token,
+	params WithSessionUserParams,
 ) db.User {
-	hashedPassword, err := util.HashPassword(password)
+	hashedPassword, err := util.HashPassword(params.Password)
 	require.NoError(t, err)
 
 	user, err := store.CreateUser(ctx, db.CreateUserParams{
-		Name:           name,
-		Email:          email,
+		Name:           params.Name,
+		Email:          params.Email,
 		HashedPassword: hashedPassword,
 	})
 	require.NoError(t, err)
 
 	_, err = store.CreateSession(ctx, db.CreateSessionParams{
 		UserID:       user.ID,
-		SessionToken: sessionToken.ID,
-		ExpiredAt:    sessionToken.ExpiredAt,
+		SessionToken: params.SessionToken.ID,
+		ExpiredAt:    params.SessionToken.ExpiredAt,
 	})
 	require.NoError(t, err)
 

@@ -26,8 +26,6 @@ function transform(
     )
   }
 
-  console.log('data:', data)
-
   return {
     meta: data.meta,
     data: data.data.map(transformProductCategory),

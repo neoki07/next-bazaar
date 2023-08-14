@@ -28,6 +28,7 @@ const handlers = [
             description: 'Description 1',
             price: 10.0,
             stock_quantity: 10,
+            category_id: '1',
             category: 'Category 1',
             seller: 'Seller 1',
             image_url: 'https://example.com/image.png',
@@ -38,6 +39,7 @@ const handlers = [
             description: 'Description 2',
             price: 20.0,
             stock_quantity: 20,
+            category_id: '2',
             category: 'Category 2',
             seller: 'Seller 2',
             image_url: 'https://example.com/image.png',
@@ -48,6 +50,7 @@ const handlers = [
             description: 'Description 3',
             price: 30.0,
             stock_quantity: 30,
+            category_id: '3',
             category: 'Category 3',
             seller: 'Seller 3',
             image_url: 'https://example.com/image.png',
@@ -58,6 +61,7 @@ const handlers = [
             description: 'Description 4',
             price: 40.0,
             stock_quantity: 40,
+            category_id: '4',
             category: 'Category 4',
             seller: 'Seller 4',
             image_url: 'https://example.com/image.png',
@@ -68,6 +72,7 @@ const handlers = [
             description: 'Description 5',
             price: 50.0,
             stock_quantity: 50,
+            category_id: '5',
             category: 'Category 5',
             seller: 'Seller 5',
             image_url: 'https://example.com/image.png',
@@ -82,9 +87,17 @@ describe('useGetProducts', () => {
   setupMockServer(...handlers)
 
   it('returns meta data and products correctly', async () => {
-    const { result } = renderHook(() => useGetProducts(1, 5, 'dummy'), {
-      wrapper: queryWrapper,
-    })
+    const { result } = renderHook(
+      () =>
+        useGetProducts({
+          page: 1,
+          pageSize: 5,
+          categoryId: 'dummy',
+        }),
+      {
+        wrapper: queryWrapper,
+      }
+    )
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
     })
@@ -102,6 +115,7 @@ describe('useGetProducts', () => {
         description: 'Description 1',
         price: new Decimal(10.0),
         stockQuantity: 10,
+        categoryId: '1',
         category: 'Category 1',
         seller: 'Seller 1',
         imageUrl: 'https://example.com/image.png',
@@ -112,6 +126,7 @@ describe('useGetProducts', () => {
         description: 'Description 2',
         price: new Decimal(20.0),
         stockQuantity: 20,
+        categoryId: '2',
         category: 'Category 2',
         seller: 'Seller 2',
         imageUrl: 'https://example.com/image.png',
@@ -122,6 +137,7 @@ describe('useGetProducts', () => {
         description: 'Description 3',
         price: new Decimal(30.0),
         stockQuantity: 30,
+        categoryId: '3',
         category: 'Category 3',
         seller: 'Seller 3',
         imageUrl: 'https://example.com/image.png',
@@ -132,6 +148,7 @@ describe('useGetProducts', () => {
         description: 'Description 4',
         price: new Decimal(40.0),
         stockQuantity: 40,
+        categoryId: '4',
         category: 'Category 4',
         seller: 'Seller 4',
         imageUrl: 'https://example.com/image.png',
@@ -142,6 +159,7 @@ describe('useGetProducts', () => {
         description: 'Description 5',
         price: new Decimal(50.0),
         stockQuantity: 50,
+        categoryId: '5',
         category: 'Category 5',
         seller: 'Seller 5',
         imageUrl: 'https://example.com/image.png',

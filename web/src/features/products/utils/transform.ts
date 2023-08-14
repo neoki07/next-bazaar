@@ -24,6 +24,10 @@ export function transformProduct(
     throw new Error(
       'required field `stock_quantity` is undefined:' + JSON.stringify(product)
     )
+  } else if (product.category_id === undefined) {
+    throw new Error(
+      'required field `category_id` is undefined:' + JSON.stringify(product)
+    )
   } else if (product.category === undefined) {
     throw new Error(
       'required field `category` is undefined:' + JSON.stringify(product)
@@ -37,12 +41,13 @@ export function transformProduct(
   return {
     id: product.id,
     name: product.name,
-    description: product.description,
+    description: product.description ?? undefined,
     price: new Decimal(product.price),
     stockQuantity: product.stock_quantity,
+    categoryId: product.category_id,
     category: product.category,
     seller: product.seller,
-    imageUrl: product.image_url,
+    imageUrl: product.image_url ?? undefined,
   }
 }
 

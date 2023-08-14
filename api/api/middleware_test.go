@@ -21,81 +21,77 @@ func TestAuthMiddleware(t *testing.T) {
 	createValidSessionSeed := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
 
-		_ = test_util.CreateUserTestData(t, ctx, store,
-			"testuser",
-			"test@example.com",
-			"test-password",
-			validSessionToken,
-		)
+		_ = test_util.CreateWithSessionUser(t, ctx, store, test_util.WithSessionUserParams{
+			Name:         "testuser",
+			Email:        "test@example.com",
+			Password:     "test-password",
+			SessionToken: validSessionToken,
+		})
 	}
 
 	expiredSessionToken := token.NewToken(-time.Minute)
 	createExpiredSessionSeed := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
 
-		_ = test_util.CreateUserTestData(t, ctx, store,
-			"testuser",
-			"test@example.com",
-			"test-password",
-			expiredSessionToken,
-		)
+		_ = test_util.CreateWithSessionUser(t, ctx, store, test_util.WithSessionUserParams{
+			Name:         "testuser",
+			Email:        "test@example.com",
+			Password:     "test-password",
+			SessionToken: expiredSessionToken,
+		})
 	}
 
 	testCases := []struct {
-		name          string
-		setupAuth     func(request *http.Request)
-		buildStore    func(t *testing.T) (store db.Store, cleanup func())
-		createSeed    func(t *testing.T, store db.Store)
-		checkResponse func(t *testing.T, response *http.Response)
+		name           string
+		buildStore     func(t *testing.T) (store db.Store, cleanup func())
+		createSeedData func(t *testing.T, store db.Store)
+		setupAuth      func(request *http.Request)
+		checkResponse  func(t *testing.T, response *http.Response)
 	}{
 		{
-			name: "OK",
+			name:           "OK",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: createValidSessionSeed,
 			setupAuth: func(request *http.Request) {
-				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, validSessionToken.ID.String(), request)
+				test_util.AddSessionTokenInCookie(request, validSessionToken.ID.String())
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: createValidSessionSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusOK, response.StatusCode)
 			},
 		},
 		{
-			name: "NoAuthorization",
-			setupAuth: func(request *http.Request) {
-			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: createValidSessionSeed,
+			name:           "NoAuthorization",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: createValidSessionSeed,
+			setupAuth:      func(request *http.Request) {},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
 			},
 		},
 		{
-			name: "InvalidTokenFormat",
+			name:           "InvalidTokenFormat",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: createValidSessionSeed,
 			setupAuth: func(request *http.Request) {
-				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, "invalid", request)
+				test_util.AddSessionTokenInCookie(request, "invalid")
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: createValidSessionSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
 			},
 		},
 		{
-			name: "ExpiredToken",
+			name:           "ExpiredToken",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: createExpiredSessionSeed,
 			setupAuth: func(request *http.Request) {
-				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, expiredSessionToken.ID.String(), request)
+				test_util.AddSessionTokenInCookie(request, expiredSessionToken.ID.String())
 			},
-			buildStore: test_util.BuildTestDBStore,
-			createSeed: createExpiredSessionSeed,
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
 			},
 		},
 		{
 			name: "InternalError",
-			setupAuth: func(request *http.Request) {
-				test_util.AddSessionTokenInCookie(cookieSessionTokenKey, validSessionToken.ID.String(), request)
-			},
 			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
 				mockStore, cleanup := test_util.NewMockStore(t)
 
@@ -105,7 +101,10 @@ func TestAuthMiddleware(t *testing.T) {
 
 				return mockStore, cleanup
 			},
-			createSeed: func(t *testing.T, store db.Store) {},
+			createSeedData: func(t *testing.T, store db.Store) {},
+			setupAuth: func(request *http.Request) {
+				test_util.AddSessionTokenInCookie(request, validSessionToken.ID.String())
+			},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 			},
@@ -121,15 +120,16 @@ func TestAuthMiddleware(t *testing.T) {
 			store, cleanupStore := tc.buildStore(t)
 			defer cleanupStore()
 
-			tc.createSeed(t, store)
+			tc.createSeedData(t, store)
 
 			authPath := "/auth"
 
 			request := test_util.NewRequest(t, test_util.RequestParams{
-				Method:    http.MethodGet,
-				URL:       authPath,
-				SetupAuth: tc.setupAuth,
+				Method: http.MethodGet,
+				URL:    authPath,
 			})
+
+			tc.setupAuth(request)
 
 			server := newTestServer(t, store)
 			server.app.Get(

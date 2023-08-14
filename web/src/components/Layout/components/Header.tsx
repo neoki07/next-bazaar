@@ -20,11 +20,13 @@ import {
 import {
   IconChevronDown,
   IconLogout,
+  IconPackageExport,
   IconSettings,
   IconShoppingCart,
 } from '@tabler/icons-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { useCallback, useEffect, useState } from 'react'
 
 const useStyles = createStyles((theme) => ({
@@ -54,6 +56,7 @@ const useStyles = createStyles((theme) => ({
 export function Header() {
   const { session, status } = useSession()
   const { classes } = useStyles()
+  const router = useRouter()
 
   const [isLogoutButtonClicked, setIsLogoutButtonClicked] = useState(false)
 
@@ -64,6 +67,10 @@ export function Header() {
   const { logout } = useAuth({
     onLogoutError: handleLogoutError,
   })
+
+  const handleGoToProductsPage = useCallback(() => {
+    router.push('/dashboard/products')
+  }, [router])
 
   const handleLogout = useCallback(() => {
     setIsLogoutButtonClicked(true)
@@ -125,18 +132,25 @@ export function Header() {
               </Menu.Target>
               <Menu.Dropdown>
                 <Menu.Item
-                  icon={<IconSettings size="0.9rem" stroke={1.5} />}
+                  icon={<IconSettings size="1rem" stroke={1.5} />}
                   onClick={() =>
                     notifyNotImplementedError(
                       NOTIFY_NOT_IMPLEMENTED_ERRORS.AccountSettings
                     )
                   }
                 >
-                  Account settings
+                  Account Settings
                 </Menu.Item>
 
                 <Menu.Item
-                  icon={<IconLogout size="0.9rem" stroke={1.5} />}
+                  icon={<IconPackageExport size="1rem" stroke={1.5} />}
+                  onClick={handleGoToProductsPage}
+                >
+                  Your Products
+                </Menu.Item>
+
+                <Menu.Item
+                  icon={<IconLogout size="1rem" stroke={1.5} />}
                   onClick={handleLogout}
                   disabled={isLogoutButtonClicked}
                 >

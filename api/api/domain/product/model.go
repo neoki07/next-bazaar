@@ -36,12 +36,40 @@ type ListProductsRequest struct {
 	CategoryID uuid.NullUUID `query:"category_id" json:"category_id" swaggertype:"string"`
 }
 
+type ListProductsBySellerRequest struct {
+	PageID   int32 `query:"page_id" json:"page_id" validate:"required,min=1"`
+	PageSize int32 `query:"page_size" json:"page_size" validate:"required,min=1,max=100"`
+}
+
+type AddProductRequest struct {
+	Name          string    `json:"name" validate:"required"`
+	Description   string    `json:"description" validate:"omitempty"`
+	Price         string    `json:"price" validate:"required,decimal,decimal_gt=0"`
+	StockQuantity int32     `json:"stock_quantity" validate:"required,min=0"`
+	CategoryID    uuid.UUID `json:"category_id" validate:"required"`
+	ImageUrl      string    `json:"image_url" validate:"omitempty,http_url"`
+}
+
+type UpdateProductRequestParams struct {
+	ProductID uuid.UUID `params:"id"`
+}
+
+type UpdateProductRequestBody struct {
+	Name          string    `json:"name" validate:"required"`
+	Description   string    `json:"description" validate:"omitempty"`
+	Price         string    `json:"price" validate:"required,decimal,decimal_gt=0"`
+	StockQuantity int32     `json:"stock_quantity" validate:"required,min=0"`
+	CategoryID    uuid.UUID `json:"category_id" validate:"required"`
+	ImageUrl      string    `json:"image_url" validate:"omitempty,http_url"`
+}
+
 type ProductResponse struct {
 	ID            uuid.UUID     `json:"id"`
 	Name          string        `json:"name"`
 	Description   db.NullString `json:"description" swaggertype:"string"`
 	Price         db.Decimal    `json:"price" swaggertype:"string"`
 	StockQuantity int32         `json:"stock_quantity"`
+	CategoryID    uuid.UUID     `json:"category_id" swaggertype:"string"`
 	Category      string        `json:"category"`
 	Seller        string        `json:"seller"`
 	ImageUrl      db.NullString `json:"image_url" swaggertype:"string"`
@@ -59,6 +87,7 @@ func NewProductResponse(product Product) (ProductResponse, error) {
 		Description:   db.NullString{NullString: product.Description},
 		Price:         db.Decimal{Decimal: dec},
 		StockQuantity: product.StockQuantity,
+		CategoryID:    product.CategoryID,
 		Category:      product.Category,
 		Seller:        product.Seller,
 		ImageUrl:      db.NullString{NullString: product.ImageUrl},
