@@ -10,6 +10,7 @@ describe('transformProduct', () => {
       description: 'Description',
       price: '10.00',
       stock_quantity: 5,
+      category_id: '1',
       category: 'Category',
       seller: 'Seller',
       image_url: 'https://example.com/image.png',
@@ -21,6 +22,7 @@ describe('transformProduct', () => {
       description: 'Description',
       price: new Decimal('10.00'),
       stockQuantity: 5,
+      categoryId: '1',
       category: 'Category',
       seller: 'Seller',
       imageUrl: 'https://example.com/image.png',
@@ -35,6 +37,7 @@ describe('transformProduct', () => {
       name: 'Product',
       price: '10.00',
       stock_quantity: 5,
+      category_id: '1',
       category: 'Category',
       seller: 'Seller',
     }
@@ -44,6 +47,7 @@ describe('transformProduct', () => {
       name: 'Product',
       price: new Decimal('10.00'),
       stockQuantity: 5,
+      categoryId: '1',
       category: 'Category',
       seller: 'Seller',
     }
@@ -56,6 +60,7 @@ describe('transformProduct', () => {
       name: 'Product',
       price: '10.00',
       stock_quantity: 5,
+      category_id: '1',
       category: 'Category',
       seller: 'Seller',
     }
@@ -70,6 +75,7 @@ describe('transformProduct', () => {
       id: '1',
       price: '10.00',
       stock_quantity: 5,
+      category_id: '1',
       category: 'Category',
       seller: 'Seller',
     }
@@ -84,6 +90,7 @@ describe('transformProduct', () => {
       id: '1',
       name: 'Product',
       stock_quantity: 5,
+      category_id: '1',
       category: 'Category',
       seller: 'Seller',
     }
@@ -98,6 +105,7 @@ describe('transformProduct', () => {
       id: '1',
       name: 'Product',
       price: '10.00',
+      category_id: '1',
       category: 'Category',
       seller: 'Seller',
     }
@@ -107,11 +115,27 @@ describe('transformProduct', () => {
     )
   })
 
+  it('throws an error if category_id is undefined', () => {
+    const product = {
+      id: '1',
+      name: 'Product',
+      price: '10.00',
+      category: '1',
+      stock_quantity: 5,
+      seller: 'Seller',
+    }
+
+    expect(() => transformProduct(product)).toThrowError(
+      'required field `category_id` is undefined'
+    )
+  })
+
   it('throws an error if category is undefined', () => {
     const product = {
       id: '1',
       name: 'Product',
       price: '10.00',
+      category_id: '1',
       stock_quantity: 5,
       seller: 'Seller',
     }
@@ -127,6 +151,7 @@ describe('transformProduct', () => {
       name: 'Product',
       price: '10.00',
       stock_quantity: 5,
+      category_id: '1',
       category: 'Category',
     }
 
