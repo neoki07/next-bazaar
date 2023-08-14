@@ -7,7 +7,7 @@ import {
 } from '@/components/Form'
 import { uploadFile } from '@/features/upload'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Center, Grid, Stack } from '@mantine/core'
+import { Button, Grid, Group, Stack } from '@mantine/core'
 import Decimal from 'decimal.js'
 import { useState } from 'react'
 import { SubmitHandler } from 'react-hook-form'
@@ -40,6 +40,7 @@ interface ProductFormProps {
   allCategories: Category[]
   initialValues?: ProductFormValues
   onSubmit: SubmitHandler<ProductFormValues>
+  onCancel: () => void
 }
 
 export function ProductForm({
@@ -47,6 +48,7 @@ export function ProductForm({
   allCategories,
   initialValues,
   onSubmit,
+  onCancel,
 }: ProductFormProps) {
   const [uploadingImage, setUploadingImage] = useState(false)
 
@@ -178,7 +180,7 @@ export function ProductForm({
           </Grid.Col>
         </Grid>
 
-        <Center mt="sm">
+        <Group mt="sm" grow>
           <Button
             type="submit"
             loading={methods.formState.isSubmitting}
@@ -186,7 +188,11 @@ export function ProductForm({
           >
             Save
           </Button>
-        </Center>
+
+          <Button variant="default" type="button" onClick={onCancel}>
+            Cancel
+          </Button>
+        </Group>
       </Stack>
     </Form>
   )

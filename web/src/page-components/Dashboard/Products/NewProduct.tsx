@@ -57,6 +57,10 @@ export function NewProduct() {
     [addProductMutation]
   )
 
+  const handleCancel = useCallback(() => {
+    router.push('/dashboard/products')
+  }, [router])
+
   return (
     <MainLayout>
       <Container size="xs">
@@ -67,6 +71,7 @@ export function NewProduct() {
               imageSize={IMAGE_SIZE}
               allCategories={allCategories}
               onSubmit={handleSubmit}
+              onCancel={handleCancel}
             />
           )}
         </Stack>

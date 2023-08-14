@@ -68,6 +68,10 @@ export function EditProduct({ productId }: EditProductProps) {
     [productId, updateProductMutation]
   )
 
+  const handleCancel = useCallback(() => {
+    router.push('/dashboard/products')
+  }, [router])
+
   return (
     <MainLayout>
       <Container size="xs">
@@ -82,6 +86,7 @@ export function EditProduct({ productId }: EditProductProps) {
                 allCategories={allCategories}
                 initialValues={productToFormValues(product)}
                 onSubmit={handleSubmit}
+                onCancel={handleCancel}
               />
             )}
         </Stack>
