@@ -13,6 +13,8 @@ import { IconCheck } from '@tabler/icons-react'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 
+const IMAGE_SIZE = 300
+
 interface EditProductProps {
   productId: string
 }
@@ -59,6 +61,7 @@ export function EditProduct({ productId }: EditProductProps) {
           price: data.price.toString(),
           stock_quantity: data.stockQuantity,
           category_id: data.categoryId,
+          image_url: data.imageUrl,
         },
       })
     },
@@ -75,6 +78,7 @@ export function EditProduct({ productId }: EditProductProps) {
             allCategories !== undefined &&
             product !== undefined && (
               <ProductForm
+                imageSize={IMAGE_SIZE}
                 allCategories={allCategories}
                 initialValues={productToFormValues(product)}
                 onSubmit={handleSubmit}

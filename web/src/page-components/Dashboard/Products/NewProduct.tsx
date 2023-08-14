@@ -11,6 +11,8 @@ import { IconCheck } from '@tabler/icons-react'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 
+const IMAGE_SIZE = 300
+
 export function NewProduct() {
   const router = useRouter()
   const { data: categories, isLoading } = useGetProductCategories(1, 100)
@@ -48,6 +50,7 @@ export function NewProduct() {
           price: data.price.toString(),
           stock_quantity: data.stockQuantity,
           category_id: data.categoryId,
+          image_url: data.imageUrl,
         },
       })
     },
@@ -61,6 +64,7 @@ export function NewProduct() {
           <Title order={1}>Add Product</Title>
           {!isLoading && allCategories !== undefined && (
             <ProductForm
+              imageSize={IMAGE_SIZE}
               allCategories={allCategories}
               onSubmit={handleSubmit}
             />
