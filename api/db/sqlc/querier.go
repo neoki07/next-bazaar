@@ -41,6 +41,7 @@ type Querier interface {
 	TruncateUsersTable(ctx context.Context) error
 	UpdateCartProduct(ctx context.Context, arg UpdateCartProductParams) (CartProduct, error)
 	UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error)
+	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

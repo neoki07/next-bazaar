@@ -197,6 +197,16 @@ definitions:
     - name
     - password
     type: object
+  user_domain.UpdateRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+    required:
+    - email
+    - name
+    type: object
   user_domain.UserResponse:
     properties:
       email:
@@ -495,6 +505,34 @@ paths:
           schema:
             $ref: '#/definitions/api.errorResponse'
       summary: Get current user
+      tags:
+      - Users
+    patch:
+      parameters:
+      - description: User object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user_domain.UpdateRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.messageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Update user information
       tags:
       - Users
   /users/products:

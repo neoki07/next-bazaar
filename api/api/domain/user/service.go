@@ -72,6 +72,28 @@ func (s *UserService) CreateUser(ctx context.Context, params CreateUserServicePa
 	return err
 }
 
+type UpdateUserServiceParams struct {
+	ID    uuid.UUID
+	Name  string
+	Email string
+}
+
+func (s *UserService) UpdateUser(ctx context.Context, params UpdateUserServiceParams) error {
+	user, err := s.GetUser(ctx, params.ID)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.store.UpdateUser(ctx, db.UpdateUserParams{
+		ID:             params.ID,
+		Name:           params.Name,
+		Email:          params.Email,
+		HashedPassword: user.HashedPassword,
+	})
+
+	return err
+}
+
 type CreateSessionServiceParams struct {
 	UserID   uuid.UUID
 	Duration time.Duration
