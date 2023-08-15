@@ -617,6 +617,43 @@ func TestUpdateCurrentUserAPI(t *testing.T) {
 			allowParallel: false,
 		},
 		{
+			name:           "NoAuthorization",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body:           defaultBody,
+			setupAuth:      test_util.NoopSetupAuth,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "NameNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body: test_util.Body{
+				"email": validEmail,
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "EmailNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body: test_util.Body{
+				"name": validName,
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
 			name:           "NameAlreadyExists",
 			buildStore:     test_util.BuildTestDBStore,
 			createSeedData: defaultCreateSeedData,
