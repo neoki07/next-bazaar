@@ -197,6 +197,18 @@ definitions:
     - name
     - password
     type: object
+  user_domain.UpdatePasswordRequest:
+    properties:
+      new_password:
+        minLength: 8
+        type: string
+      old_password:
+        minLength: 8
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
   user_domain.UpdateRequest:
     properties:
       email:
@@ -533,6 +545,31 @@ paths:
           schema:
             $ref: '#/definitions/api.errorResponse'
       summary: Update user information
+      tags:
+      - Users
+  /users/me/password:
+    patch:
+      parameters:
+      - description: User object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user_domain.UpdatePasswordRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.messageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errorResponse'
+      summary: Update user password
       tags:
       - Users
   /users/products:
