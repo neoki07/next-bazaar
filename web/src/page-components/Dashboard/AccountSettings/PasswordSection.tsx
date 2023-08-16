@@ -1,17 +1,50 @@
 import { TextInput, useForm } from '@/components/Form'
+import { useUpdateUserPassword } from '@/features/user'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Stack, Text, Title, rem } from '@mantine/core'
 import { z } from 'zod'
 
 interface PasswordSectionProps {
   disabledSaveButton?: boolean
+  onSubmit?: () => void
+  onSubmitSuccess?: () => void
 }
 
-export function PasswordSection({ disabledSaveButton }: PasswordSectionProps) {
-  const schema = z.object({
-    oldPassword: z.string().min(8),
-    newPassword: z.string().min(8),
-    confirmNewPassword: z.string().min(8),
+export function PasswordSection({
+  disabledSaveButton,
+  onSubmit,
+  onSubmitSuccess,
+}: PasswordSectionProps) {
+  const schema = z
+    .object({
+      oldPassword: z.string().min(8),
+      newPassword: z.string().min(8),
+      confirmNewPassword: z.string().min(8),
+    })
+    .refine(
+      ({ newPassword, confirmNewPassword }) => {
+        return newPassword === confirmNewPassword
+      },
+      {
+        path: ['confirmNewPassword'],
+        message: 'Passwords do not match',
+      }
+    )
+    .refine(
+      ({ oldPassword, newPassword }) => {
+        return oldPassword !== newPassword
+      },
+      {
+        path: ['newPassword'],
+        message: 'New password must be different from old password',
+      }
+    )
+
+  const updatePasswordMutation = useUpdateUserPassword({
+    onSuccess: onSubmitSuccess,
+    onError: (error) => {
+      throw new Error(error.message)
+    },
   })
 
   const [Form] = useForm<{
@@ -26,7 +59,13 @@ export function PasswordSection({ disabledSaveButton }: PasswordSectionProps) {
       confirmNewPassword: '',
     },
     onSubmit: (data) => {
-      alert(JSON.stringify(data, null, 2))
+      updatePasswordMutation.mutate({
+        data: {
+          old_password: data.oldPassword,
+          new_password: data.newPassword,
+        },
+      })
+      onSubmit?.()
     },
   })
 
@@ -38,25 +77,23 @@ export function PasswordSection({ disabledSaveButton }: PasswordSectionProps) {
           label="Old Password"
           name="oldPassword"
           type="password"
-          maw={rem(320)}
+          maw={rem(360)}
         />
         <TextInput
           label="New Password"
           name="newPassword"
           type="password"
-          maw={rem(320)}
+          maw={rem(360)}
         />
         <TextInput
           label="Confirm New Password"
           name="confirmNewPassword"
           type="password"
-          maw={rem(320)}
+          maw={rem(360)}
         />
       </Stack>
       <Text size="xs" mb={rem(4)}>
-        {
-          "Make sure it's at least 8 characters including a number and a letter."
-        }
+        {"Make sure it's at least 8 characters."}
       </Text>
       <Button color="dark" type="submit" disabled={disabledSaveButton}>
         Update Password

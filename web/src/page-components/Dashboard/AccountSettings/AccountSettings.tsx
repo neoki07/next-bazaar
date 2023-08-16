@@ -39,7 +39,11 @@ export function AccountSettings() {
               onSubmitSuccess={handleSubmitSuccess}
             />
           </Stack>
-          <PasswordSection disabledSaveButton={saving} />
+          <PasswordSection
+            disabledSaveButton={saving}
+            onSubmit={handleSubmit}
+            onSubmitSuccess={handleSubmitSuccess}
+          />
         </Stack>
       )}
     </DashboardLayout>
