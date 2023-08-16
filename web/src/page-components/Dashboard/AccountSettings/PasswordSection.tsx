@@ -3,14 +3,18 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Stack, Text, Title, rem } from '@mantine/core'
 import { z } from 'zod'
 
-export function PasswordSection() {
+interface PasswordSectionProps {
+  disabledSaveButton?: boolean
+}
+
+export function PasswordSection({ disabledSaveButton }: PasswordSectionProps) {
   const schema = z.object({
     oldPassword: z.string().min(8),
     newPassword: z.string().min(8),
     confirmNewPassword: z.string().min(8),
   })
 
-  const [Form, methods] = useForm<{
+  const [Form] = useForm<{
     oldPassword: string
     newPassword: string
     confirmNewPassword: string
@@ -54,7 +58,7 @@ export function PasswordSection() {
           "Make sure it's at least 8 characters including a number and a letter."
         }
       </Text>
-      <Button color="dark" type="submit">
+      <Button color="dark" type="submit" disabled={disabledSaveButton}>
         Update Password
       </Button>
     </Form>
