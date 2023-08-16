@@ -72,6 +72,60 @@ func (s *UserService) CreateUser(ctx context.Context, params CreateUserServicePa
 	return err
 }
 
+type UpdateUserServiceParams struct {
+	ID    uuid.UUID
+	Name  string
+	Email string
+}
+
+func (s *UserService) UpdateUser(ctx context.Context, params UpdateUserServiceParams) error {
+	user, err := s.GetUser(ctx, params.ID)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.store.UpdateUser(ctx, db.UpdateUserParams{
+		ID:             params.ID,
+		Name:           params.Name,
+		Email:          params.Email,
+		HashedPassword: user.HashedPassword,
+	})
+
+	return err
+}
+
+type UpdateUserPasswordServiceParams struct {
+	ID          uuid.UUID
+	OldPassword string
+	NewPassword string
+}
+
+func (s *UserService) UpdateUserPassword(ctx context.Context, params UpdateUserPasswordServiceParams) error {
+	user, err := s.GetUser(ctx, params.ID)
+	if err != nil {
+		return err
+	}
+
+	err = util.CheckPassword(params.OldPassword, user.HashedPassword)
+	if err != nil {
+		return err
+	}
+
+	hashedNewPassword, err := util.HashPassword(params.NewPassword)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.store.UpdateUser(ctx, db.UpdateUserParams{
+		ID:             params.ID,
+		Name:           user.Name,
+		Email:          user.Email,
+		HashedPassword: hashedNewPassword,
+	})
+
+	return err
+}
+
 type CreateSessionServiceParams struct {
 	UserID   uuid.UUID
 	Duration time.Duration

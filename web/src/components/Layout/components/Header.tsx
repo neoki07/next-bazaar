@@ -1,9 +1,5 @@
 import { useAuth } from '@/features/auth'
 import { useCartProductsCount } from '@/features/cart'
-import {
-  NOTIFY_NOT_IMPLEMENTED_ERRORS,
-  notifyNotImplementedError,
-} from '@/features/notification/not-implemented'
 import { useSession } from '@/providers/session'
 import {
   ActionIcon,
@@ -67,6 +63,10 @@ export function Header() {
   const { logout } = useAuth({
     onLogoutError: handleLogoutError,
   })
+
+  const handleGoToAccountSettingsPage = useCallback(() => {
+    router.push('/dashboard/settings/account')
+  }, [router])
 
   const handleGoToProductsPage = useCallback(() => {
     router.push('/dashboard/products')
@@ -133,11 +133,7 @@ export function Header() {
               <Menu.Dropdown>
                 <Menu.Item
                   icon={<IconSettings size="1rem" stroke={1.5} />}
-                  onClick={() =>
-                    notifyNotImplementedError(
-                      NOTIFY_NOT_IMPLEMENTED_ERRORS.AccountSettings
-                    )
-                  }
+                  onClick={handleGoToAccountSettingsPage}
                 >
                   Account Settings
                 </Menu.Item>

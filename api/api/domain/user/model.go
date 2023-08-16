@@ -34,6 +34,16 @@ type LoginRequest struct {
 	Password string `json:"password" validate:"required,min=8"`
 }
 
+type UpdateRequest struct {
+	Name  string `json:"name" validate:"required,without_space,without_punct,without_symbol"`
+	Email string `json:"email" validate:"required,email" swaggertype:"string"`
+}
+
+type UpdatePasswordRequest struct {
+	OldPassword string `json:"old_password" validate:"required,min=8"`
+	NewPassword string `json:"new_password" validate:"required,min=8"`
+}
+
 type UserResponse struct {
 	Name  string `json:"name"`
 	Email string `json:"email" swaggertype:"string"`

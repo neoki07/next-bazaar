@@ -156,3 +156,85 @@ func (h *userHandler) getCurrentUser(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
+
+// @Summary      Update user information
+// @Tags         Users
+// @Param        body body user_domain.UpdateRequest true "User object"
+// @Success      200 {object} messageResponse
+// @Failure      400 {object} errorResponse
+// @Failure      403 {object} errorResponse
+// @Failure      500 {object} errorResponse
+// @Router       /users/me [patch]
+func (h *userHandler) updateCurrentUser(c *fiber.Ctx) error {
+	session, err := getSession(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
+	}
+
+	req := new(user_domain.UpdateRequest)
+	if err := c.BodyParser(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	validate := validation.NewValidator()
+	if err := validate.Struct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	err = h.service.UpdateUser(c.Context(), user_domain.UpdateUserServiceParams{
+		ID:    session.UserID,
+		Name:  req.Name,
+		Email: req.Email,
+	})
+	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			switch pqErr.Code.Name() {
+			case "unique_violation":
+				return c.Status(fiber.StatusForbidden).JSON(newErrorResponse(err))
+			}
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
+	}
+
+	rsp := newMessageResponse("Your information has been updated successfully!")
+	return c.Status(fiber.StatusOK).JSON(rsp)
+}
+
+// @Summary      Update user password
+// @Tags         Users
+// @Param        body body user_domain.UpdatePasswordRequest true "User object"
+// @Success      200 {object} messageResponse
+// @Failure      400 {object} errorResponse
+// @Failure      500 {object} errorResponse
+// @Router       /users/me/password [patch]
+func (h *userHandler) updateCurrentUserPassword(c *fiber.Ctx) error {
+	session, err := getSession(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
+	}
+
+	req := new(user_domain.UpdatePasswordRequest)
+	if err := c.BodyParser(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	validate := validation.NewValidator()
+	if err := validate.Struct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(newErrorResponse(err))
+	}
+
+	err = h.service.UpdateUserPassword(c.Context(), user_domain.UpdateUserPasswordServiceParams{
+		ID:          session.UserID,
+		OldPassword: req.OldPassword,
+		NewPassword: req.NewPassword,
+	})
+	if err != nil {
+		if err == bcrypt.ErrMismatchedHashAndPassword {
+			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
+	}
+
+	rsp := newMessageResponse("Your password has been updated successfully!")
+	return c.Status(fiber.StatusOK).JSON(rsp)
+}

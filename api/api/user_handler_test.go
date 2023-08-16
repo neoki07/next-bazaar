@@ -533,6 +533,418 @@ func TestGetCurrentUserAPI(t *testing.T) {
 	}
 }
 
+func TestUpdateCurrentUserAPI(t *testing.T) {
+	validName := "testuser"
+	validName2 := "testuser2"
+
+	validEmail := "test@example.com"
+	validEmail2 := "test2@example.com"
+
+	validPassword := "test-password"
+	validPassword2 := "test-password2"
+
+	validSessionToken := token.NewToken(time.Minute)
+	validSessionToken2 := token.NewToken(time.Minute)
+
+	defaultCreateSeedData := func(t *testing.T, store db.Store) {
+		ctx := context.Background()
+
+		_ = test_util.CreateWithSessionUser(t, ctx, store, test_util.WithSessionUserParams{
+			Name:         validName,
+			Email:        validEmail,
+			Password:     validPassword,
+			SessionToken: validSessionToken,
+		})
+
+		_ = test_util.CreateWithSessionUser(t, ctx, store, test_util.WithSessionUserParams{
+			Name:         validName2,
+			Email:        validEmail2,
+			Password:     validPassword2,
+			SessionToken: validSessionToken2,
+		})
+	}
+
+	defaultBody := test_util.Body{
+		"name":  validName,
+		"email": validEmail,
+	}
+
+	testCases := []struct {
+		name           string
+		buildStore     func(t *testing.T) (store db.Store, cleanup func())
+		createSeedData func(t *testing.T, store db.Store)
+		body           test_util.Body
+		setupAuth      func(request *http.Request, sessionToken string)
+		checkResponse  func(t *testing.T, response *http.Response)
+		allowParallel  bool
+	}{
+		{
+			name:           "OK",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body:           defaultBody,
+			setupAuth:      test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusOK, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name: "InternalError",
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				mockStore, cleanup := test_util.NewMockStore(t)
+
+				test_util.BuildValidSessionStubs(mockStore, db.Session{
+					ID:           util.RandomUUID(),
+					UserID:       util.RandomUUID(),
+					SessionToken: validSessionToken.ID,
+					ExpiredAt:    validSessionToken.ExpiredAt,
+					CreatedAt:    time.Now(),
+				})
+
+				mockStore.EXPECT().
+					GetUser(gomock.Any(), gomock.Any()).
+					Return(db.User{}, sql.ErrConnDone)
+
+				return mockStore, cleanup
+			},
+			createSeedData: test_util.NoopCreateSeedData,
+			body:           defaultBody,
+			setupAuth:      test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "NoAuthorization",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body:           defaultBody,
+			setupAuth:      test_util.NoopSetupAuth,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "NameNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body: test_util.Body{
+				"email": validEmail,
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "EmailNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body: test_util.Body{
+				"name": validName,
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "NameAlreadyExists",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body: test_util.Body{
+				"name":  validName2,
+				"email": validEmail,
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusForbidden, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "EmailAlreadyExists",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body: test_util.Body{
+				"name":  validName,
+				"email": validEmail2,
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusForbidden, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "NameWithSpace",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body: test_util.Body{
+				"name":  "testuser ",
+				"email": validEmail,
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "NameWithPunct",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body: test_util.Body{
+				"name":  "testuser!",
+				"email": validEmail,
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "NameWithSymbol",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body: test_util.Body{
+				"name":  "testuser|",
+				"email": validEmail,
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "InvalidEmail",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body: test_util.Body{
+				"name":  validName,
+				"email": "invalid-email",
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.allowParallel {
+				t.Parallel()
+			}
+
+			store, cleanupStore := tc.buildStore(t)
+			defer cleanupStore()
+
+			tc.createSeedData(t, store)
+
+			request := test_util.NewRequest(t, test_util.RequestParams{
+				Method: http.MethodPatch,
+				URL:    "/api/v1/users/me",
+				Body:   tc.body,
+			})
+
+			tc.setupAuth(request, validSessionToken.ID.String())
+
+			server := newTestServer(t, store)
+			response := test_util.SendRequest(t, server.app, request)
+			tc.checkResponse(t, response)
+		})
+	}
+}
+
+func TestUpdateCurrentUserPasswordAPI(t *testing.T) {
+	validOldPassword := "test-old-password"
+	validNewPassword := "test-new-password"
+
+	validSessionToken := token.NewToken(time.Minute)
+
+	defaultCreateSeedData := func(t *testing.T, store db.Store) {
+		ctx := context.Background()
+
+		_ = test_util.CreateWithSessionUser(t, ctx, store, test_util.WithSessionUserParams{
+			Name:         "testuser",
+			Email:        "test@example.com",
+			Password:     validOldPassword,
+			SessionToken: validSessionToken,
+		})
+	}
+
+	defaultBody := test_util.Body{
+		"old_password": validOldPassword,
+		"new_password": validNewPassword,
+	}
+
+	testCases := []struct {
+		name           string
+		buildStore     func(t *testing.T) (store db.Store, cleanup func())
+		createSeedData func(t *testing.T, store db.Store)
+		body           test_util.Body
+		setupAuth      func(request *http.Request, sessionToken string)
+		checkResponse  func(t *testing.T, response *http.Response)
+		allowParallel  bool
+	}{
+		{
+			name:           "OK",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body:           defaultBody,
+			setupAuth:      test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusOK, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name: "InternalError",
+			buildStore: func(t *testing.T) (store db.Store, cleanup func()) {
+				mockStore, cleanup := test_util.NewMockStore(t)
+
+				test_util.BuildValidSessionStubs(mockStore, db.Session{
+					ID:           util.RandomUUID(),
+					UserID:       util.RandomUUID(),
+					SessionToken: validSessionToken.ID,
+					ExpiredAt:    validSessionToken.ExpiredAt,
+					CreatedAt:    time.Now(),
+				})
+
+				mockStore.EXPECT().
+					GetUser(gomock.Any(), gomock.Any()).
+					Return(db.User{}, sql.ErrConnDone)
+
+				return mockStore, cleanup
+			},
+			createSeedData: test_util.NoopCreateSeedData,
+			body:           defaultBody,
+			setupAuth:      test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusInternalServerError, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "NoAuthorization",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body:           defaultBody,
+			setupAuth:      test_util.NoopSetupAuth,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "OldPasswordNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body: test_util.Body{
+				"new_password": validNewPassword,
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "NewPasswordNotFound",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body: test_util.Body{
+				"old_password": validOldPassword,
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "MismatchOldPassword",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body: test_util.Body{
+				"old_password": "12345678",
+				"new_password": validNewPassword,
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "TooShortOldPassword",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body: test_util.Body{
+				"old_password": "1234567",
+				"new_password": validNewPassword,
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+		{
+			name:           "TooShortNewPassword",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: defaultCreateSeedData,
+			body: test_util.Body{
+				"old_password": validOldPassword,
+				"new_password": "1234567",
+			},
+			setupAuth: test_util.AddSessionTokenInCookie,
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusBadRequest, response.StatusCode)
+			},
+			allowParallel: false,
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.allowParallel {
+				t.Parallel()
+			}
+
+			store, cleanupStore := tc.buildStore(t)
+			defer cleanupStore()
+
+			tc.createSeedData(t, store)
+
+			request := test_util.NewRequest(t, test_util.RequestParams{
+				Method: http.MethodPatch,
+				URL:    "/api/v1/users/me/password",
+				Body:   tc.body,
+			})
+
+			tc.setupAuth(request, validSessionToken.ID.String())
+
+			server := newTestServer(t, store)
+			response := test_util.SendRequest(t, server.app, request)
+			tc.checkResponse(t, response)
+		})
+	}
+}
+
 func unmarshalUserResponse(t *testing.T, body io.ReadCloser) user_domain.UserResponse {
 	data, err := io.ReadAll(body)
 	require.NoError(t, err)

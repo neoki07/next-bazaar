@@ -83,6 +83,8 @@ func (server *Server) setupRouter() {
 
 	v1.Post("/users/logout", server.handlers.user.logout)
 	v1.Get("/users/me", server.handlers.user.getCurrentUser)
+	v1.Patch("/users/me", server.handlers.user.updateCurrentUser)
+	v1.Patch("/users/me/password", server.handlers.user.updateCurrentUserPassword)
 
 	v1.Get("/users/products", server.handlers.product.listProductsBySeller)
 	v1.Post("/users/products", server.handlers.product.addProduct)

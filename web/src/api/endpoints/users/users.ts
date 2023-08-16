@@ -24,6 +24,8 @@ import type {
   ProductDomainUpdateProductRequestBody,
   UserDomainLoginRequest,
   UserDomainRegisterRequest,
+  UserDomainUpdatePasswordRequest,
+  UserDomainUpdateRequest,
   UserDomainUserResponse,
 } from '../../model'
 
@@ -229,6 +231,148 @@ export const useGetUsersMe = <
   return query
 }
 
+/**
+ * @summary Update user information
+ */
+export const patchUsersMe = (
+  userDomainUpdateRequest: UserDomainUpdateRequest,
+  options?: SecondParameter<typeof customAxiosInstance>
+) => {
+  return customAxiosInstance<ApiMessageResponse>(
+    {
+      url: `/users/me`,
+      method: 'patch',
+      headers: { 'Content-Type': 'application/json' },
+      data: userDomainUpdateRequest,
+    },
+    options
+  )
+}
+
+export const getPatchUsersMeMutationOptions = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof patchUsersMe>>,
+    TError,
+    { data: UserDomainUpdateRequest },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof patchUsersMe>>,
+  TError,
+  { data: UserDomainUpdateRequest },
+  TContext
+> => {
+  const { mutation: mutationOptions, request: requestOptions } = options ?? {}
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof patchUsersMe>>,
+    { data: UserDomainUpdateRequest }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return patchUsersMe(data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PatchUsersMeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof patchUsersMe>>
+>
+export type PatchUsersMeMutationBody = UserDomainUpdateRequest
+export type PatchUsersMeMutationError = ErrorType<ApiErrorResponse>
+
+export const usePatchUsersMe = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof patchUsersMe>>,
+    TError,
+    { data: UserDomainUpdateRequest },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}) => {
+  const mutationOptions = getPatchUsersMeMutationOptions(options)
+
+  return useMutation(mutationOptions)
+}
+/**
+ * @summary Update user password
+ */
+export const patchUsersMePassword = (
+  userDomainUpdatePasswordRequest: UserDomainUpdatePasswordRequest,
+  options?: SecondParameter<typeof customAxiosInstance>
+) => {
+  return customAxiosInstance<ApiMessageResponse>(
+    {
+      url: `/users/me/password`,
+      method: 'patch',
+      headers: { 'Content-Type': 'application/json' },
+      data: userDomainUpdatePasswordRequest,
+    },
+    options
+  )
+}
+
+export const getPatchUsersMePasswordMutationOptions = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof patchUsersMePassword>>,
+    TError,
+    { data: UserDomainUpdatePasswordRequest },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof patchUsersMePassword>>,
+  TError,
+  { data: UserDomainUpdatePasswordRequest },
+  TContext
+> => {
+  const { mutation: mutationOptions, request: requestOptions } = options ?? {}
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof patchUsersMePassword>>,
+    { data: UserDomainUpdatePasswordRequest }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return patchUsersMePassword(data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PatchUsersMePasswordMutationResult = NonNullable<
+  Awaited<ReturnType<typeof patchUsersMePassword>>
+>
+export type PatchUsersMePasswordMutationBody = UserDomainUpdatePasswordRequest
+export type PatchUsersMePasswordMutationError = ErrorType<ApiErrorResponse>
+
+export const usePatchUsersMePassword = <
+  TError = ErrorType<ApiErrorResponse>,
+  TContext = unknown
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof patchUsersMePassword>>,
+    TError,
+    { data: UserDomainUpdatePasswordRequest },
+    TContext
+  >
+  request?: SecondParameter<typeof customAxiosInstance>
+}) => {
+  const mutationOptions = getPatchUsersMePasswordMutationOptions(options)
+
+  return useMutation(mutationOptions)
+}
 /**
  * @summary List products by seller
  */
