@@ -1,22 +1,25 @@
-import { Box, NavLink } from '@mantine/core'
-import { IconPackageExport, IconSettings } from '@tabler/icons-react'
+import { Box } from '@mantine/core'
+import { links, useActiveLink } from '../links'
+import { NavLink } from './NavLink'
 
 interface NavBarProps {
   width: number
 }
 
 export function NavBar({ width }: NavBarProps) {
+  const activeLink = useActiveLink()
+
   return (
     <Box w={width}>
-      <NavLink
-        label="Account Settings"
-        icon={<IconSettings size="1rem" stroke={1.5} />}
-      />
-      <NavLink
-        label="Your Products"
-        icon={<IconPackageExport size="1rem" stroke={1.5} />}
-        active
-      />
+      {links.map((link) => (
+        <NavLink
+          key={link.pathname}
+          label={link.label}
+          pathname={link.pathname}
+          icon={link.icon}
+          active={link === activeLink}
+        />
+      ))}
     </Box>
   )
 }
