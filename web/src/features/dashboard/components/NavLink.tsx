@@ -1,6 +1,16 @@
-import { NavLink as MantineNavLink } from '@mantine/core'
+import { NavLink as MantineNavLink, createStyles } from '@mantine/core'
 import { useRouter } from 'next/router'
 import { ReactNode, useCallback } from 'react'
+
+const useStyles = createStyles((theme) => ({
+  link: {
+    borderRadius: theme.radius.sm,
+
+    '&:hover': {
+      backgroundColor: theme.colors.gray[1],
+    },
+  },
+}))
 
 interface NavLinkProps {
   label: string
@@ -10,6 +20,7 @@ interface NavLinkProps {
 }
 
 export function NavLink({ label, icon, pathname, active }: NavLinkProps) {
+  const { classes } = useStyles()
   const router = useRouter()
 
   const handleClick = useCallback(() => {
@@ -18,6 +29,7 @@ export function NavLink({ label, icon, pathname, active }: NavLinkProps) {
 
   return (
     <MantineNavLink
+      className={classes.link}
       label={label}
       icon={icon}
       active={active}
