@@ -22,14 +22,4 @@ describe('ResponsiveSquareImage', () => {
 
     expect(screen.getByLabelText('Image loading skeleton')).toBeInTheDocument()
   })
-
-  it('does not render a skeleton when isLoading is false', () => {
-    const src = 'https://example.com/image.jpg'
-    const alt = 'Example Image'
-    render(<ResponsiveSquareImage src={src} alt={alt} isLoading={false} />)
-
-    expect(
-      screen.queryByLabelText('Image loading skeleton')
-    ).not.toBeInTheDocument()
-  })
 })
