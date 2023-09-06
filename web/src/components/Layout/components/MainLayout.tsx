@@ -16,8 +16,8 @@ const useStyles = createStyles((theme) => ({
   },
 
   main: {
-    padding: rem(32),
-    paddingTop: `calc(var(--mantine-header-height, 0px) + ${rem(32)})`,
+    padding: rem(40),
+    paddingTop: `calc(var(--mantine-header-height, 0px) + ${rem(40)})`,
     minHeight: 0,
   },
 }))

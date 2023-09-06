@@ -6,7 +6,6 @@ import { useCallback } from 'react'
 import { CategorySection } from './CategorySection'
 import { CategorySectionSkeleton } from './CategorySectionSkeleton'
 
-const IMAGE_SIZE = 260
 const CATEGORY_COUNT_ON_LOAD = 4
 const PRODUCT_COUNT_PER_CATEGORY = 8
 
@@ -19,27 +18,28 @@ export function Home() {
 
   return (
     <MainLayout>
-      <Stack spacing={rem(40)}>
+      <Stack spacing={rem(48)}>
         {isLoading ? (
           <>
             {range(CATEGORY_COUNT_ON_LOAD).map((index) => (
-              <CategorySectionSkeleton
-                key={index}
-                imageSize={IMAGE_SIZE}
-                productCount={PRODUCT_COUNT_PER_CATEGORY}
-              />
+              <div key={index} style={{ width: '100%' }}>
+                <CategorySectionSkeleton
+                  key={index}
+                  productCount={PRODUCT_COUNT_PER_CATEGORY}
+                />
+              </div>
             ))}
           </>
         ) : (
           <>
             {categories?.data.map((category) => (
-              <CategorySection
-                key={category.id}
-                category={category}
-                getProductLink={getProductLink}
-                imageSize={IMAGE_SIZE}
-                productCount={PRODUCT_COUNT_PER_CATEGORY}
-              />
+              <div key={category.id} style={{ width: '100%' }}>
+                <CategorySection
+                  category={category}
+                  getProductLink={getProductLink}
+                  productCount={PRODUCT_COUNT_PER_CATEGORY}
+                />
+              </div>
             ))}
           </>
         )}
