@@ -1,4 +1,4 @@
-import { Image } from '@/components/Image'
+import { FixedSizeImage } from '@/components/Image'
 import { Price } from '@/components/Price'
 import {
   Flex,
@@ -43,7 +43,7 @@ export function ProductListItem({
       <Stack spacing={4}>
         <Flex gap="xs">
           {product.imageUrl !== undefined && (
-            <Image
+            <FixedSizeImage
               src={product.imageUrl}
               alt={product.name}
               width={imageSize}

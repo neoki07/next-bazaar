@@ -14,7 +14,7 @@ interface NonLoadingImageProps extends Omit<NextImageProps, 'src' | 'alt'> {
   isLoading?: false
 }
 
-type ImageProps = LoadingImageProps | NonLoadingImageProps
+type ResponsiveSquareImageProps = LoadingImageProps | NonLoadingImageProps
 
 export function ResponsiveSquareImage({
   src,
@@ -23,7 +23,7 @@ export function ResponsiveSquareImage({
   onLoadingComplete,
   isLoading,
   ...props
-}: ImageProps) {
+}: ResponsiveSquareImageProps) {
   const [isImageLoading, setIsImageLoading] = useState(true)
 
   const handleLoadingComplete = useCallback(

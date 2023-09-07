@@ -25,6 +25,5 @@ export const Default: Story = {
       imageUrl: 'https://via.placeholder.com/300',
     },
     getProductLink: () => '#',
-    imageSize: 300,
   },
 }

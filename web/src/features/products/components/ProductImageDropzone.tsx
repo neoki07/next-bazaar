@@ -1,4 +1,4 @@
-import { Image } from '@/components/Image'
+import { FixedSizeImage } from '@/components/Image'
 import {
   Center,
   Group,
@@ -130,7 +130,7 @@ export function ProductImageDropzone({
               </Dropzone.Reject>
               <Dropzone.Idle>
                 {uploadedImageUrl ? (
-                  <Image
+                  <FixedSizeImage
                     src={uploadedImageUrl}
                     alt="Product image"
                     width={imageWidth}

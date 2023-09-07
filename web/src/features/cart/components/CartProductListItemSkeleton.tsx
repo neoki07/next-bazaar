@@ -1,4 +1,4 @@
-import { Image } from '@/components/Image'
+import { FixedSizeImage } from '@/components/Image'
 import { PriceSkeleton } from '@/components/Price'
 import { Flex, Skeleton, Stack, Text, clsx, createStyles } from '@mantine/core'
 
@@ -23,7 +23,7 @@ export function CartProductListItemSkeleton({
     <li className={clsx(classes.root, className)}>
       <Stack spacing={4}>
         <Flex gap="xs">
-          <Image isLoading alt="" width={imageSize} height={imageSize} />
+          <FixedSizeImage width={imageSize} height={imageSize} isLoading />
           <div style={{ width: '200px' }}>
             <Stack spacing="xs">
               <Skeleton>

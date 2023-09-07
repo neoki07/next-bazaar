@@ -1,4 +1,4 @@
-import { Image } from '@/components/Image'
+import { FixedSizeImage } from '@/components/Image'
 import { Price } from '@/components/Price'
 import {
   CloseButton,
@@ -50,7 +50,7 @@ export function CartProductListItem({
       <Stack spacing={4}>
         <Flex gap="xs">
           {cartProduct.imageUrl !== undefined && (
-            <Image
+            <FixedSizeImage
               src={cartProduct.imageUrl}
               alt={cartProduct.name}
               width={imageSize}
