@@ -92,7 +92,6 @@ export const Default: Story = {
       name: 'Category 1',
     },
     getProductLink: () => '#',
-    imageSize: IMAGE_SIZE,
   },
   decorators: [
     (Story) => (

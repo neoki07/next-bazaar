@@ -1,15 +1,11 @@
-import { Image } from '@/components/Image'
+import { ResponsiveSquareImage } from '@/components/Image'
 import { PriceSkeleton } from '@/components/Price'
 import { Skeleton, Stack, Text } from '@mantine/core'
 
-interface ProductCardSkeletonProps {
-  imageSize: number
-}
-
-export function ProductCardSkeleton({ imageSize }: ProductCardSkeletonProps) {
+export function ProductCardSkeleton() {
   return (
-    <Stack spacing="xs" w={imageSize}>
-      <Image isLoading alt="" width={imageSize} height={imageSize} />
+    <Stack spacing="xs">
+      <ResponsiveSquareImage isLoading />
       <Stack spacing={4}>
         <Skeleton visible width="50%">
           <Text size="xs">dummy</Text>

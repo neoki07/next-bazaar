@@ -1,4 +1,4 @@
-import { Image } from '@/components/Image'
+import { ResponsiveSquareImage } from '@/components/Image'
 import { Price } from '@/components/Price'
 import { Product } from '@/features/products'
 import { Group, Stack, Text, rem, useMantineTheme } from '@mantine/core'
@@ -8,27 +8,17 @@ import Link from 'next/link'
 interface ProductCardProps {
   product: Product
   getProductLink: (product: Product) => string
-  imageSize: number
 }
 
-export function ProductCard({
-  product,
-  getProductLink,
-  imageSize,
-}: ProductCardProps) {
+export function ProductCard({ product, getProductLink }: ProductCardProps) {
   const theme = useMantineTheme()
   const productLink = getProductLink(product)
 
   return (
-    <Stack spacing="xs" w={imageSize}>
+    <Stack spacing="xs">
       {product.imageUrl !== undefined && (
         <Link href={productLink}>
-          <Image
-            src={product.imageUrl}
-            alt={product.name}
-            width={imageSize}
-            height={imageSize}
-          />
+          <ResponsiveSquareImage src={product.imageUrl} alt={product.name} />
         </Link>
       )}
       <Stack spacing={4}>

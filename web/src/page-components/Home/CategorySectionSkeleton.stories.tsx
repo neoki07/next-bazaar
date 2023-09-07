@@ -17,9 +17,7 @@ export default meta
 type Story = StoryObj<typeof CategorySectionSkeleton>
 
 export const Default: Story = {
-  args: {
-    imageSize: IMAGE_SIZE,
-  },
+  args: {},
   decorators: [
     (Story) => (
       <QueryClientProvider client={queryClient}>

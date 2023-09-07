@@ -1,4 +1,5 @@
 import { PasswordInput, TextInput, useForm } from '@/components/Form'
+import { FixedSizeImage } from '@/components/Image'
 import { useAuth } from '@/features/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -12,7 +13,6 @@ import {
   Text,
   Title,
 } from '@mantine/core'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
 import { z } from 'zod'
@@ -64,12 +64,11 @@ export function Login() {
       <Stack>
         <Center>
           <Link href="/">
-            <Image
+            <FixedSizeImage
               src="/logo.svg"
               alt="Logo"
               width={180}
               height={48}
-              priority
             />
           </Link>
         </Center>

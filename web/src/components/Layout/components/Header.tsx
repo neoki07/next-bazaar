@@ -1,3 +1,4 @@
+import { FixedSizeImage } from '@/components/Image'
 import { useAuth } from '@/features/auth'
 import { useCartProductsCount } from '@/features/cart'
 import { useSession } from '@/providers/session'
@@ -20,7 +21,6 @@ import {
   IconSettings,
   IconShoppingCart,
 } from '@tabler/icons-react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useState } from 'react'
@@ -92,7 +92,7 @@ export function Header() {
     <MantineHeader height={60} px="md">
       <Group position="apart" sx={{ height: '100%' }}>
         <Link href="/">
-          <Image src="/logo.svg" alt="Logo" width={136} height={36} priority />
+          <FixedSizeImage src="/logo.svg" alt="Logo" width={136} height={36} />
         </Link>
 
         {status === 'authenticated' && (

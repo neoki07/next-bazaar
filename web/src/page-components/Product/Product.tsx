@@ -1,6 +1,6 @@
 import { useForm } from '@/components/Form'
 import { NativeNumberSelect } from '@/components/Form/components/NativeNumberSelect'
-import { Image } from '@/components/Image'
+import { FixedSizeImage, ResponsiveSquareImage } from '@/components/Image'
 import { MainLayout } from '@/components/Layout'
 import { Price, PriceSkeleton } from '@/components/Price'
 import { useCartProductsCount } from '@/features/cart'
@@ -118,14 +118,11 @@ export function ProductArea({ productId }: ProductAreaProps) {
         {isLoading ||
         product === undefined ||
         product.imageUrl === undefined ? (
-          <Image isLoading alt="" width={IMAGE_SIZE} height={IMAGE_SIZE} />
+          <FixedSizeImage width={IMAGE_SIZE} height={IMAGE_SIZE} isLoading />
         ) : (
-          <Image
-            src={product.imageUrl}
-            alt={product.name}
-            width={IMAGE_SIZE}
-            height={IMAGE_SIZE}
-          />
+          <div style={{ flex: 1 }}>
+            <ResponsiveSquareImage src={product.imageUrl} alt={product.name} />
+          </div>
         )}
 
         <Form>
