@@ -163,7 +163,7 @@ export function Header() {
               <Button variant="default">Log in</Button>
             </Link>
             <Link href="/register">
-              <Button>Sign up</Button>
+              <Button color="dark">Sign up</Button>
             </Link>
           </Group>
         )}

@@ -98,6 +98,7 @@ export function Login() {
             />
             <Button
               type="submit"
+              color="dark"
               fullWidth
               mt="xl"
               disabled={isLoginButtonClicked}
@@ -119,7 +120,7 @@ export function Login() {
         <Divider my="xs" label="OR" labelPosition="center" />
 
         <Button
-          variant="outline"
+          variant="default"
           fullWidth
           disabled={isLoginButtonClicked}
           onClick={loginWithTestAccount}

@@ -108,6 +108,7 @@ export function Register() {
             />
             <Button
               type="submit"
+              color="dark"
               fullWidth
               mt="xl"
               disabled={isRegisterButtonClicked}

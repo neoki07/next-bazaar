@@ -1,14 +1,5 @@
 import { CartProductList, useCart } from '@/features/cart'
-import {
-  Button,
-  Center,
-  Group,
-  Modal,
-  Stack,
-  Text,
-  UnstyledButton,
-  createStyles,
-} from '@mantine/core'
+import { Button, Group, Modal, Stack, createStyles } from '@mantine/core'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect } from 'react'
 
@@ -18,13 +9,6 @@ const useStyles = createStyles((theme) => ({
   title: {
     fontWeight: 700,
     fontSize: theme.fontSizes.lg,
-  },
-  continueButton: {
-    color: theme.colors.gray[6],
-
-    '&:hover': {
-      color: theme.colors.gray[7],
-    },
   },
 }))
 
@@ -69,13 +53,9 @@ export function AddedModal({ opened, onClose }: AddedModalProps) {
             View Cart
           </Button>
 
-          <Center>
-            <UnstyledButton onClick={onClose}>
-              <Text className={classes.continueButton} size="sm" fw={500}>
-                Continue shoppping
-              </Text>
-            </UnstyledButton>
-          </Center>
+          <Button variant="default" type="button" onClick={onClose}>
+            Continue shopping
+          </Button>
         </Group>
       </Stack>
     </Modal>
