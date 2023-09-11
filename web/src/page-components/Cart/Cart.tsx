@@ -11,7 +11,8 @@ import {
   NOTIFY_UNAUTHENTICATED_ERROR_MESSAGES,
   notifyUnauthenticatedError,
 } from '@/features/notification/unauthenticated'
-import { Container, Group, Title, rem } from '@mantine/core'
+import { useSmallerThan } from '@/hooks'
+import { Container, Flex, Stack, Title, rem } from '@mantine/core'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 import { OrderSummary } from './OrderSummary'
@@ -20,7 +21,7 @@ const IMAGE_SIZE = 200
 
 export function Cart() {
   const router = useRouter()
-
+  const smallerThanLg = useSmallerThan('lg')
   const { data: cart, isLoading, refetch: refetchCart } = useCart()
   const { refetch: refetchCartProductsCount } = useCartProductsCount({
     enabled: false,
@@ -82,12 +83,10 @@ export function Cart() {
 
   return (
     <MainLayout>
-      <Container size={1200} miw={800}>
-        <Title mb="lg" order={1}>
-          Cart
-        </Title>
-        <Group align="start" spacing={rem(48)}>
-          <div style={{ flex: '1' }}>
+      {smallerThanLg ? (
+        <Container size="sm">
+          <Stack>
+            <Title order={1}>Cart</Title>
             <CartProductList
               cartProducts={cart?.products}
               isLoading={isLoading}
@@ -95,10 +94,32 @@ export function Cart() {
               onChangeQuantity={handleChangeProductQuantity}
               onDelete={handleDeleteProduct}
             />
-          </div>
-          {cart && cart.products.length > 0 && <OrderSummary cart={cart} />}
-        </Group>
-      </Container>
+            {cart && cart.products.length > 0 && <OrderSummary cart={cart} />}
+          </Stack>
+        </Container>
+      ) : (
+        <Container size="lg">
+          <Stack>
+            <Title order={1}>Cart</Title>
+            <Flex gap="xl">
+              <div style={{ flex: '1' }}>
+                <CartProductList
+                  cartProducts={cart?.products}
+                  isLoading={isLoading}
+                  imageSize={IMAGE_SIZE}
+                  onChangeQuantity={handleChangeProductQuantity}
+                  onDelete={handleDeleteProduct}
+                />
+              </div>
+              {cart && cart.products.length > 0 && (
+                <div style={{ width: rem(400) }}>
+                  <OrderSummary cart={cart} />
+                </div>
+              )}
+            </Flex>
+          </Stack>
+        </Container>
+      )}
     </MainLayout>
   )
 }

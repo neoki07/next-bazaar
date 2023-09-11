@@ -44,7 +44,7 @@ export function EmailSection({
 
   return (
     <Form>
-      <Flex gap="md" align="end" maw={rem(360)}>
+      <Flex gap="md" align="end" maw={rem(392)}>
         <div style={{ flex: 1 }}>
           <TextInput label="Email" name="email" />
         </div>

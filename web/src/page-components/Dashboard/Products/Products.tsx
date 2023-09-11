@@ -25,6 +25,7 @@ export function Products() {
         <Title order={1}>Your Products</Title>
         <div>
           <Button
+            color="dark"
             leftIcon={<IconPlus size="1rem" />}
             onClick={goToAddNewProductPage}
           >
@@ -34,6 +35,7 @@ export function Products() {
         <ProductList products={products?.data} imageSize={120} />
         <Center>
           <Pagination
+            color="dark"
             value={page}
             onChange={setPage}
             total={products?.meta.page_count ?? 0}
