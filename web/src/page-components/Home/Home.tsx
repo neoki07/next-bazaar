@@ -7,7 +7,7 @@ import { CategorySection } from './CategorySection'
 import { CategorySectionSkeleton } from './CategorySectionSkeleton'
 
 const CATEGORY_COUNT_ON_LOAD = 4
-const PRODUCT_COUNT_PER_CATEGORY = 8
+const PRODUCT_COUNT_PER_CATEGORY = 12
 
 export function Home() {
   const { data: categories, isLoading } = useGetProductCategories(1, 100)
