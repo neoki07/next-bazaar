@@ -5,16 +5,19 @@ import {
   useAddProduct,
   useGetProductCategories,
 } from '@/features/products'
-import { Container, Stack, Title } from '@mantine/core'
+import { useSmallerThan } from '@/hooks'
+import { Container, Stack, Title, rem } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { IconCheck } from '@tabler/icons-react'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 
-const IMAGE_SIZE = 300
+const DEFAULT_IMAGE_SIZE = 300
+const SMALL_IMAGE_SIZE = 200
 
 export function NewProduct() {
   const router = useRouter()
+  const smallerThan440px = useSmallerThan(rem(440))
   const { data: categories, isLoading } = useGetProductCategories(1, 100)
 
   const allCategories = categories?.data.map((category) => ({
@@ -68,7 +71,9 @@ export function NewProduct() {
           <Title order={1}>Add Product</Title>
           {!isLoading && allCategories !== undefined && (
             <ProductForm
-              imageSize={IMAGE_SIZE}
+              imageSize={
+                smallerThan440px ? SMALL_IMAGE_SIZE : DEFAULT_IMAGE_SIZE
+              }
               allCategories={allCategories}
               onSubmit={handleSubmit}
               onCancel={handleCancel}
