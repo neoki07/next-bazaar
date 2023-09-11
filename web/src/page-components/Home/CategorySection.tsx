@@ -32,7 +32,15 @@ export function CategorySection({
   return (
     <Stack spacing="xl">
       <Title order={2}>{category.name}</Title>
-      <SimpleGrid cols={4} spacing="xl">
+      <SimpleGrid
+        cols={4}
+        spacing="xl"
+        breakpoints={[
+          { maxWidth: 'md', cols: 3 },
+          { maxWidth: 'sm', cols: 2 },
+          { maxWidth: 'xs', cols: 1 },
+        ]}
+      >
         {isLoading
           ? range(productCount).map((index) => (
               <ProductCardSkeleton key={index} />

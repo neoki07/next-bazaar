@@ -1,6 +1,6 @@
 import { useForm } from '@/components/Form'
 import { NativeNumberSelect } from '@/components/Form/components/NativeNumberSelect'
-import { FixedSizeImage, ResponsiveSquareImage } from '@/components/Image'
+import { ResponsiveSquareImage } from '@/components/Image'
 import { MainLayout } from '@/components/Layout'
 import { Price, PriceSkeleton } from '@/components/Price'
 import { useCartProductsCount } from '@/features/cart'
@@ -11,6 +11,7 @@ import {
   notifyUnauthenticatedError,
 } from '@/features/notification/unauthenticated'
 import { useGetProduct } from '@/features/products'
+import { useSmallerThan } from '@/hooks'
 import { useSession } from '@/providers/session'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -36,6 +37,7 @@ interface ProductAreaProps {
 }
 
 export function ProductArea({ productId }: ProductAreaProps) {
+  const smallerThanMd = useSmallerThan('sm')
   const [openedModal, { open: openModal, close: closeModal }] =
     useDisclosure(false)
   const { session } = useSession()
@@ -98,7 +100,7 @@ export function ProductArea({ productId }: ProductAreaProps) {
 
   return (
     <Stack>
-      <Skeleton visible={isLoading} width="50%">
+      <Skeleton visible={isLoading} width={isLoading ? '50%' : undefined}>
         <Text size={28}>{isLoading ? 'dummy' : product?.name}</Text>
       </Skeleton>
 
@@ -114,16 +116,16 @@ export function ProductArea({ productId }: ProductAreaProps) {
         </Text>
       )}
 
-      <Flex gap={rem(40)}>
-        {isLoading ||
-        product === undefined ||
-        product.imageUrl === undefined ? (
-          <FixedSizeImage width={IMAGE_SIZE} height={IMAGE_SIZE} isLoading />
-        ) : (
-          <div style={{ flex: 1 }}>
+      <Flex direction={smallerThanMd ? 'column' : 'row'} gap="xl">
+        <div style={{ flex: 1 }}>
+          {isLoading ||
+          product === undefined ||
+          product.imageUrl === undefined ? (
+            <ResponsiveSquareImage isLoading />
+          ) : (
             <ResponsiveSquareImage src={product.imageUrl} alt={product.name} />
-          </div>
-        )}
+          )}
+        </div>
 
         <Form>
           <Stack w={rem(240)}>
@@ -132,7 +134,7 @@ export function ProductArea({ productId }: ProductAreaProps) {
             ) : (
               <Price price={product.price} size="xl" weight="bold" />
             )}
-            <Skeleton visible={isLoading} width="35%">
+            <Skeleton visible={isLoading} width={isLoading ? '35%' : undefined}>
               <NativeNumberSelect
                 w={rem(80)}
                 label="Amount"
@@ -140,7 +142,7 @@ export function ProductArea({ productId }: ProductAreaProps) {
                 options={range(1, 11)}
               />
             </Skeleton>
-            <Skeleton visible={isLoading}>
+            <Skeleton visible={isLoading} width={isLoading ? '35%' : undefined}>
               <Button type="submit" color="dark" fullWidth>
                 Add to Cart
               </Button>

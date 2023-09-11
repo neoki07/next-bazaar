@@ -1,30 +1,16 @@
 import { CartProductList, useCart } from '@/features/cart'
-import {
-  Button,
-  Center,
-  Group,
-  Modal,
-  Stack,
-  Text,
-  UnstyledButton,
-  createStyles,
-} from '@mantine/core'
+import { useSmallerThan } from '@/hooks'
+import { Button, Group, Modal, Stack, createStyles } from '@mantine/core'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect } from 'react'
 
-const IMAGE_SIZE = 120
+const DEFAULT_IMAGE_SIZE = 120
+const SMALL_IMAGE_SIZE = 96
 
 const useStyles = createStyles((theme) => ({
   title: {
     fontWeight: 700,
     fontSize: theme.fontSizes.lg,
-  },
-  continueButton: {
-    color: theme.colors.gray[6],
-
-    '&:hover': {
-      color: theme.colors.gray[7],
-    },
   },
 }))
 
@@ -35,6 +21,7 @@ interface AddedModalProps {
 
 export function AddedModal({ opened, onClose }: AddedModalProps) {
   const { classes } = useStyles()
+  const smallerThanSm = useSmallerThan('sm')
   const { data: cart, isFetching, refetch: refetchCart } = useCart()
   const router = useRouter()
 
@@ -61,7 +48,7 @@ export function AddedModal({ opened, onClose }: AddedModalProps) {
           cartProducts={cart?.products}
           isLoading={isFetching}
           itemsCountOnLoad={0}
-          imageSize={IMAGE_SIZE}
+          imageSize={smallerThanSm ? SMALL_IMAGE_SIZE : DEFAULT_IMAGE_SIZE}
           editable={false}
         />
         <Group grow>
@@ -69,13 +56,9 @@ export function AddedModal({ opened, onClose }: AddedModalProps) {
             View Cart
           </Button>
 
-          <Center>
-            <UnstyledButton onClick={onClose}>
-              <Text className={classes.continueButton} size="sm" fw={500}>
-                Continue shoppping
-              </Text>
-            </UnstyledButton>
-          </Center>
+          <Button variant="default" type="button" onClick={onClose}>
+            Continue
+          </Button>
         </Group>
       </Stack>
     </Modal>

@@ -183,6 +183,7 @@ export function ProductForm({
         <Group mt="sm" grow>
           <Button
             type="submit"
+            color="dark"
             loading={methods.formState.isSubmitting}
             disabled={uploadingImage}
           >

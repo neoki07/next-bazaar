@@ -18,7 +18,6 @@ import {
 const useStyles = createStyles((theme) => ({
   container: {
     backgroundColor: theme.colors.gray[1],
-    width: rem(400),
     padding: rem(32),
     borderRadius: theme.radius.sm,
   },

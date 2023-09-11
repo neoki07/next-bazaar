@@ -21,7 +21,15 @@ export function CategorySectionSkeleton({
       <Skeleton width="15%">
         <Title order={2}>dummy</Title>
       </Skeleton>
-      <SimpleGrid cols={4} spacing="xl">
+      <SimpleGrid
+        cols={4}
+        spacing="xl"
+        breakpoints={[
+          { maxWidth: 'md', cols: 3 },
+          { maxWidth: 'sm', cols: 2 },
+          { maxWidth: 'xs', cols: 1 },
+        ]}
+      >
         {range(productCount).map((index) => (
           <ProductCardSkeleton key={index} />
         ))}
