@@ -46,6 +46,7 @@ export function Cart() {
       }
     },
   })
+
   const deleteProductMutation = useDeleteProduct({
     onSuccess: () => {
       refetchCart()
@@ -96,6 +97,9 @@ export function Cart() {
               onChangeQuantity={handleChangeProductQuantity}
               onDelete={handleDeleteProduct}
             />
+            {isLoading && cart === undefined && (
+              <OrderSummary cart={cart} isLoading={isLoading} />
+            )}
             {cart && cart.products.length > 0 && <OrderSummary cart={cart} />}
           </Stack>
         </Container>
@@ -115,11 +119,14 @@ export function Cart() {
                   onDelete={handleDeleteProduct}
                 />
               </div>
-              {cart && cart.products.length > 0 && (
-                <div style={{ width: rem(400) }}>
+              <div style={{ width: rem(400) }}>
+                {isLoading && cart === undefined && (
+                  <OrderSummary cart={cart} isLoading={isLoading} />
+                )}
+                {cart && cart.products.length > 0 && (
                   <OrderSummary cart={cart} />
-                </div>
-              )}
+                )}
+              </div>
             </Flex>
           </Stack>
         </Container>
