@@ -8,6 +8,7 @@ import {
   Button,
   Divider,
   Flex,
+  Skeleton,
   Stack,
   Text,
   Title,
@@ -48,62 +49,89 @@ const useStyles = createStyles((theme) => ({
   },
 }))
 
-interface OrderSummaryProps {
-  cart: Cart
+interface LoadingOrderSummaryProps {
+  cart?: Cart
+  isLoading: true
 }
 
-export function OrderSummary({ cart }: OrderSummaryProps) {
+interface NonLoadingOrderSummaryProps {
+  cart: Cart
+  isLoading?: false
+}
+
+type OrderSummaryProps = LoadingOrderSummaryProps | NonLoadingOrderSummaryProps
+
+export function OrderSummary({ cart, isLoading }: OrderSummaryProps) {
   const { classes } = useStyles()
 
   return (
-    <Stack className={classes.container} spacing="xl">
-      <Title order={3}>Order summary</Title>
-      <div>
-        <Flex align="center">
-          <div style={{ flex: '1' }}>
-            <Text className={classes.detailText}>Subtotal</Text>
-          </div>
-          <Price price={cart.subtotal} className={classes.detailPriceText} />
-        </Flex>
+    <Skeleton visible={!!isLoading}>
+      <Stack className={classes.container} spacing="xl">
+        <Title order={3}>Order summary</Title>
+        <div>
+          <Flex align="center">
+            <div style={{ flex: '1' }}>
+              <Text className={classes.detailText}>Subtotal</Text>
+            </div>
+            {!isLoading && (
+              <Price
+                price={cart.subtotal}
+                className={classes.detailPriceText}
+              />
+            )}
+          </Flex>
 
-        <Divider my="sm" />
+          <Divider my="sm" />
 
-        <Flex align="center">
-          <div style={{ flex: '1' }}>
-            <Text className={classes.detailText}>Shipping</Text>
-          </div>
-          <Price price={cart.shipping} className={classes.detailPriceText} />
-        </Flex>
+          <Flex align="center">
+            <div style={{ flex: '1' }}>
+              <Text className={classes.detailText}>Shipping</Text>
+            </div>
+            {!isLoading && (
+              <Price
+                price={cart.shipping}
+                className={classes.detailPriceText}
+              />
+            )}
+          </Flex>
 
-        <Divider my="sm" />
+          <Divider my="sm" />
 
-        <Flex align="center">
-          <div style={{ flex: '1' }}>
-            <Text className={classes.detailText}>Tax</Text>
-          </div>
-          <Price price={cart.tax} className={classes.detailPriceText} />
-        </Flex>
+          <Flex align="center">
+            <div style={{ flex: '1' }}>
+              <Text className={classes.detailText}>Tax</Text>
+            </div>
+            {!isLoading && (
+              <Price price={cart.tax} className={classes.detailPriceText} />
+            )}
+          </Flex>
 
-        <Divider my="sm" />
+          <Divider my="sm" />
 
-        <Flex align="center">
-          <div style={{ flex: '1' }}>
-            <Text className={classes.orderTotalText}>Order total</Text>
-          </div>
-          <Price price={cart.total} className={classes.orderTotalPriceText} />
-        </Flex>
-      </div>
-      <Button
-        color="dark"
-        fullWidth
-        onClick={() =>
-          notifyNotImplementedError(
-            NOTIFY_NOT_IMPLEMENTED_ERRORS.ProceedToCheckout
-          )
-        }
-      >
-        Proceed to Checkout
-      </Button>
-    </Stack>
+          <Flex align="center">
+            <div style={{ flex: '1' }}>
+              <Text className={classes.orderTotalText}>Order total</Text>
+            </div>
+            {!isLoading && (
+              <Price
+                price={cart.total}
+                className={classes.orderTotalPriceText}
+              />
+            )}
+          </Flex>
+        </div>
+        <Button
+          color="dark"
+          fullWidth
+          onClick={() =>
+            notifyNotImplementedError(
+              NOTIFY_NOT_IMPLEMENTED_ERRORS.ProceedToCheckout
+            )
+          }
+        >
+          Proceed to Checkout
+        </Button>
+      </Stack>
+    </Skeleton>
   )
 }

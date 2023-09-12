@@ -1,6 +1,15 @@
 import { FixedSizeImage } from '@/components/Image'
 import { PriceSkeleton } from '@/components/Price'
-import { Flex, Skeleton, Stack, Text, clsx, createStyles } from '@mantine/core'
+import {
+  CloseButton,
+  Flex,
+  Skeleton,
+  Stack,
+  Text,
+  clsx,
+  createStyles,
+  rem,
+} from '@mantine/core'
 
 const useStyles = createStyles(() => ({
   root: {
@@ -24,18 +33,20 @@ export function CartProductListItemSkeleton({
       <Stack spacing={4}>
         <Flex gap="xs">
           <FixedSizeImage width={imageSize} height={imageSize} isLoading />
-          <div style={{ width: '200px' }}>
-            <Stack spacing="xs">
-              <Skeleton>
-                <Text fz="md">dummy</Text>
-              </Skeleton>
-              <PriceSkeleton width="50%" />
-              <Skeleton width="50%">
-                <Text fz="md">dummy</Text>
-              </Skeleton>
-            </Stack>
+          <Stack spacing="xs" style={{ flex: 1 }}>
+            <Skeleton width={rem(200)}>
+              <Text fz="md">dummy</Text>
+            </Skeleton>
+            <PriceSkeleton width={rem(100)} />
+            <Skeleton width={rem(100)}>
+              <Text fz="md">dummy</Text>
+            </Skeleton>
+          </Stack>
+          <div>
+            <Skeleton>
+              <CloseButton />
+            </Skeleton>
           </div>
-          <div />
         </Flex>
       </Stack>
     </li>
