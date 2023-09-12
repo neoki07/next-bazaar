@@ -57,7 +57,7 @@ export function CartProductListItem({
               height={imageSize}
             />
           )}
-          <Stack spacing="xs">
+          <Stack spacing="xs" style={{ flex: 1 }}>
             <Text fz="md">{cartProduct.name}</Text>
             <Price price={cartProduct.price} size="xl" weight="bold" />
             {editable ? (
@@ -72,11 +72,13 @@ export function CartProductListItem({
             )}
           </Stack>
           {editable && (
-            <CloseButton
-              aria-label="Remove product"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            />
+            <div>
+              <CloseButton
+                aria-label="Remove product"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              />
+            </div>
           )}
         </Flex>
       </Stack>
