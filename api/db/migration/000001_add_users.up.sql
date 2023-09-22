@@ -11,9 +11,11 @@ CREATE TABLE "users" (
 
 CREATE TABLE "sessions" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  "session_token" uuid NOT NULL,
   "user_id" uuid NOT NULL,
-  "expired_at" timestamptz NOT NULL,
+  "session_token" uuid NOT NULL,
+  "session_token_expired_at" timestamptz NOT NULL,
+  "refresh_token" uuid NOT NULL,
+  "refresh_token_expired_at" timestamptz NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
