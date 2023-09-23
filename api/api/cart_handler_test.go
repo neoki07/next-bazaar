@@ -10,7 +10,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/mock/gomock"
 	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
 	"github.com/ot07/next-bazaar/api/test_util"
 	db "github.com/ot07/next-bazaar/db/sqlc"
@@ -18,10 +17,12 @@ import (
 	"github.com/ot07/next-bazaar/util"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/require"
+	gomock "go.uber.org/mock/gomock"
 )
 
 func TestGetCart(t *testing.T) {
 	sessionToken := token.NewToken(time.Minute)
+	refreshToken := token.NewToken(time.Minute)
 
 	defaultCreateSeedData := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
@@ -31,6 +32,7 @@ func TestGetCart(t *testing.T) {
 			Email:        "test@example.com",
 			Password:     "test-password",
 			SessionToken: sessionToken,
+			RefreshToken: refreshToken,
 		})
 
 		category, err := store.CreateCategory(ctx, "test-category")
@@ -101,11 +103,11 @@ func TestGetCart(t *testing.T) {
 				mockStore, cleanup := test_util.NewMockStore(t)
 
 				test_util.BuildValidSessionStubs(mockStore, db.Session{
-					ID:           util.RandomUUID(),
-					UserID:       util.RandomUUID(),
-					SessionToken: sessionToken.ID,
-					ExpiredAt:    sessionToken.ExpiredAt,
-					CreatedAt:    time.Now(),
+					ID:                    util.RandomUUID(),
+					UserID:                util.RandomUUID(),
+					SessionToken:          sessionToken.ID,
+					SessionTokenExpiredAt: sessionToken.ExpiredAt,
+					CreatedAt:             time.Now(),
 				})
 
 				mockStore.EXPECT().
@@ -149,6 +151,7 @@ func TestGetCart(t *testing.T) {
 
 func TestGetCartProductsCount(t *testing.T) {
 	sessionToken := token.NewToken(time.Minute)
+	refreshToken := token.NewToken(time.Minute)
 
 	defaultCreateSeedData := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
@@ -158,6 +161,7 @@ func TestGetCartProductsCount(t *testing.T) {
 			Email:        "test@example.com",
 			Password:     "test-password",
 			SessionToken: sessionToken,
+			RefreshToken: refreshToken,
 		})
 
 		category, err := store.CreateCategory(ctx, "test-category")
@@ -223,6 +227,7 @@ func TestGetCartProductsCount(t *testing.T) {
 					Email:        "test@example.com",
 					Password:     "test-password",
 					SessionToken: sessionToken,
+					RefreshToken: refreshToken,
 				})
 			},
 			setupAuth: test_util.AddSessionTokenInCookie,
@@ -249,11 +254,11 @@ func TestGetCartProductsCount(t *testing.T) {
 				mockStore, cleanup := test_util.NewMockStore(t)
 
 				test_util.BuildValidSessionStubs(mockStore, db.Session{
-					ID:           util.RandomUUID(),
-					UserID:       util.RandomUUID(),
-					SessionToken: sessionToken.ID,
-					ExpiredAt:    sessionToken.ExpiredAt,
-					CreatedAt:    time.Now(),
+					ID:                    util.RandomUUID(),
+					UserID:                util.RandomUUID(),
+					SessionToken:          sessionToken.ID,
+					SessionTokenExpiredAt: sessionToken.ExpiredAt,
+					CreatedAt:             time.Now(),
 				})
 
 				mockStore.EXPECT().
@@ -297,6 +302,7 @@ func TestGetCartProductsCount(t *testing.T) {
 
 func TestAddProduct(t *testing.T) {
 	sessionToken := token.NewToken(time.Minute)
+	refreshToken := token.NewToken(time.Minute)
 
 	defaultCreateSeedData := func(t *testing.T, store db.Store) test_util.SeedData {
 		ctx := context.Background()
@@ -306,6 +312,7 @@ func TestAddProduct(t *testing.T) {
 			Email:        "test@example.com",
 			Password:     "test-password",
 			SessionToken: sessionToken,
+			RefreshToken: refreshToken,
 		})
 
 		category, err := store.CreateCategory(ctx, "test-category")
@@ -363,6 +370,7 @@ func TestAddProduct(t *testing.T) {
 					Email:        "test@example.com",
 					Password:     "test-password",
 					SessionToken: sessionToken,
+					RefreshToken: refreshToken,
 				})
 
 				category, err := store.CreateCategory(ctx, "test-category")
@@ -455,11 +463,11 @@ func TestAddProduct(t *testing.T) {
 				mockStore, cleanup := test_util.NewMockStore(t)
 
 				test_util.BuildValidSessionStubs(mockStore, db.Session{
-					ID:           util.RandomUUID(),
-					UserID:       util.RandomUUID(),
-					SessionToken: sessionToken.ID,
-					ExpiredAt:    sessionToken.ExpiredAt,
-					CreatedAt:    time.Now(),
+					ID:                    util.RandomUUID(),
+					UserID:                util.RandomUUID(),
+					SessionToken:          sessionToken.ID,
+					SessionTokenExpiredAt: sessionToken.ExpiredAt,
+					CreatedAt:             time.Now(),
 				})
 
 				mockStore.EXPECT().
@@ -510,6 +518,7 @@ func TestAddProduct(t *testing.T) {
 
 func TestUpdateProductQuantity(t *testing.T) {
 	sessionToken := token.NewToken(time.Minute)
+	refreshToken := token.NewToken(time.Minute)
 
 	defaultCreateSeedData := func(t *testing.T, store db.Store) test_util.SeedData {
 		ctx := context.Background()
@@ -519,6 +528,7 @@ func TestUpdateProductQuantity(t *testing.T) {
 			Email:        "test@example.com",
 			Password:     "test-password",
 			SessionToken: sessionToken,
+			RefreshToken: refreshToken,
 		})
 
 		category, err := store.CreateCategory(ctx, "test-category")
@@ -623,11 +633,11 @@ func TestUpdateProductQuantity(t *testing.T) {
 				mockStore, cleanup := test_util.NewMockStore(t)
 
 				test_util.BuildValidSessionStubs(mockStore, db.Session{
-					ID:           util.RandomUUID(),
-					UserID:       util.RandomUUID(),
-					SessionToken: sessionToken.ID,
-					ExpiredAt:    sessionToken.ExpiredAt,
-					CreatedAt:    time.Now(),
+					ID:                    util.RandomUUID(),
+					UserID:                util.RandomUUID(),
+					SessionToken:          sessionToken.ID,
+					SessionTokenExpiredAt: sessionToken.ExpiredAt,
+					CreatedAt:             time.Now(),
 				})
 
 				mockStore.EXPECT().
@@ -677,6 +687,7 @@ func TestUpdateProductQuantity(t *testing.T) {
 
 func TestDeleteProduct(t *testing.T) {
 	sessionToken := token.NewToken(time.Minute)
+	refreshToken := token.NewToken(time.Minute)
 
 	defaultCreateSeedData := func(t *testing.T, store db.Store) test_util.SeedData {
 		ctx := context.Background()
@@ -686,6 +697,7 @@ func TestDeleteProduct(t *testing.T) {
 			Email:        "test@example.com",
 			Password:     "test-password",
 			SessionToken: sessionToken,
+			RefreshToken: refreshToken,
 		})
 
 		category, err := store.CreateCategory(ctx, "test-category")
@@ -760,11 +772,11 @@ func TestDeleteProduct(t *testing.T) {
 				mockStore, cleanup := test_util.NewMockStore(t)
 
 				test_util.BuildValidSessionStubs(mockStore, db.Session{
-					ID:           util.RandomUUID(),
-					UserID:       util.RandomUUID(),
-					SessionToken: sessionToken.ID,
-					ExpiredAt:    sessionToken.ExpiredAt,
-					CreatedAt:    time.Now(),
+					ID:                    util.RandomUUID(),
+					UserID:                util.RandomUUID(),
+					SessionToken:          sessionToken.ID,
+					SessionTokenExpiredAt: sessionToken.ExpiredAt,
+					CreatedAt:             time.Now(),
 				})
 
 				mockStore.EXPECT().
@@ -820,11 +832,13 @@ func TestCartAPIScenario(t *testing.T) {
 
 	// Create user
 	sessionToken := token.NewToken(time.Minute)
+	refreshToken := token.NewToken(time.Minute)
 	user := test_util.CreateWithSessionUser(t, ctx, store, test_util.WithSessionUserParams{
 		Name:         "testuser",
 		Email:        "test@example.com",
 		Password:     "test-password",
 		SessionToken: sessionToken,
+		RefreshToken: refreshToken,
 	})
 
 	setupAuth := func(request *http.Request) {

@@ -13,10 +13,8 @@ func TestValidToken(t *testing.T) {
 
 	token := NewToken(duration)
 
-	err := token.Valid()
-	require.NoError(t, err)
-
 	require.NotZero(t, token.ID)
+	require.False(t, IsExpired(token.ExpiredAt))
 	require.WithinDuration(t, expiredAt, token.ExpiredAt, time.Second)
 }
 
@@ -24,7 +22,6 @@ func TestExpiredToken(t *testing.T) {
 	token := NewToken(-time.Minute)
 	require.NotEmpty(t, token)
 
-	err := token.Valid()
-	require.Error(t, err)
-	require.EqualError(t, err, ErrExpiredToken.Error())
+	require.NotZero(t, token.ID)
+	require.True(t, IsExpired(token.ExpiredAt))
 }

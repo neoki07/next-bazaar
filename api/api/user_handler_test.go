@@ -9,13 +9,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/mock/gomock"
 	user_domain "github.com/ot07/next-bazaar/api/domain/user"
 	"github.com/ot07/next-bazaar/api/test_util"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/token"
 	"github.com/ot07/next-bazaar/util"
 	"github.com/stretchr/testify/require"
+	gomock "go.uber.org/mock/gomock"
 )
 
 func TestRegisterAPI(t *testing.T) {
@@ -72,6 +72,7 @@ func TestRegisterAPI(t *testing.T) {
 					Email:        validEmail,
 					Password:     validPassword,
 					SessionToken: token.NewToken(time.Minute),
+					RefreshToken: token.NewToken(time.Minute),
 				})
 
 				return
@@ -191,6 +192,7 @@ func TestLoginAPI(t *testing.T) {
 			Email:        validEmail,
 			Password:     validPassword,
 			SessionToken: token.NewToken(time.Minute),
+			RefreshToken: token.NewToken(time.Minute),
 		})
 	}
 
@@ -328,6 +330,7 @@ func TestLoginAPI(t *testing.T) {
 
 func TestLogoutAPI(t *testing.T) {
 	sessionToken := token.NewToken(time.Minute)
+	refreshToken := token.NewToken(time.Minute)
 
 	defaultCreateSeedData := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
@@ -337,6 +340,7 @@ func TestLogoutAPI(t *testing.T) {
 			Email:        "test@example.com",
 			Password:     "test-password",
 			SessionToken: sessionToken,
+			RefreshToken: refreshToken,
 		})
 	}
 
@@ -382,11 +386,11 @@ func TestLogoutAPI(t *testing.T) {
 				mockStore, cleanup := test_util.NewMockStore(t)
 
 				test_util.BuildValidSessionStubs(mockStore, db.Session{
-					ID:           util.RandomUUID(),
-					UserID:       util.RandomUUID(),
-					SessionToken: sessionToken.ID,
-					ExpiredAt:    sessionToken.ExpiredAt,
-					CreatedAt:    time.Now(),
+					ID:                    util.RandomUUID(),
+					UserID:                util.RandomUUID(),
+					SessionToken:          sessionToken.ID,
+					SessionTokenExpiredAt: sessionToken.ExpiredAt,
+					CreatedAt:             time.Now(),
 				})
 
 				mockStore.EXPECT().
@@ -428,6 +432,7 @@ func TestLogoutAPI(t *testing.T) {
 
 func TestGetCurrentUserAPI(t *testing.T) {
 	sessionToken := token.NewToken(time.Minute)
+	refreshToken := token.NewToken(time.Minute)
 
 	defaultCreateSeedData := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
@@ -437,6 +442,7 @@ func TestGetCurrentUserAPI(t *testing.T) {
 			Email:        "test@example.com",
 			Password:     "test-password",
 			SessionToken: sessionToken,
+			RefreshToken: refreshToken,
 		})
 	}
 
@@ -487,11 +493,11 @@ func TestGetCurrentUserAPI(t *testing.T) {
 				mockStore, cleanup := test_util.NewMockStore(t)
 
 				session := db.Session{
-					ID:           util.RandomUUID(),
-					UserID:       util.RandomUUID(),
-					SessionToken: sessionToken.ID,
-					ExpiredAt:    sessionToken.ExpiredAt,
-					CreatedAt:    time.Now(),
+					ID:                    util.RandomUUID(),
+					UserID:                util.RandomUUID(),
+					SessionToken:          sessionToken.ID,
+					SessionTokenExpiredAt: sessionToken.ExpiredAt,
+					CreatedAt:             time.Now(),
 				}
 
 				test_util.BuildValidSessionStubs(mockStore, session)
@@ -546,6 +552,9 @@ func TestUpdateCurrentUserAPI(t *testing.T) {
 	validSessionToken := token.NewToken(time.Minute)
 	validSessionToken2 := token.NewToken(time.Minute)
 
+	validRefreshToken := token.NewToken(time.Minute)
+	validRefreshToken2 := token.NewToken(time.Minute)
+
 	defaultCreateSeedData := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
 
@@ -554,6 +563,7 @@ func TestUpdateCurrentUserAPI(t *testing.T) {
 			Email:        validEmail,
 			Password:     validPassword,
 			SessionToken: validSessionToken,
+			RefreshToken: validRefreshToken,
 		})
 
 		_ = test_util.CreateWithSessionUser(t, ctx, store, test_util.WithSessionUserParams{
@@ -561,6 +571,7 @@ func TestUpdateCurrentUserAPI(t *testing.T) {
 			Email:        validEmail2,
 			Password:     validPassword2,
 			SessionToken: validSessionToken2,
+			RefreshToken: validRefreshToken2,
 		})
 	}
 
@@ -595,11 +606,11 @@ func TestUpdateCurrentUserAPI(t *testing.T) {
 				mockStore, cleanup := test_util.NewMockStore(t)
 
 				test_util.BuildValidSessionStubs(mockStore, db.Session{
-					ID:           util.RandomUUID(),
-					UserID:       util.RandomUUID(),
-					SessionToken: validSessionToken.ID,
-					ExpiredAt:    validSessionToken.ExpiredAt,
-					CreatedAt:    time.Now(),
+					ID:                    util.RandomUUID(),
+					UserID:                util.RandomUUID(),
+					SessionToken:          validSessionToken.ID,
+					SessionTokenExpiredAt: validSessionToken.ExpiredAt,
+					CreatedAt:             time.Now(),
 				})
 
 				mockStore.EXPECT().
@@ -772,6 +783,7 @@ func TestUpdateCurrentUserPasswordAPI(t *testing.T) {
 	validNewPassword := "test-new-password"
 
 	validSessionToken := token.NewToken(time.Minute)
+	validRefreshToken := token.NewToken(time.Minute)
 
 	defaultCreateSeedData := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
@@ -781,6 +793,7 @@ func TestUpdateCurrentUserPasswordAPI(t *testing.T) {
 			Email:        "test@example.com",
 			Password:     validOldPassword,
 			SessionToken: validSessionToken,
+			RefreshToken: validRefreshToken,
 		})
 	}
 
@@ -815,11 +828,11 @@ func TestUpdateCurrentUserPasswordAPI(t *testing.T) {
 				mockStore, cleanup := test_util.NewMockStore(t)
 
 				test_util.BuildValidSessionStubs(mockStore, db.Session{
-					ID:           util.RandomUUID(),
-					UserID:       util.RandomUUID(),
-					SessionToken: validSessionToken.ID,
-					ExpiredAt:    validSessionToken.ExpiredAt,
-					CreatedAt:    time.Now(),
+					ID:                    util.RandomUUID(),
+					UserID:                util.RandomUUID(),
+					SessionToken:          validSessionToken.ID,
+					SessionTokenExpiredAt: validSessionToken.ExpiredAt,
+					CreatedAt:             time.Now(),
 				})
 
 				mockStore.EXPECT().

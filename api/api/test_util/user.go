@@ -16,6 +16,7 @@ type WithSessionUserParams struct {
 	Email        string
 	Password     string
 	SessionToken *token.Token
+	RefreshToken *token.Token
 }
 
 func CreateWithSessionUser(
@@ -35,9 +36,11 @@ func CreateWithSessionUser(
 	require.NoError(t, err)
 
 	_, err = store.CreateSession(ctx, db.CreateSessionParams{
-		UserID:       user.ID,
-		SessionToken: params.SessionToken.ID,
-		ExpiredAt:    params.SessionToken.ExpiredAt,
+		UserID:                user.ID,
+		SessionToken:          params.SessionToken.ID,
+		SessionTokenExpiredAt: params.SessionToken.ExpiredAt,
+		RefreshToken:          params.RefreshToken.ID,
+		RefreshTokenExpiredAt: params.RefreshToken.ExpiredAt,
 	})
 	require.NoError(t, err)
 

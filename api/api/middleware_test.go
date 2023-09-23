@@ -9,15 +9,16 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/golang/mock/gomock"
 	"github.com/ot07/next-bazaar/api/test_util"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/token"
 	"github.com/stretchr/testify/require"
+	gomock "go.uber.org/mock/gomock"
 )
 
 func TestAuthMiddleware(t *testing.T) {
 	validSessionToken := token.NewToken(time.Minute)
+	validRefreshToken := token.NewToken(time.Minute)
 	createValidSessionSeed := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
 
@@ -26,10 +27,12 @@ func TestAuthMiddleware(t *testing.T) {
 			Email:        "test@example.com",
 			Password:     "test-password",
 			SessionToken: validSessionToken,
+			RefreshToken: validRefreshToken,
 		})
 	}
 
 	expiredSessionToken := token.NewToken(-time.Minute)
+	expiredRefreshToken := token.NewToken(-time.Minute)
 	createExpiredSessionSeed := func(t *testing.T, store db.Store) {
 		ctx := context.Background()
 
@@ -38,6 +41,19 @@ func TestAuthMiddleware(t *testing.T) {
 			Email:        "test@example.com",
 			Password:     "test-password",
 			SessionToken: expiredSessionToken,
+			RefreshToken: expiredRefreshToken,
+		})
+	}
+
+	createShouldRefreshSessionSeed := func(t *testing.T, store db.Store) {
+		ctx := context.Background()
+
+		_ = test_util.CreateWithSessionUser(t, ctx, store, test_util.WithSessionUserParams{
+			Name:         "testuser",
+			Email:        "test@example.com",
+			Password:     "test-password",
+			SessionToken: expiredSessionToken,
+			RefreshToken: validRefreshToken,
 		})
 	}
 
@@ -69,7 +85,7 @@ func TestAuthMiddleware(t *testing.T) {
 			},
 		},
 		{
-			name:           "InvalidTokenFormat",
+			name:           "InvalidSessionTokenFormat",
 			buildStore:     test_util.BuildTestDBStore,
 			createSeedData: createValidSessionSeed,
 			setupAuth: func(request *http.Request) {
@@ -80,7 +96,7 @@ func TestAuthMiddleware(t *testing.T) {
 			},
 		},
 		{
-			name:           "ExpiredToken",
+			name:           "ExpiredSessionToken",
 			buildStore:     test_util.BuildTestDBStore,
 			createSeedData: createExpiredSessionSeed,
 			setupAuth: func(request *http.Request) {
@@ -88,6 +104,17 @@ func TestAuthMiddleware(t *testing.T) {
 			},
 			checkResponse: func(t *testing.T, response *http.Response) {
 				require.Equal(t, http.StatusUnauthorized, response.StatusCode)
+			},
+		},
+		{
+			name:           "RefreshSessionToken",
+			buildStore:     test_util.BuildTestDBStore,
+			createSeedData: createShouldRefreshSessionSeed,
+			setupAuth: func(request *http.Request) {
+				test_util.AddSessionTokenInCookie(request, expiredSessionToken.ID.String())
+			},
+			checkResponse: func(t *testing.T, response *http.Response) {
+				require.Equal(t, http.StatusOK, response.StatusCode)
 			},
 		},
 		{

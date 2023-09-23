@@ -13,6 +13,7 @@ type Config struct {
 	DBSource             string        `mapstructure:"DB_SOURCE"`
 	ServerAddress        string        `mapstructure:"SERVER_ADDRESS"`
 	SessionTokenDuration time.Duration `mapstructure:"SESSION_TOKEN_DURATION"`
+	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
 	TestAccountUsername  string        `mapstructure:"TEST_ACCOUNT_USERNAME"`
 	TestAccountEmail     string        `mapstructure:"TEST_ACCOUNT_EMAIL"`
 	TestAccountPassword  string        `mapstructure:"TEST_ACCOUNT_PASSWORD"`

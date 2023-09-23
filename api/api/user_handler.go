@@ -81,8 +81,10 @@ func (h *userHandler) login(c *fiber.Ctx) error {
 	}
 
 	sessionToken, err := h.service.Login(c.Context(), user_domain.LoginServiceParams{
-		Email:    req.Email,
-		Password: req.Password,
+		Email:                req.Email,
+		Password:             req.Password,
+		SessionTokenDuration: h.config.SessionTokenDuration,
+		RefreshTokenDuration: h.config.RefreshTokenDuration,
 	})
 	if err != nil {
 		if err == sql.ErrNoRows || err == bcrypt.ErrMismatchedHashAndPassword {
@@ -99,7 +101,7 @@ func (h *userHandler) login(c *fiber.Ctx) error {
 		HTTPOnly: true,
 		SameSite: "none",
 		Secure:   true,
-		MaxAge:   int(h.config.SessionTokenDuration.Seconds()),
+		MaxAge:   int(h.config.RefreshTokenDuration.Seconds()),
 	})
 
 	return c.Status(fiber.StatusOK).JSON(rsp)
