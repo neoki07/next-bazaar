@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -37,10 +38,20 @@ func authMiddleware(server *Server) fiber.Handler {
 		}
 
 		if token.IsExpired(session.SessionTokenExpiredAt) {
-			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(token.ErrExpiredToken))
+			if token.IsExpired(session.RefreshTokenExpiredAt) {
+				return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(token.ErrExpiredToken))
+			}
+
+			newSession, err := refreshSessionToken(c, server, session)
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
+			}
+
+			c.Locals(ctxLocalSessionKey, newSession)
+		} else {
+			c.Locals(ctxLocalSessionKey, session)
 		}
 
-		c.Locals(ctxLocalSessionKey, session)
 		return c.Next()
 	}
 }
@@ -51,4 +62,33 @@ func getSession(c *fiber.Ctx) (db.Session, error) {
 		return db.Session{}, fmt.Errorf("session token not found")
 	}
 	return session, nil
+}
+
+func refreshSessionToken(c *fiber.Ctx, server *Server, expiredSession db.Session) (db.Session, error) {
+	err := server.store.DeleteSession(c.Context(), expiredSession.ID)
+	if err != nil {
+		return db.Session{}, err
+	}
+
+	newSessionToken := token.NewToken(time.Hour * 24 * 7)
+
+	newSession, err := server.store.CreateSession(c.Context(), db.CreateSessionParams{
+		UserID:                expiredSession.UserID,
+		SessionToken:          newSessionToken.ID,
+		SessionTokenExpiredAt: newSessionToken.ExpiredAt,
+	})
+	if err != nil {
+		return db.Session{}, err
+	}
+
+	c.Cookie(&fiber.Cookie{
+		Name:     cookieSessionTokenKey,
+		Value:    newSessionToken.ID.String(),
+		HTTPOnly: true,
+		SameSite: "none",
+		Secure:   true,
+		MaxAge:   int(server.config.SessionTokenDuration.Seconds()),
+	})
+
+	return newSession, nil
 }
