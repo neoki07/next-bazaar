@@ -3,7 +3,6 @@ package api
 import (
 	"database/sql"
 	"fmt"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -65,17 +64,23 @@ func getSession(c *fiber.Ctx) (db.Session, error) {
 }
 
 func refreshSessionToken(c *fiber.Ctx, server *Server, expiredSession db.Session) (db.Session, error) {
+	if token.IsExpired(expiredSession.RefreshTokenExpiredAt) {
+		return db.Session{}, token.ErrExpiredToken
+	}
+
 	err := server.store.DeleteSession(c.Context(), expiredSession.ID)
 	if err != nil {
 		return db.Session{}, err
 	}
 
-	newSessionToken := token.NewToken(time.Hour * 24 * 7)
+	newSessionToken := token.NewToken(server.config.SessionTokenDuration)
 
 	newSession, err := server.store.CreateSession(c.Context(), db.CreateSessionParams{
 		UserID:                expiredSession.UserID,
 		SessionToken:          newSessionToken.ID,
 		SessionTokenExpiredAt: newSessionToken.ExpiredAt,
+		RefreshToken:          expiredSession.RefreshToken,
+		RefreshTokenExpiredAt: expiredSession.RefreshTokenExpiredAt,
 	})
 	if err != nil {
 		return db.Session{}, err
@@ -87,7 +92,7 @@ func refreshSessionToken(c *fiber.Ctx, server *Server, expiredSession db.Session
 		HTTPOnly: true,
 		SameSite: "none",
 		Secure:   true,
-		MaxAge:   int(server.config.SessionTokenDuration.Seconds()),
+		MaxAge:   int(server.config.RefreshTokenDuration.Seconds()),
 	})
 
 	return newSession, nil

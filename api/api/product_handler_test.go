@@ -38,6 +38,7 @@ func TestGetProduct(t *testing.T) {
 					Email:        "test@example.com",
 					Password:     "test-password",
 					SessionToken: token.NewToken(time.Minute),
+					RefreshToken: token.NewToken(time.Minute),
 				})
 
 				category, err := store.CreateCategory(ctx, "test-category")
@@ -159,6 +160,7 @@ func TestListProducts(t *testing.T) {
 				Email:        fmt.Sprintf("test-%d@example.com", i),
 				Password:     "test-password",
 				SessionToken: token.NewToken(time.Minute),
+				RefreshToken: token.NewToken(time.Minute),
 			})
 		}
 
@@ -380,7 +382,8 @@ func TestListProducts(t *testing.T) {
 func TestListProductsBySeller(t *testing.T) {
 	pageSize := 5
 
-	sessionTokens := test_util.NewSessionTokens(2, time.Minute)
+	sessionTokens := test_util.NewTokens(2, time.Minute)
+	refreshTokens := test_util.NewTokens(2, time.Minute)
 
 	defaultCreateSeedData := func(t *testing.T, store db.Store) test_util.SeedData {
 		var err error
@@ -394,6 +397,7 @@ func TestListProductsBySeller(t *testing.T) {
 				Email:        fmt.Sprintf("test-%d@example.com", i),
 				Password:     "test-password",
 				SessionToken: sessionTokens[i],
+				RefreshToken: refreshTokens[i],
 			})
 		}
 
@@ -769,6 +773,7 @@ func TestListProductCategories(t *testing.T) {
 
 func TestProductHandlerAddProduct(t *testing.T) {
 	sessionToken := token.NewToken(time.Minute)
+	refreshToken := token.NewToken(time.Minute)
 
 	defaultCreateSeedData := func(t *testing.T, store db.Store) test_util.SeedData {
 		ctx := context.Background()
@@ -778,6 +783,7 @@ func TestProductHandlerAddProduct(t *testing.T) {
 			Email:        "test@example.com",
 			Password:     "test-password",
 			SessionToken: sessionToken,
+			RefreshToken: refreshToken,
 		})
 
 		category, err := store.CreateCategory(ctx, "test-category")
@@ -1039,6 +1045,7 @@ func TestProductHandlerAddProduct(t *testing.T) {
 
 func TestProductHandlerUpdateProduct(t *testing.T) {
 	sessionToken := token.NewToken(time.Minute)
+	refreshToken := token.NewToken(time.Minute)
 
 	defaultCreateSeedData := func(t *testing.T, store db.Store) test_util.SeedData {
 		var err error
@@ -1050,6 +1057,7 @@ func TestProductHandlerUpdateProduct(t *testing.T) {
 			Email:        "test@example.com",
 			Password:     "test-password",
 			SessionToken: sessionToken,
+			RefreshToken: refreshToken,
 		})
 
 		categories := make([]db.Category, 2)

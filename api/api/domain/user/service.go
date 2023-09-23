@@ -127,17 +127,21 @@ func (s *UserService) UpdateUserPassword(ctx context.Context, params UpdateUserP
 }
 
 type CreateSessionServiceParams struct {
-	UserID   uuid.UUID
-	Duration time.Duration
+	UserID               uuid.UUID
+	SessionTokenDuration time.Duration
+	RefreshTokenDuration time.Duration
 }
 
 func (s *UserService) CreateSession(ctx context.Context, params CreateSessionServiceParams) (*token.Token, error) {
-	sessionToken := token.NewToken(params.Duration)
+	sessionToken := token.NewToken(params.SessionTokenDuration)
+	refreshToken := token.NewToken(params.RefreshTokenDuration)
 
 	_, err := s.store.CreateSession(ctx, db.CreateSessionParams{
 		UserID:                params.UserID,
 		SessionToken:          sessionToken.ID,
 		SessionTokenExpiredAt: sessionToken.ExpiredAt,
+		RefreshToken:          refreshToken.ID,
+		RefreshTokenExpiredAt: refreshToken.ExpiredAt,
 	})
 	if err != nil {
 		return nil, err
@@ -166,8 +170,10 @@ func (s *UserService) Register(ctx context.Context, params RegisterServiceParams
 }
 
 type LoginServiceParams struct {
-	Email    string
-	Password string
+	Email                string
+	Password             string
+	SessionTokenDuration time.Duration
+	RefreshTokenDuration time.Duration
 }
 
 func (s *UserService) Login(ctx context.Context, params LoginServiceParams) (*token.Token, error) {
@@ -182,8 +188,9 @@ func (s *UserService) Login(ctx context.Context, params LoginServiceParams) (*to
 	}
 
 	arg := CreateSessionServiceParams{
-		UserID:   user.ID,
-		Duration: time.Hour * 24 * 7,
+		UserID:               user.ID,
+		SessionTokenDuration: params.SessionTokenDuration,
+		RefreshTokenDuration: params.RefreshTokenDuration,
 	}
 
 	sessionToken, err := s.CreateSession(ctx, arg)
