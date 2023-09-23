@@ -1,6 +1,8 @@
 import { useCurrentUser } from '@/features/auth'
 import { DashboardLayout } from '@/features/dashboard'
-import { Stack, Title, rem } from '@mantine/core'
+import { isTestUser } from '@/features/user/utils/testuser'
+import { Alert, Stack, Title, rem } from '@mantine/core'
+import { IconInfoCircle } from '@tabler/icons-react'
 import { useRouter } from 'next/router'
 import { useCallback, useState } from 'react'
 import { EmailSection } from './EmailSection'
@@ -11,6 +13,7 @@ export function AccountSettings() {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const { data: user } = useCurrentUser()
+  const isCurrentUserTestUser = user !== undefined && isTestUser(user)
 
   const handleSubmit = useCallback(() => {
     setSaving(true)
@@ -23,24 +26,39 @@ export function AccountSettings() {
   return (
     <DashboardLayout>
       {user !== undefined && (
-        <Stack spacing={rem(40)}>
-          <Stack>
-            <Title order={1}>Account Settings</Title>
+        <Stack>
+          <Title order={1}>Account Settings</Title>
+          {isCurrentUserTestUser && (
+            <Alert
+              variant="light"
+              color="red"
+              title="Account Information Cannot Be Changed"
+              icon={<IconInfoCircle />}
+              maw={rem(496)}
+            >
+              You are currently logged in as a test user. Please be aware that
+              account information for test users cannot be changed.
+            </Alert>
+          )}
+          <Stack mb="md">
             <NameSection
               user={user}
-              disabledSaveButton={saving}
+              isCurrentUserTestUser={isCurrentUserTestUser}
+              saving={saving}
               onSubmit={handleSubmit}
               onSubmitSuccess={handleSubmitSuccess}
             />
             <EmailSection
               user={user}
-              disabledSaveButton={saving}
+              isCurrentUserTestUser={isCurrentUserTestUser}
+              saving={saving}
               onSubmit={handleSubmit}
               onSubmitSuccess={handleSubmitSuccess}
             />
           </Stack>
           <PasswordSection
-            disabledSaveButton={saving}
+            isCurrentUserTestUser={isCurrentUserTestUser}
+            saving={saving}
             onSubmit={handleSubmit}
             onSubmitSuccess={handleSubmitSuccess}
           />
