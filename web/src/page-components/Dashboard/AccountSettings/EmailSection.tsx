@@ -1,5 +1,5 @@
 import { TextInput, useForm } from '@/components/Form'
-import { User } from '@/features/auth/types'
+import { User } from '@/features/auth'
 import { useUpdateUser } from '@/features/user'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Flex, rem } from '@mantine/core'
@@ -7,14 +7,16 @@ import { z } from 'zod'
 
 interface EmailSectionProps {
   user: User
-  disabledSaveButton?: boolean
+  isCurrentUserTestUser: boolean
+  saving?: boolean
   onSubmit?: () => void
   onSubmitSuccess?: () => void
 }
 
 export function EmailSection({
   user,
-  disabledSaveButton,
+  isCurrentUserTestUser,
+  saving,
   onSubmit,
   onSubmitSuccess,
 }: EmailSectionProps) {
@@ -46,9 +48,17 @@ export function EmailSection({
     <Form>
       <Flex gap="md" align="end" maw={rem(392)}>
         <div style={{ flex: 1 }}>
-          <TextInput label="Email" name="email" />
+          <TextInput
+            label="Email"
+            name="email"
+            disabled={isCurrentUserTestUser}
+          />
         </div>
-        <Button type="submit" color="dark" disabled={disabledSaveButton}>
+        <Button
+          type="submit"
+          color="dark"
+          disabled={isCurrentUserTestUser || saving}
+        >
           Save
         </Button>
       </Flex>

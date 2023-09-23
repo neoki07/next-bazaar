@@ -5,13 +5,15 @@ import { Button, Stack, Text, Title, rem } from '@mantine/core'
 import { z } from 'zod'
 
 interface PasswordSectionProps {
-  disabledSaveButton?: boolean
+  isCurrentUserTestUser: boolean
+  saving?: boolean
   onSubmit?: () => void
   onSubmitSuccess?: () => void
 }
 
 export function PasswordSection({
-  disabledSaveButton,
+  isCurrentUserTestUser,
+  saving,
   onSubmit,
   onSubmitSuccess,
 }: PasswordSectionProps) {
@@ -78,24 +80,31 @@ export function PasswordSection({
           name="oldPassword"
           type="password"
           maw={rem(360)}
+          disabled={isCurrentUserTestUser}
         />
         <TextInput
           label="New Password"
           name="newPassword"
           type="password"
           maw={rem(360)}
+          disabled={isCurrentUserTestUser}
         />
         <TextInput
           label="Confirm New Password"
           name="confirmNewPassword"
           type="password"
           maw={rem(360)}
+          disabled={isCurrentUserTestUser}
         />
       </Stack>
       <Text size="xs" mb={rem(4)}>
         {"Make sure it's at least 8 characters."}
       </Text>
-      <Button color="dark" type="submit" disabled={disabledSaveButton}>
+      <Button
+        color="dark"
+        type="submit"
+        disabled={isCurrentUserTestUser || saving}
+      >
         Update Password
       </Button>
     </Form>
