@@ -29,10 +29,7 @@ func NewToken(duration time.Duration) *Token {
 	return token
 }
 
-// Valid checks if the token is valid or not
-func (token *Token) Valid() error {
-	if time.Now().After(token.ExpiredAt) {
-		return ErrExpiredToken
-	}
-	return nil
+// IsExpired checks if the `expiredAt` is expired or not
+func IsExpired(expiredAt time.Time) bool {
+	return time.Now().After(expiredAt)
 }

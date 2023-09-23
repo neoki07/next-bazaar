@@ -36,14 +36,8 @@ func authMiddleware(server *Server) fiber.Handler {
 			return c.Status(fiber.StatusInternalServerError).JSON(newErrorResponse(err))
 		}
 
-		token := token.Token{
-			ID:        session.ID,
-			ExpiredAt: session.ExpiredAt,
-		}
-
-		err = token.Valid()
-		if err != nil {
-			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(err))
+		if token.IsExpired(session.SessionTokenExpiredAt) {
+			return c.Status(fiber.StatusUnauthorized).JSON(newErrorResponse(token.ErrExpiredToken))
 		}
 
 		c.Locals(ctxLocalSessionKey, session)

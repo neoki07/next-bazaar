@@ -135,9 +135,9 @@ func (s *UserService) CreateSession(ctx context.Context, params CreateSessionSer
 	sessionToken := token.NewToken(params.Duration)
 
 	_, err := s.store.CreateSession(ctx, db.CreateSessionParams{
-		UserID:       params.UserID,
-		SessionToken: sessionToken.ID,
-		ExpiredAt:    sessionToken.ExpiredAt,
+		UserID:                params.UserID,
+		SessionToken:          sessionToken.ID,
+		SessionTokenExpiredAt: sessionToken.ExpiredAt,
 	})
 	if err != nil {
 		return nil, err

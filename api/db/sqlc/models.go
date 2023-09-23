@@ -37,11 +37,13 @@ type Product struct {
 }
 
 type Session struct {
-	ID           uuid.UUID `json:"id"`
-	SessionToken uuid.UUID `json:"session_token"`
-	UserID       uuid.UUID `json:"user_id"`
-	ExpiredAt    time.Time `json:"expired_at"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID                    uuid.UUID `json:"id"`
+	UserID                uuid.UUID `json:"user_id"`
+	SessionToken          uuid.UUID `json:"session_token"`
+	SessionTokenExpiredAt time.Time `json:"session_token_expired_at"`
+	RefreshToken          uuid.UUID `json:"refresh_token"`
+	RefreshTokenExpiredAt time.Time `json:"refresh_token_expired_at"`
+	CreatedAt             time.Time `json:"created_at"`
 }
 
 type User struct {

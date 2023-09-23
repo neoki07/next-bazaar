@@ -10,7 +10,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/mock/gomock"
 	product_domain "github.com/ot07/next-bazaar/api/domain/product"
 	"github.com/ot07/next-bazaar/api/test_util"
 	db "github.com/ot07/next-bazaar/db/sqlc"
@@ -18,6 +17,7 @@ import (
 	"github.com/ot07/next-bazaar/util"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/require"
+	gomock "go.uber.org/mock/gomock"
 )
 
 func TestGetProduct(t *testing.T) {
@@ -562,11 +562,11 @@ func TestListProductsBySeller(t *testing.T) {
 				mockStore, cleanup := test_util.NewMockStore(t)
 
 				test_util.BuildValidSessionStubs(mockStore, db.Session{
-					ID:           util.RandomUUID(),
-					UserID:       util.RandomUUID(),
-					SessionToken: sessionTokens[0].ID,
-					ExpiredAt:    sessionTokens[0].ExpiredAt,
-					CreatedAt:    time.Now(),
+					ID:                    util.RandomUUID(),
+					UserID:                util.RandomUUID(),
+					SessionToken:          sessionTokens[0].ID,
+					SessionTokenExpiredAt: sessionTokens[0].ExpiredAt,
+					CreatedAt:             time.Now(),
 				})
 
 				mockStore.EXPECT().
@@ -979,11 +979,11 @@ func TestProductHandlerAddProduct(t *testing.T) {
 				mockStore, cleanup := test_util.NewMockStore(t)
 
 				test_util.BuildValidSessionStubs(mockStore, db.Session{
-					ID:           util.RandomUUID(),
-					UserID:       util.RandomUUID(),
-					SessionToken: sessionToken.ID,
-					ExpiredAt:    sessionToken.ExpiredAt,
-					CreatedAt:    time.Now(),
+					ID:                    util.RandomUUID(),
+					UserID:                util.RandomUUID(),
+					SessionToken:          sessionToken.ID,
+					SessionTokenExpiredAt: sessionToken.ExpiredAt,
+					CreatedAt:             time.Now(),
 				})
 
 				mockStore.EXPECT().
@@ -1270,7 +1270,7 @@ func TestProductHandlerUpdateProduct(t *testing.T) {
 		// 			ID:           util.RandomUUID(),
 		// 			UserID:       util.RandomUUID(),
 		// 			SessionToken: sessionToken.ID,
-		// 			ExpiredAt:    sessionToken.ExpiredAt,
+		// 			SessionTokenExpiredAt:    sessionToken.SessionTokenExpiredAt,
 		// 			CreatedAt:    time.Now(),
 		// 		})
 

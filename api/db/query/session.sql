@@ -2,9 +2,11 @@
 INSERT INTO sessions (
   user_id,
   session_token,
-  expired_at
+  session_token_expired_at,
+  refresh_token,
+  refresh_token_expired_at
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4, $5
 ) RETURNING *;
 
 -- name: GetSession :one

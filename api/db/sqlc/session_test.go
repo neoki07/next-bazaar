@@ -15,9 +15,11 @@ func createRandomSession(t *testing.T, testQueries *Queries) Session {
 	user := createRandomUser(t, testQueries)
 
 	arg := CreateSessionParams{
-		UserID:       user.ID,
-		SessionToken: util.RandomUUID(),
-		ExpiredAt:    time.Now().Add(time.Minute),
+		UserID:                user.ID,
+		SessionToken:          util.RandomUUID(),
+		SessionTokenExpiredAt: time.Now().Add(time.Minute),
+		RefreshToken:          util.RandomUUID(),
+		RefreshTokenExpiredAt: time.Now().Add(time.Minute),
 	}
 
 	session, err := testQueries.CreateSession(context.Background(), arg)
@@ -26,7 +28,9 @@ func createRandomSession(t *testing.T, testQueries *Queries) Session {
 
 	require.Equal(t, arg.UserID, session.UserID)
 	require.Equal(t, arg.SessionToken, session.SessionToken)
-	require.WithinDuration(t, arg.ExpiredAt, session.ExpiredAt, time.Second)
+	require.WithinDuration(t, arg.SessionTokenExpiredAt, session.SessionTokenExpiredAt, time.Second)
+	require.Equal(t, arg.RefreshToken, session.RefreshToken)
+	require.WithinDuration(t, arg.RefreshTokenExpiredAt, session.RefreshTokenExpiredAt, time.Second)
 
 	require.NotEmpty(t, session.ID)
 	require.NotZero(t, session.CreatedAt)
@@ -61,7 +65,9 @@ func TestGetSession(t *testing.T) {
 	require.Equal(t, session1.ID, session2.ID)
 	require.Equal(t, session1.UserID, session2.UserID)
 	require.Equal(t, session1.SessionToken, session2.SessionToken)
-	require.Equal(t, session1.ExpiredAt, session2.ExpiredAt)
+	require.Equal(t, session1.SessionTokenExpiredAt, session2.SessionTokenExpiredAt)
+	require.Equal(t, session1.RefreshToken, session2.RefreshToken)
+	require.Equal(t, session1.RefreshTokenExpiredAt, session2.RefreshTokenExpiredAt)
 	require.WithinDuration(t, session1.CreatedAt, session2.CreatedAt, time.Second)
 }
 

@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/golang/mock/gomock"
 	mockdb "github.com/ot07/next-bazaar/db/mock"
 	db "github.com/ot07/next-bazaar/db/sqlc"
 	"github.com/ot07/next-bazaar/token"
+	gomock "go.uber.org/mock/gomock"
 )
 
 const (

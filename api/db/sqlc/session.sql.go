@@ -16,26 +16,38 @@ const createSession = `-- name: CreateSession :one
 INSERT INTO sessions (
   user_id,
   session_token,
-  expired_at
+  session_token_expired_at,
+  refresh_token,
+  refresh_token_expired_at
 ) VALUES (
-  $1, $2, $3
-) RETURNING id, session_token, user_id, expired_at, created_at
+  $1, $2, $3, $4, $5
+) RETURNING id, user_id, session_token, session_token_expired_at, refresh_token, refresh_token_expired_at, created_at
 `
 
 type CreateSessionParams struct {
-	UserID       uuid.UUID `json:"user_id"`
-	SessionToken uuid.UUID `json:"session_token"`
-	ExpiredAt    time.Time `json:"expired_at"`
+	UserID                uuid.UUID `json:"user_id"`
+	SessionToken          uuid.UUID `json:"session_token"`
+	SessionTokenExpiredAt time.Time `json:"session_token_expired_at"`
+	RefreshToken          uuid.UUID `json:"refresh_token"`
+	RefreshTokenExpiredAt time.Time `json:"refresh_token_expired_at"`
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
-	row := q.db.QueryRowContext(ctx, createSession, arg.UserID, arg.SessionToken, arg.ExpiredAt)
+	row := q.db.QueryRowContext(ctx, createSession,
+		arg.UserID,
+		arg.SessionToken,
+		arg.SessionTokenExpiredAt,
+		arg.RefreshToken,
+		arg.RefreshTokenExpiredAt,
+	)
 	var i Session
 	err := row.Scan(
 		&i.ID,
-		&i.SessionToken,
 		&i.UserID,
-		&i.ExpiredAt,
+		&i.SessionToken,
+		&i.SessionTokenExpiredAt,
+		&i.RefreshToken,
+		&i.RefreshTokenExpiredAt,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -52,7 +64,7 @@ func (q *Queries) DeleteSession(ctx context.Context, sessionToken uuid.UUID) err
 }
 
 const getSession = `-- name: GetSession :one
-SELECT id, session_token, user_id, expired_at, created_at FROM sessions
+SELECT id, user_id, session_token, session_token_expired_at, refresh_token, refresh_token_expired_at, created_at FROM sessions
 WHERE session_token = $1 LIMIT 1
 `
 
@@ -61,9 +73,11 @@ func (q *Queries) GetSession(ctx context.Context, sessionToken uuid.UUID) (Sessi
 	var i Session
 	err := row.Scan(
 		&i.ID,
-		&i.SessionToken,
 		&i.UserID,
-		&i.ExpiredAt,
+		&i.SessionToken,
+		&i.SessionTokenExpiredAt,
+		&i.RefreshToken,
+		&i.RefreshTokenExpiredAt,
 		&i.CreatedAt,
 	)
 	return i, err
