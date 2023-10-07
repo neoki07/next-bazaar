@@ -3,6 +3,9 @@ package api
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/helmet"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
 	cart_domain "github.com/ot07/next-bazaar/api/domain/cart"
 	product_domain "github.com/ot07/next-bazaar/api/domain/product"
@@ -48,6 +51,10 @@ type Server struct {
 // NewServer creates a new HTTP server and setup routing.
 func NewServer(config util.Config, store db.Store) (*Server, error) {
 	app := fiber.New()
+
+	app.Use(recover.New())
+	app.Use(logger.New())
+	app.Use(helmet.New())
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "http://localhost:3000,https://next-bazaar.vercel.app",
 		AllowCredentials: true,
