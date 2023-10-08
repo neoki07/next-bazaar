@@ -1,4 +1,4 @@
-name: ci-web-test
+name: ci-web
 
 on:
   push:
