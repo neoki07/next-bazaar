@@ -9,6 +9,10 @@ on:
       - "main"
   workflow_dispatch:
 
+defaults:
+  run:
+    working-directory: web
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
