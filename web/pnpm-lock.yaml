@@ -130,6 +130,9 @@ devDependencies:
   aws-sdk:
     specifier: ^2.1435.0
     version: 2.1435.0
+  chromatic:
+    specifier: ^7.2.3
+    version: 7.2.3
   eslint:
     specifier: ^8.40.0
     version: 8.40.0
@@ -5973,6 +5976,11 @@ packages:
   /chownr@2.0.0:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
     engines: {node: '>=10'}
+    dev: true
+
+  /chromatic@7.2.3:
+    resolution: {integrity: sha512-UEcHB1nkPoHWoRybPzv6BOVqPr7PqDNuz3u8NCRg7KJciouOb20HjiUQx4Dh9mgA7JUsb2WeGHE2SG/0fHH0PA==}
+    hasBin: true
     dev: true
 
   /chrome-trace-event@1.0.3:
