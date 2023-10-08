@@ -1,9 +1,11 @@
-name: deploy
+name: deploy-api
 
 on:
   push:
     branches:
       - "main"
+    paths:
+      - "api/**"
   workflow_dispatch:
 
 defaults:
@@ -15,7 +17,7 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  deploy-api:
     runs-on: ubuntu-latest
 
     steps:
