@@ -1,6 +1,9 @@
+<img src="header.svg" />
+
 # Next Bazaar
 
-<img src="header.svg" />
+[![ci-web](https://github.com/ot07/next-bazaar/actions/workflows/ci-web.yml/badge.svg)](https://github.com/ot07/next-bazaar/actions/workflows/ci-web.yml)
+[![ci-api](https://github.com/ot07/next-bazaar/actions/workflows/ci-api.yml/badge.svg)](https://github.com/ot07/next-bazaar/actions/workflows/ci-api.yml)
 
 A shopping website developed using Next.js and Go, designed to learn web development techniques.
 
