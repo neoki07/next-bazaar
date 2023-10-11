@@ -3,7 +3,7 @@ import { Button, Group, Modal, Stack, createStyles } from '@mantine/core'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect } from 'react'
 
-const DEFAULT_IMAGE_SIZE = 120
+const IMAGE_SIZE = 120
 
 const useStyles = createStyles((theme) => ({
   title: {
@@ -45,7 +45,7 @@ export function AddedModal({ opened, onClose }: AddedModalProps) {
           cartProducts={cart?.products}
           isLoading={isFetching}
           itemsCountOnLoad={0}
-          imageSize={DEFAULT_IMAGE_SIZE}
+          imageSize={IMAGE_SIZE}
           editable={false}
         />
         <Group grow>
