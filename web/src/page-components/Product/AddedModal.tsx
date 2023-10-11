@@ -1,11 +1,9 @@
 import { CartProductList, useCart } from '@/features/cart'
-import { useSmallerThan } from '@/hooks'
 import { Button, Group, Modal, Stack, createStyles } from '@mantine/core'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect } from 'react'
 
-const DEFAULT_IMAGE_SIZE = 120
-const SMALL_IMAGE_SIZE = 96
+const IMAGE_SIZE = 120
 
 const useStyles = createStyles((theme) => ({
   title: {
@@ -21,7 +19,6 @@ interface AddedModalProps {
 
 export function AddedModal({ opened, onClose }: AddedModalProps) {
   const { classes } = useStyles()
-  const smallerThanSm = useSmallerThan('sm')
   const { data: cart, isFetching, refetch: refetchCart } = useCart()
   const router = useRouter()
 
@@ -48,7 +45,7 @@ export function AddedModal({ opened, onClose }: AddedModalProps) {
           cartProducts={cart?.products}
           isLoading={isFetching}
           itemsCountOnLoad={0}
-          imageSize={smallerThanSm ? SMALL_IMAGE_SIZE : DEFAULT_IMAGE_SIZE}
+          imageSize={IMAGE_SIZE}
           editable={false}
         />
         <Group grow>

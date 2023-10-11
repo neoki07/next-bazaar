@@ -99,59 +99,71 @@ export function ProductArea({ productId }: ProductAreaProps) {
   })
 
   return (
-    <Stack>
-      <Skeleton visible={isLoading} width={isLoading ? '50%' : undefined}>
-        <Text size={28}>{isLoading ? 'dummy' : product?.name}</Text>
-      </Skeleton>
+    <>
+      <Stack>
+        <Skeleton visible={isLoading} width={isLoading ? '50%' : undefined}>
+          <Text size={28}>{isLoading ? 'dummy' : product?.name}</Text>
+        </Skeleton>
 
-      {isLoading ? (
-        <div>
-          <Skeleton height={12} my={12} />
-          <Skeleton height={12} my={12} />
-          <Skeleton height={12} my={12} width="50%" />
-        </div>
-      ) : (
-        <Text sx={(theme) => ({ color: theme.colors.gray[7] })}>
-          {product?.description}
-        </Text>
-      )}
+        {isLoading ? (
+          <div>
+            <Skeleton height={12} my={12} />
+            <Skeleton height={12} my={12} />
+            <Skeleton height={12} my={12} width="50%" />
+          </div>
+        ) : (
+          <Text sx={(theme) => ({ color: theme.colors.gray[7] })}>
+            {product?.description}
+          </Text>
+        )}
 
-      <Flex direction={smallerThanMd ? 'column' : 'row'} gap="xl">
-        <div style={{ flex: 1 }}>
-          {isLoading ||
-          product === undefined ||
-          product.imageUrl === undefined ? (
-            <ResponsiveSquareImage isLoading />
-          ) : (
-            <ResponsiveSquareImage src={product.imageUrl} alt={product.name} />
-          )}
-        </div>
-
-        <Form>
-          <Stack w={rem(240)}>
-            {isLoading || product === undefined ? (
-              <PriceSkeleton width="50%" size="xl" weight="bold" />
+        <Flex direction={smallerThanMd ? 'column' : 'row'} gap="xl">
+          <div style={{ flex: 1 }}>
+            {isLoading ||
+            product === undefined ||
+            product.imageUrl === undefined ? (
+              <ResponsiveSquareImage isLoading />
             ) : (
-              <Price price={product.price} size="xl" weight="bold" />
-            )}
-            <Skeleton visible={isLoading} width={isLoading ? '35%' : undefined}>
-              <NativeNumberSelect
-                w={rem(80)}
-                label="Amount"
-                name="amount"
-                options={range(1, 11)}
+              <ResponsiveSquareImage
+                src={product.imageUrl}
+                alt={product.name}
               />
-            </Skeleton>
-            <Skeleton visible={isLoading} width={isLoading ? '35%' : undefined}>
-              <Button type="submit" color="dark" fullWidth>
-                Add to Cart
-              </Button>
-              <AddedModal opened={openedModal} onClose={closeModal} />
-            </Skeleton>
-          </Stack>
-        </Form>
-      </Flex>
-    </Stack>
+            )}
+          </div>
+
+          <Form>
+            <Stack w={rem(240)}>
+              {isLoading || product === undefined ? (
+                <PriceSkeleton width="50%" size="xl" weight="bold" />
+              ) : (
+                <Price price={product.price} size="xl" weight="bold" />
+              )}
+              <Skeleton
+                visible={isLoading}
+                width={isLoading ? '35%' : undefined}
+              >
+                <NativeNumberSelect
+                  w={rem(80)}
+                  label="Amount"
+                  name="amount"
+                  options={range(1, 11)}
+                />
+              </Skeleton>
+              <Skeleton
+                visible={isLoading}
+                width={isLoading ? '35%' : undefined}
+              >
+                <Button type="submit" color="dark" fullWidth>
+                  Add to Cart
+                </Button>
+              </Skeleton>
+            </Stack>
+          </Form>
+        </Flex>
+      </Stack>
+
+      <AddedModal opened={openedModal} onClose={closeModal} />
+    </>
   )
 }
 
