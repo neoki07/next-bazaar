@@ -17,12 +17,10 @@ import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 import { OrderSummary } from './OrderSummary'
 
-const DEFAULT_IMAGE_SIZE = 200
-const SMALL_IMAGE_SIZE = 96
+const IMAGE_SIZE = 136
 
 export function Cart() {
   const router = useRouter()
-  const smallerThanSm = useSmallerThan('sm')
   const smallerThanLg = useSmallerThan('lg')
   const { data: cart, isLoading, refetch: refetchCart } = useCart()
   const { refetch: refetchCartProductsCount } = useCartProductsCount({
@@ -93,7 +91,7 @@ export function Cart() {
             <CartProductList
               cartProducts={cart?.products}
               isLoading={isLoading}
-              imageSize={smallerThanSm ? SMALL_IMAGE_SIZE : DEFAULT_IMAGE_SIZE}
+              imageSize={IMAGE_SIZE}
               onChangeQuantity={handleChangeProductQuantity}
               onDelete={handleDeleteProduct}
             />
@@ -112,9 +110,7 @@ export function Cart() {
                 <CartProductList
                   cartProducts={cart?.products}
                   isLoading={isLoading}
-                  imageSize={
-                    smallerThanSm ? SMALL_IMAGE_SIZE : DEFAULT_IMAGE_SIZE
-                  }
+                  imageSize={IMAGE_SIZE}
                   onChangeQuantity={handleChangeProductQuantity}
                   onDelete={handleDeleteProduct}
                 />
