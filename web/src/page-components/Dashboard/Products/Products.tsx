@@ -1,17 +1,14 @@
 import { DashboardLayout } from '@/features/dashboard'
 import { ProductList, useGetProducts } from '@/features/products'
-import { useSmallerThan } from '@/hooks'
 import { Button, Center, Pagination, Stack, Title } from '@mantine/core'
 import { IconPlus } from '@tabler/icons-react'
 import { useRouter } from 'next/router'
 import { useCallback, useState } from 'react'
 
-const DEFAULT_IMAGE_SIZE = 120
-const SMALL_IMAGE_SIZE = 96
+const IMAGE_SIZE = 104
 
 export function Products() {
   const router = useRouter()
-  const smallerThanSm = useSmallerThan('sm')
   const [page, setPage] = useState(1)
   const { data: products } = useGetProducts({
     page,
@@ -35,10 +32,7 @@ export function Products() {
             Add New Product
           </Button>
         </div>
-        <ProductList
-          products={products?.data}
-          imageSize={smallerThanSm ? SMALL_IMAGE_SIZE : DEFAULT_IMAGE_SIZE}
-        />
+        <ProductList products={products?.data} imageSize={IMAGE_SIZE} />
         <Center>
           <Pagination
             color="dark"
