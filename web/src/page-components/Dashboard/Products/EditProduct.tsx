@@ -7,15 +7,13 @@ import {
   useGetProductCategories,
   useUpdateProduct,
 } from '@/features/products'
-import { useSmallerThan } from '@/hooks'
-import { Container, Stack, Title, rem } from '@mantine/core'
+import { Container, Stack, Title } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { IconCheck } from '@tabler/icons-react'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 
-const DEFAULT_IMAGE_SIZE = 300
-const SMALL_IMAGE_SIZE = 200
+const IMAGE_SIZE = 240
 
 interface EditProductProps {
   productId: string
@@ -23,7 +21,6 @@ interface EditProductProps {
 
 export function EditProduct({ productId }: EditProductProps) {
   const router = useRouter()
-  const smallerThan440px = useSmallerThan(rem(440))
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetProductCategories(1, 100)
   const { data: product, isLoading: isProductLoading } =
@@ -84,9 +81,7 @@ export function EditProduct({ productId }: EditProductProps) {
             allCategories !== undefined &&
             product !== undefined && (
               <ProductForm
-                imageSize={
-                  smallerThan440px ? SMALL_IMAGE_SIZE : DEFAULT_IMAGE_SIZE
-                }
+                imageSize={IMAGE_SIZE}
                 allCategories={allCategories}
                 initialValues={productToFormValues(product)}
                 onSubmit={handleSubmit}
