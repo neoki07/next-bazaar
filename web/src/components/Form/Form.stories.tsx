@@ -132,7 +132,7 @@ function SimpleForms() {
 
   return (
     <Form>
-      <Grid justify="center" gutter="xl">
+      <Grid justify="center" gutter="md">
         <Grid.Col xs={12} sm={12} md={6} lg={6}>
           <TextInput label="Username" name="username" withAsterisk />
         </Grid.Col>
