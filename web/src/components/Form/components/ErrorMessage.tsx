@@ -1,4 +1,4 @@
-import { Group, Text, TextProps, useMantineTheme } from '@mantine/core'
+import { Group, rem, Text, TextProps, useMantineTheme } from '@mantine/core'
 import { IconAlertCircle } from '@tabler/icons-react'
 
 type ErrorMessageProps = TextProps & { children?: string }
@@ -16,12 +16,10 @@ export function ErrorMessage({ children, ...rest }: ErrorMessageProps) {
       size="sm"
       style={{
         wordBreak: 'break-word',
-        display: 'block',
-        position: 'relative',
       }}
       {...rest}
     >
-      <Group spacing={5} sx={{ position: 'absolute' }}>
+      <Group spacing={rem(4)}>
         <IconAlertCircle width={theme.fontSizes.lg} />
         {children}
       </Group>

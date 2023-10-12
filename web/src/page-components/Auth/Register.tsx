@@ -11,6 +11,7 @@ import {
   Stack,
   Text,
   Title,
+  rem,
 } from '@mantine/core'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
@@ -84,7 +85,7 @@ export function Register() {
           Create new account
         </Title>
 
-        <Paper withBorder shadow="md" p={30} radius="md">
+        <Paper withBorder shadow="md" p={rem(32)} radius="md">
           <Form>
             <TextInput name="name" label="Username" placeholder="Your name" />
             <TextInput

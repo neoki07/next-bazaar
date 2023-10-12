@@ -12,6 +12,7 @@ import {
   Stack,
   Text,
   Title,
+  rem,
 } from '@mantine/core'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
@@ -82,7 +83,7 @@ export function Login() {
           Welcome back!
         </Title>
 
-        <Paper withBorder shadow="md" p={30} radius="md">
+        <Paper withBorder shadow="md" p={rem(32)} radius="md">
           <Form>
             <TextInput
               type="email"
