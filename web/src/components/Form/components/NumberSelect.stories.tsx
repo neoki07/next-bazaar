@@ -9,7 +9,7 @@ const name = 'amount'
 const options = [1, 2, 3, 4, 5]
 
 const schema = z.object({
-  amount: z.number({ required_error: 'Required' }),
+  amount: z.number().min(2),
 })
 
 const resolver = zodResolver(schema)
@@ -54,5 +54,7 @@ export const ErrorMessage: Story = {
     options,
     withAsterisk: true,
   },
-  decorators: [(Story) => renderDecorator(Story, resolver, undefined, true)],
+  decorators: [
+    (Story) => renderDecorator(Story, resolver, defaultValues, true),
+  ],
 }
