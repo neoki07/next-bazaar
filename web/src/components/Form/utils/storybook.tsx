@@ -14,7 +14,7 @@ function Wrapper({
 }: {
   children: ReactNode
   resolver: Resolver
-  defaultValues: object
+  defaultValues: any
   submitOnMount: boolean
 }) {
   const submitOnMountRef = useRef(submitOnMount)
@@ -36,7 +36,7 @@ function Wrapper({
 export function renderDecorator(
   Story: PartialStoryFn<ReactRenderer>,
   resolver: Resolver,
-  defaultValues: object,
+  defaultValues: any,
   submitOnMount: boolean = false
 ) {
   return (
