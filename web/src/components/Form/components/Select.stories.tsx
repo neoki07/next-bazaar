@@ -21,7 +21,7 @@ const schema = z.object({
 const resolver = zodResolver(schema)
 
 const defaultValues = {
-  browser: '',
+  browser: 'firefox',
 }
 
 const meta: Meta<typeof Select> = {
