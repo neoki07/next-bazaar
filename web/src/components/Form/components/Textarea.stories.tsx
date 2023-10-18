@@ -18,7 +18,7 @@ const defaultValues = {
 }
 
 const meta: Meta<typeof Textarea> = {
-  title: 'Example/Form/Textarea',
+  title: 'Components/Form/Textarea',
   component: Textarea,
   tags: ['autodocs'],
   argTypes: {},

@@ -40,7 +40,7 @@ const defaultValues = {
 }
 
 const meta: Meta<typeof MultiSelect> = {
-  title: 'Example/Form/MultiSelect',
+  title: 'Components/Form/MultiSelect',
   component: MultiSelect,
   tags: ['autodocs'],
   argTypes: {},

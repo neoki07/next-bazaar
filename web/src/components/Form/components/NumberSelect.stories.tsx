@@ -19,7 +19,7 @@ const defaultValues = {
 }
 
 const meta: Meta<typeof NumberSelect> = {
-  title: 'Example/Form/NumberSelect',
+  title: 'Components/Form/NumberSelect',
   component: NumberSelect,
   tags: ['autodocs'],
   argTypes: {},

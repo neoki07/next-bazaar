@@ -25,7 +25,7 @@ const defaultValues = {
 }
 
 const meta: Meta<typeof NativeSelect> = {
-  title: 'Example/Form/NativeSelect',
+  title: 'Components/Form/NativeSelect',
   component: NativeSelect,
   tags: ['autodocs'],
   argTypes: {},

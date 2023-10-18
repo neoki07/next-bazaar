@@ -25,7 +25,7 @@ const defaultValues = {
 }
 
 const meta: Meta<typeof Select> = {
-  title: 'Example/Form/Select',
+  title: 'Components/Form/Select',
   component: Select,
   tags: ['autodocs'],
   argTypes: {},

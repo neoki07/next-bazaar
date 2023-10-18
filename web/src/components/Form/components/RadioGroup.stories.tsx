@@ -25,7 +25,7 @@ const defaultValues = {
 }
 
 const meta: Meta<typeof RadioGroup> = {
-  title: 'Example/Form/RadioGroup',
+  title: 'Components/Form/RadioGroup',
   component: RadioGroup,
   tags: ['autodocs'],
   argTypes: {},

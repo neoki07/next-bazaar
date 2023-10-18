@@ -23,7 +23,7 @@ const defaultValues = {
 }
 
 const meta: Meta<typeof CheckboxGroup> = {
-  title: 'Example/Form/CheckboxGroup',
+  title: 'Components/Form/CheckboxGroup',
   component: CheckboxGroup,
   tags: ['autodocs'],
   argTypes: {},

@@ -18,7 +18,7 @@ const defaultValues = {
 }
 
 const meta: Meta<typeof DateInput> = {
-  title: 'Example/Form/DateInput',
+  title: 'Components/Form/DateInput',
   component: DateInput,
   tags: ['autodocs'],
   argTypes: {},

@@ -18,7 +18,7 @@ const defaultValues = {
 }
 
 const meta: Meta<typeof Checkbox> = {
-  title: 'Example/Form/Checkbox',
+  title: 'Components/Form/Checkbox',
   component: Checkbox,
   tags: ['autodocs'],
   argTypes: {},

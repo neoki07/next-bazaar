@@ -18,7 +18,7 @@ const defaultValues = {
 }
 
 const meta: Meta<typeof TextInput> = {
-  title: 'Example/Form/TextInput',
+  title: 'Components/Form/TextInput',
   component: TextInput,
   tags: ['autodocs'],
   argTypes: {},
