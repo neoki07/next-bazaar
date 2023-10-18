@@ -7,6 +7,7 @@ import { Select } from './Select'
 const label = 'Browser'
 const name = 'browser'
 const options = [
+  { label: 'Internet Explorer', value: 'ie' },
   { label: 'Firefox', value: 'firefox' },
   { label: 'Edge', value: 'edge' },
   { label: 'Chrome', value: 'chrome' },
@@ -15,13 +16,15 @@ const options = [
 ]
 
 const schema = z.object({
-  browser: z.string().min(1, { message: 'Required' }),
+  browser: z.string().refine((value) => value !== 'ie', {
+    message: 'Internet Explorer is not supported',
+  }),
 })
 
 const resolver = zodResolver(schema)
 
 const defaultValues = {
-  browser: 'firefox',
+  browser: 'ie',
 }
 
 const meta: Meta<typeof Select> = {
