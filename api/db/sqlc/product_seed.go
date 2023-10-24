@@ -26,9 +26,19 @@ var (
 )
 
 func CreateProductTestData(ctx context.Context, store *SQLStore, config util.Config) error {
-	user, err := store.GetUserByEmail(ctx, config.TestAccountEmail)
-	if err != nil {
-		return err
+	testAccountEmails := [3]string{
+		config.TestAccountEmail1,
+		config.TestAccountEmail2,
+		config.TestAccountEmail3,
+	}
+
+	users := make([]User, len(testAccountEmails))
+	for i, email := range testAccountEmails {
+		user, err := store.GetUserByEmail(ctx, email)
+		if err != nil {
+			return err
+		}
+		users[i] = user
 	}
 
 	arg := ListCategoriesParams{
@@ -47,7 +57,7 @@ func CreateProductTestData(ctx context.Context, store *SQLStore, config util.Con
 			return err
 		}
 
-		for _, imagePath := range imagePaths {
+		for i, imagePath := range imagePaths {
 			price := util.RandomPrice()
 
 			categoryID, err := findCategoryIDByName(categories, categoryName)
@@ -66,7 +76,7 @@ func CreateProductTestData(ctx context.Context, store *SQLStore, config util.Con
 				Price:         price.String(),
 				StockQuantity: rand.Int31n(100),
 				CategoryID:    categoryID,
-				SellerID:      user.ID,
+				SellerID:      users[i%len(users)].ID,
 				ImageUrl:      sql.NullString{String: fmt.Sprintf("/%s", imageRelPath), Valid: true},
 			}
 

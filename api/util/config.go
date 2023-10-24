@@ -14,8 +14,12 @@ type Config struct {
 	ServerAddress        string        `mapstructure:"SERVER_ADDRESS"`
 	SessionTokenDuration time.Duration `mapstructure:"SESSION_TOKEN_DURATION"`
 	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
-	TestAccountUsername  string        `mapstructure:"TEST_ACCOUNT_USERNAME"`
-	TestAccountEmail     string        `mapstructure:"TEST_ACCOUNT_EMAIL"`
+	TestAccountUsername1 string        `mapstructure:"TEST_ACCOUNT_USERNAME_1"`
+	TestAccountEmail1    string        `mapstructure:"TEST_ACCOUNT_EMAIL_1"`
+	TestAccountUsername2 string        `mapstructure:"TEST_ACCOUNT_USERNAME_2"`
+	TestAccountEmail2    string        `mapstructure:"TEST_ACCOUNT_EMAIL_2"`
+	TestAccountUsername3 string        `mapstructure:"TEST_ACCOUNT_USERNAME_3"`
+	TestAccountEmail3    string        `mapstructure:"TEST_ACCOUNT_EMAIL_3"`
 	TestAccountPassword  string        `mapstructure:"TEST_ACCOUNT_PASSWORD"`
 }
 
