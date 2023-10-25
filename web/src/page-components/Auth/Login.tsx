@@ -14,9 +14,16 @@ import {
   Title,
   rem,
 } from '@mantine/core'
+import range from 'lodash/range'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
 import { z } from 'zod'
+
+const TEST_ACCOUNT_EMAILS = [
+  process.env.NEXT_PUBLIC_TEST_ACCOUNT_EMAIL_1,
+  process.env.NEXT_PUBLIC_TEST_ACCOUNT_EMAIL_2,
+  process.env.NEXT_PUBLIC_TEST_ACCOUNT_EMAIL_3,
+]
 
 const schema = z.object({
   email: z
@@ -37,13 +44,16 @@ export function Login() {
     onLoginError: handleLoginError,
   })
 
-  const loginWithTestAccount = useCallback(() => {
-    setIsLoginButtonClicked(true)
-    login({
-      email: process.env.NEXT_PUBLIC_TEST_ACCOUNT_EMAIL || '',
-      password: process.env.NEXT_PUBLIC_TEST_ACCOUNT_PASSWORD || '',
-    })
-  }, [login])
+  const loginWithTestAccount = useCallback(
+    (index: number) => () => {
+      setIsLoginButtonClicked(true)
+      login({
+        email: TEST_ACCOUNT_EMAILS[index] || '',
+        password: process.env.NEXT_PUBLIC_TEST_ACCOUNT_PASSWORD || '',
+      })
+    },
+    [login]
+  )
 
   const [Form, methods] = useForm<{
     email: string
@@ -120,14 +130,17 @@ export function Login() {
 
         <Divider my="xs" label="OR" labelPosition="center" />
 
-        <Button
-          variant="default"
-          fullWidth
-          disabled={isLoginButtonClicked}
-          onClick={loginWithTestAccount}
-        >
-          Log in with Test Account
-        </Button>
+        {range(TEST_ACCOUNT_EMAILS.length).map((index) => (
+          <Button
+            key={index}
+            variant="default"
+            fullWidth
+            disabled={isLoginButtonClicked}
+            onClick={loginWithTestAccount(index)}
+          >
+            Log in with Test Account {index + 1}
+          </Button>
+        ))}
       </Stack>
     </Container>
   )
