@@ -1,5 +1,5 @@
 import { DashboardLayout } from '@/features/dashboard'
-import { ProductList, useGetProducts } from '@/features/products'
+import { ProductList, useGetMyProducts } from '@/features/products'
 import { Button, Center, Pagination, Stack, Title } from '@mantine/core'
 import { IconPlus } from '@tabler/icons-react'
 import { useRouter } from 'next/router'
@@ -10,7 +10,7 @@ const IMAGE_SIZE = 104
 export function Products() {
   const router = useRouter()
   const [page, setPage] = useState(1)
-  const { data: products } = useGetProducts({
+  const { data: products } = useGetMyProducts({
     page,
     pageSize: 10,
   })
