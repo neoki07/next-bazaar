@@ -7,30 +7,14 @@ import (
 )
 
 func CreateUserTestData(ctx context.Context, store *SQLStore, config util.Config) error {
-	testAccounts := [3]map[string]string{
-		{
-			"username": config.TestAccountUsername1,
-			"email":    config.TestAccountEmail1,
-		},
-		{
-			"username": config.TestAccountUsername2,
-			"email":    config.TestAccountEmail2,
-		},
-		{
-			"username": config.TestAccountUsername3,
-			"email":    config.TestAccountEmail3,
-		},
-	}
-
-	hashedPassword, err := util.HashPassword(config.TestAccountPassword)
-	if err != nil {
-		return err
-	}
-
-	for _, testAccount := range testAccounts {
+	for _, testAccount := range config.TestAccounts {
+		hashedPassword, err := util.HashPassword(testAccount.Password)
+		if err != nil {
+			return err
+		}
 		arg := CreateUserParams{
-			Name:           testAccount["username"],
-			Email:          testAccount["email"],
+			Name:           testAccount.Username,
+			Email:          testAccount.Email,
 			HashedPassword: hashedPassword,
 		}
 

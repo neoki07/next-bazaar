@@ -26,15 +26,9 @@ var (
 )
 
 func CreateProductTestData(ctx context.Context, store *SQLStore, config util.Config) error {
-	testAccountEmails := [3]string{
-		config.TestAccountEmail1,
-		config.TestAccountEmail2,
-		config.TestAccountEmail3,
-	}
-
-	users := make([]User, len(testAccountEmails))
-	for i, email := range testAccountEmails {
-		user, err := store.GetUserByEmail(ctx, email)
+	users := make([]User, len(config.TestAccounts))
+	for i, testAccount := range config.TestAccounts {
+		user, err := store.GetUserByEmail(ctx, testAccount.Email)
 		if err != nil {
 			return err
 		}

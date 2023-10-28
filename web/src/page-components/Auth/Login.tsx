@@ -9,6 +9,7 @@ import {
   Container,
   Divider,
   Paper,
+  SimpleGrid,
   Stack,
   Text,
   Title,
@@ -130,17 +131,26 @@ export function Login() {
 
         <Divider my="xs" label="OR" labelPosition="center" />
 
-        {range(TEST_ACCOUNT_EMAILS.length).map((index) => (
-          <Button
-            key={index}
-            variant="default"
-            fullWidth
-            disabled={isLoginButtonClicked}
-            onClick={loginWithTestAccount(index)}
-          >
-            Log in with Test Account {index + 1}
-          </Button>
-        ))}
+        <Container w={rem(320)}>
+          <Center>
+            <Text size="sm" color="dimmed" fw={500}>
+              Log in with Test Account
+            </Text>
+          </Center>
+
+          <SimpleGrid cols={TEST_ACCOUNT_EMAILS.length} mt="md">
+            {range(TEST_ACCOUNT_EMAILS.length).map((index) => (
+              <Button
+                key={index}
+                variant="default"
+                disabled={isLoginButtonClicked}
+                onClick={loginWithTestAccount(index)}
+              >
+                {index + 1}
+              </Button>
+            ))}
+          </SimpleGrid>
+        </Container>
       </Stack>
     </Container>
   )
