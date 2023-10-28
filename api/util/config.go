@@ -9,6 +9,21 @@ import (
 // Config stores all configuration of the application.
 // The values are read by viper from a config file or environment variables.
 type Config struct {
+	DBDriver             string
+	DBSource             string
+	ServerAddress        string
+	SessionTokenDuration time.Duration
+	RefreshTokenDuration time.Duration
+	TestAccounts         []testAccount
+}
+
+type testAccount struct {
+	Username string
+	Email    string
+	Password string
+}
+
+type flatConfig struct {
 	DBDriver             string        `mapstructure:"DB_DRIVER"`
 	DBSource             string        `mapstructure:"DB_SOURCE"`
 	ServerAddress        string        `mapstructure:"SERVER_ADDRESS"`
@@ -36,6 +51,36 @@ func LoadConfig() (config Config, err error) {
 		return
 	}
 
-	err = viper.Unmarshal(&config)
+	flatConfig := flatConfig{}
+	err = viper.Unmarshal(&flatConfig)
+
+	config = flatConfigToConfig(flatConfig)
 	return
+}
+
+func flatConfigToConfig(flatConfig flatConfig) Config {
+	return Config{
+		DBDriver:             flatConfig.DBDriver,
+		DBSource:             flatConfig.DBSource,
+		ServerAddress:        flatConfig.ServerAddress,
+		SessionTokenDuration: flatConfig.SessionTokenDuration,
+		RefreshTokenDuration: flatConfig.RefreshTokenDuration,
+		TestAccounts: []testAccount{
+			{
+				Username: flatConfig.TestAccountUsername1,
+				Email:    flatConfig.TestAccountEmail1,
+				Password: flatConfig.TestAccountPassword,
+			},
+			{
+				Username: flatConfig.TestAccountUsername2,
+				Email:    flatConfig.TestAccountEmail2,
+				Password: flatConfig.TestAccountPassword,
+			},
+			{
+				Username: flatConfig.TestAccountUsername3,
+				Email:    flatConfig.TestAccountEmail3,
+				Password: flatConfig.TestAccountPassword,
+			},
+		},
+	}
 }
