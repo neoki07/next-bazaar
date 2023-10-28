@@ -1,4 +1,4 @@
-<img src="header.svg" />
+<img src="assets/header.svg" />
 
 # Next Bazaar
 
@@ -12,3 +12,7 @@ A shopping website developed using Next.js and Go, designed to learn web develop
 - [Website](https://next-bazaar.vercel.app/)
 - [Storybook](https://main--65224f832ec3028e25f863e1.chromatic.com/)
 - [Swagger](https://yeuh7wr9ys.ap-northeast-1.awsapprunner.com/swagger/index.html)
+
+## System Architecture
+
+<img src="assets/system-architecture.png" />
