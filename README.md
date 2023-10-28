@@ -20,7 +20,7 @@ A shopping website using Next.js and Go, designed to learn web development techn
 | Frontend | TypeScript, React, Next.js (pages directory), Tanstack Query, Mantine, React Hook Form, Zod, Orval |
 | Backend  | Go, Fiber, sqlc                                                                                    |
 | Database | Amazon RDS (PostgreSQL)                                                                            |
-| Storage  | AWS S3                                                                                             |
+| Storage  | Amazon S3                                                                                          |
 | Deploy   | Vercel, AWS App Runner, Amazon ECR, Docker                                                         |
 | CI/CD    | GitHub Actions                                                                                     |
 | Others   | Storybook, Chromatic, ESLint, Prettier, Jest, React Testing Library, Mock Service Worker, Swagger  |
