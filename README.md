@@ -17,7 +17,7 @@ A shopping website using Next.js and Go, designed to learn web development techn
 
 | Category | Technologies                                                                                       |
 | -------- | -------------------------------------------------------------------------------------------------- |
-| Frontend | TypeScript, React, Next.js (pages directory), Tanstack Query, Mantine, React Hook Form, Zod, Orval |
+| Frontend | TypeScript, React, Next.js (pages directory), TanStack Query, Mantine, React Hook Form, Zod, Orval |
 | Backend  | Go, Fiber, sqlc                                                                                    |
 | Database | Amazon RDS (PostgreSQL)                                                                            |
 | Storage  | Amazon S3                                                                                          |
