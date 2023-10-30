@@ -1,9 +1,13 @@
-import { useGetProducts as useGetProductsQuery } from '@/api/endpoints/products/products'
+import {
+  getGetProductsQueryKey,
+  useGetProducts as useGetProductsQuery,
+} from '@/api/endpoints/products/products'
 import {
   ProductDomainListProductsResponse,
   ProductDomainListProductsResponseMeta,
 } from '@/api/model'
 import { transformProduct } from '@/features/products/utils/transform'
+import { addNonCredentialsToQueryKey } from '@/utils/query-key'
 import { AxiosResponse } from 'axios'
 import { Product } from '../types'
 
@@ -43,14 +47,17 @@ export function useGetProducts({
   pageSize,
   categoryId,
 }: UseGetProductsParams) {
-  return useGetProductsQuery<GetProductsResultData>(
-    {
-      page_id: page,
-      page_size: pageSize,
-      category_id: categoryId,
+  const params = {
+    page_id: page,
+    page_size: pageSize,
+    category_id: categoryId,
+  }
+  const originalQueryKey = getGetProductsQueryKey(params)
+
+  return useGetProductsQuery<GetProductsResultData>(params, {
+    query: {
+      queryKey: addNonCredentialsToQueryKey(originalQueryKey),
+      select: transform,
     },
-    {
-      query: { select: transform },
-    }
-  )
+  })
 }
