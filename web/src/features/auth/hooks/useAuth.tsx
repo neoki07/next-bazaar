@@ -3,6 +3,8 @@ import {
   usePostUsersLogout,
   usePostUsersRegister,
 } from '@/api/endpoints/users/users'
+import { isNonCredentialsQueryKey } from '@/utils/query-key'
+import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 
@@ -31,6 +33,7 @@ interface UseAuthResult {
 
 export function useAuth(props?: UseAuthProps): UseAuthResult {
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   const loginMutation = usePostUsersLogin({
     mutation: {
@@ -78,9 +81,12 @@ export function useAuth(props?: UseAuthProps): UseAuthResult {
     [loginMutation]
   )
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
     logoutMutation.mutate()
-  }, [logoutMutation])
+    queryClient.removeQueries({
+      predicate: (query) => !isNonCredentialsQueryKey(query.queryKey),
+    })
+  }, [logoutMutation, queryClient])
 
   const registerAndLogin = useCallback(
     async ({ email, password, name }: RegisterParams) => {
