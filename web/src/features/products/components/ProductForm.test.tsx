@@ -11,9 +11,19 @@ const allCategories: Category[] = [
   { id: '2', name: 'Category 2' },
 ]
 
+const imageSize = 100
+const noop = () => {}
+
 describe('ProductForm', () => {
   it('renders all form fields', () => {
-    render(<ProductForm allCategories={allCategories} onSubmit={jest.fn()} />)
+    render(
+      <ProductForm
+        imageSize={imageSize}
+        allCategories={allCategories}
+        onSubmit={jest.fn()}
+        onCancel={noop}
+      />
+    )
 
     expect(
       screen.getByLabelText((content) => content.includes('Name'))
@@ -33,7 +43,14 @@ describe('ProductForm', () => {
   })
 
   it('renders all categories as options', () => {
-    render(<ProductForm allCategories={allCategories} onSubmit={jest.fn()} />)
+    render(
+      <ProductForm
+        imageSize={imageSize}
+        allCategories={allCategories}
+        onSubmit={jest.fn()}
+        onCancel={noop}
+      />
+    )
 
     const categorySelect = screen.getByLabelText((content) =>
       content.includes('Category')
@@ -46,7 +63,12 @@ describe('ProductForm', () => {
   it('shows validation errors when submitting an empty form', async () => {
     const handleSubmit = jest.fn()
     render(
-      <ProductForm allCategories={allCategories} onSubmit={handleSubmit} />
+      <ProductForm
+        imageSize={imageSize}
+        allCategories={allCategories}
+        onSubmit={handleSubmit}
+        onCancel={noop}
+      />
     )
 
     await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -58,7 +80,12 @@ describe('ProductForm', () => {
   it('submits the form with valid data', async () => {
     const handleSubmit = jest.fn()
     render(
-      <ProductForm allCategories={allCategories} onSubmit={handleSubmit} />
+      <ProductForm
+        imageSize={imageSize}
+        allCategories={allCategories}
+        onSubmit={handleSubmit}
+        onCancel={noop}
+      />
     )
 
     await user.type(
@@ -89,4 +116,6 @@ describe('ProductForm', () => {
       stockQuantity: 5,
     })
   })
+
+  // TODO: onCancel
 })

@@ -9,7 +9,7 @@ describe('useForm', () => {
     const onSubmit = jest.fn()
     const { result } = renderHook(() =>
       useForm({
-        defaultValues: undefined,
+        defaultValues: {},
         onSubmit,
       })
     )
