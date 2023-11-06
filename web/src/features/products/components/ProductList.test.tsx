@@ -1,16 +1,18 @@
 import { render, screen, within } from '@testing-library/react'
 import Decimal from 'decimal.js'
+import { Product } from '../types'
 import { ProductList } from './ProductList'
 
 const IMAGE_SIZE = 200
 
-const products = [
+const products: Product[] = [
   {
     id: '1',
     name: 'Product 1',
     description: 'Description 1',
     price: new Decimal(10.0),
     stockQuantity: 10,
+    categoryId: '1',
     category: 'Category 1',
     seller: 'Seller 1',
     imageUrl: 'https://example.com/image.png',
@@ -21,6 +23,7 @@ const products = [
     description: 'Description 2',
     price: new Decimal(20.0),
     stockQuantity: 10,
+    categoryId: '2',
     category: 'Category 2',
     seller: 'Seller 2',
     imageUrl: 'https://example.com/image.png',

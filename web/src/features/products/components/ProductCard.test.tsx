@@ -5,6 +5,7 @@ import { Product, ProductCard } from '../../products'
 const product: Product = {
   id: '1',
   name: 'Product',
+  categoryId: '1',
   category: 'Category',
   price: new Decimal(10.0),
   stockQuantity: 5,
@@ -13,17 +14,10 @@ const product: Product = {
 }
 
 const getProductLink = (product: Product) => `/products/${product.id}`
-const imageSize = 260
 
 describe('ProductCard', () => {
   it('renders product information', () => {
-    render(
-      <ProductCard
-        product={product}
-        getProductLink={getProductLink}
-        imageSize={imageSize}
-      />
-    )
+    render(<ProductCard product={product} getProductLink={getProductLink} />)
 
     expect(screen.getByText('Product')).toBeInTheDocument()
     expect(screen.getByText('Category')).toBeInTheDocument()
